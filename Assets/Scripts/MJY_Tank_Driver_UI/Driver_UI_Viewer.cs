@@ -30,6 +30,5 @@ public class Driver_UI_Viewer : MonoBehaviour
     public void ChangeKillLog(string log)
     {
         _killLog.text = log;
-        Debug.LogWarning("반드시 폰트 교체 했는지 확인 및 해당 Log 삭제할 것.");
     }
 }
