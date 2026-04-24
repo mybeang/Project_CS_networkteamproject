@@ -731,6 +731,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: Gunner_UI
       objectReference: {fileID: 0}
+    - target: {fileID: 5475999725440893262, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 2006279199}
+    - target: {fileID: 5475999725440893262, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
+      propertyPath: m_RenderMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7699304550930690385, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
+      propertyPath: m_UiScaleMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7699304550930690385, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
+      propertyPath: m_MatchWidthOrHeight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7699304550930690385, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
+      propertyPath: m_ReferenceResolution.x
+      value: 1920
+      objectReference: {fileID: 0}
+    - target: {fileID: 7699304550930690385, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
+      propertyPath: m_ReferenceResolution.y
+      value: 1080
+      objectReference: {fileID: 0}
     - target: {fileID: 8760981936563763657, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
       propertyPath: m_Pivot.x
       value: 0
