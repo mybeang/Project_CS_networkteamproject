@@ -1,0 +1,89 @@
+##################################################
+# Unity generated folders (절대 커밋 X)
+##################################################
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+##################################################
+# OS / Editor
+##################################################
+.vs/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+##################################################
+# Unity auto generated files
+##################################################
+*.log
+sysinfo.txt
+mono_crash.*
+
+##################################################
+# IDE / Solution files
+##################################################
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+##################################################
+# Unity meta for generated binaries only
+##################################################
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+##################################################
+# JetBrains Rider
+##################################################
+Assets/Plugins/Editor/JetBrains*
+*.DotSettings.user
+
+##################################################
+# Addressables (빌드 산출물만 ignore)
+##################################################
+/ServerData
+Assets/StreamingAssets/aa*
+Assets/Addressables_Temp*
+Assets/AddressableAssetsData/*/*.bin*
+Assets/AddressableAssetsData/link.xml*
+
+##################################################
+# Visual Scripting generated
+##################################################
+Assets/Unity.VisualScripting.Generated/
+
+##################################################
+# PlayMode Test auto scenes
+##################################################
+Assets/InitTestScene*.unity*
+
+##################################################
+# Import cache 
+##################################################
+Assets/ImportAssets/**
+
+##################################################
+# Build outputs
+##################################################
+*.apk
+*.aab
+*.app
+*.unitypackage
