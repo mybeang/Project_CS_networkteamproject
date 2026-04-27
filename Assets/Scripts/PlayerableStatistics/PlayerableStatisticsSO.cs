@@ -8,10 +8,13 @@ public sealed class PlayerableStatisticsSO : ScriptableObject
     [SerializeField] float _vechicleMoveSpeed;
     [SerializeField] float _vechicleRotationSpeed;
     [SerializeField] float _vechicleReloadtime;
-    
-    [Tooltip("포신 최대 하강 각도")] [SerializeField] float _vechicleMaximumDepressionAngle;
+    [SerializeField] float _turretVerticalRotationSpeed;
+    [SerializeField] float _turretHorizontalRotationSpeed;
 
-    [Tooltip("포신 최대 상승 각도")] [SerializeField] float _vechicleMaximumElevationAngle;
+
+    [Tooltip("포신 최대 하강 각도")] [SerializeField] float _turretMaximumDepressionAngle;
+
+    [Tooltip("포신 최대 상승 각도")] [SerializeField] float _turretMaximumElevationAngle;
 
     [Header("투사체 관련")]
     [SerializeField] int _projectileDamage;
@@ -42,21 +45,34 @@ public sealed class PlayerableStatisticsSO : ScriptableObject
         get => _vechicleReloadtime;
         private set => _vechicleReloadtime = value;
     }
+
+    public float TurretVerticalRotationSpeed
+    {
+        get => _turretVerticalRotationSpeed;
+        private set => _turretVerticalRotationSpeed = value;
+    }
+
+    public float TurretHorizontalRotationSpeed
+    {
+        get => _turretHorizontalRotationSpeed;
+        private set => _turretHorizontalRotationSpeed = value;
+    }
+
     /// <summary>
     /// 포신 최소 하강 각도
     /// </summary>
-    public float VechicleMinimumDepressionAngle
+    public float TurretMaximumDepressionAngle
     {
-        get => _vechicleMaximumDepressionAngle;
-        private set => _vechicleMaximumDepressionAngle = value;
+        get => _turretMaximumDepressionAngle;
+        private set => _turretMaximumDepressionAngle = value;
     }
     /// <summary>
     /// 포신 최대 상승 각도
     /// </summary>
-    public float VechicleMaximumElevationAngle
+    public float TurretMaximumElevationAngle
     {
-        get => _vechicleMaximumElevationAngle;
-        private set => _vechicleMaximumElevationAngle = value;
+        get => _turretMaximumElevationAngle;
+        private set => _turretMaximumElevationAngle = value;
     }
 
     public int ProjectileDamage

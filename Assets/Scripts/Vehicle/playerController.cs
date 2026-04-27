@@ -16,47 +16,68 @@ public class playerController : NetworkBehaviour
 
         input.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         input.Player.Move.canceled += ctx => moveInput = Vector2.zero;
+
+        input.Player.Attack.performed += ctx => Attack();
+
+        //input.Player.Interact.performed += ctx => ChangeRole();    
     }
 
-    void OnEnable()
-    {
-        input.Enable();
-    }
+    void OnEnable() => input.Enable();
 
-    void OnDisable()
-    {
-        input.Disable();
-    }
+    void OnDisable() => input.Disable();
 
     public override void OnNetworkSpawn()
     {
         //클라이언트 ID 부여
         _myID = NetworkManager.Singleton.LocalClientId;
+        Debug.Log($"myID : {NetworkManager.Singleton.LocalClientId}");
     }
 
     void Update()
     {
-        //_myTank 초기화 코드 필요
+        //_myTank 를 어떻게 가져올지 초기화 코드 필요
         if (_myTank == null)
         {
             foreach (var tank in FindObjectsOfType<testTank>())
             {
-                if (tank.DriverID.Value == _myID)
-                {
-                    _myTank = tank;
-                    Debug.Log($"내 탱크 찾음 : {_myID}");
-                    break;
-                }
+                //if (tank.DriverID.Value == _myID)
+                //{
+                //    _myTank = tank;
+                //    Debug.Log($"내 탱크 찾음 : {_myID}");
+                //    break;
+                //}
+                Debug.Log($"_myTank 초기화 완료 : {_myID}");
+                _myTank = tank;
+                break;
             }
         }
 
         if (!IsOwner) return;
 
-        if( _myID == _myTank.DriverID.Value)
+        // driver일때의 행동
+        if ( _myID == _myTank.DriverID.Value)
         {
-            Debug.Log($"! : {moveInput}");
-            _myTank.MoveBody(moveInput);
+            Debug.Log($"MoveBody : {moveInput}");
+            _myTank.MoveBodyServerRpc(moveInput);
+            
         }
 
+        // gunner일때의 행동
+        if (_myID == _myTank.GunnerID.Value)
+        {
+            Debug.Log($"MoveTurret : {moveInput}");
+            _myTank.MoveTurretServerRpc(moveInput);
+        }
     }
+
+    //Attack : gunner일때만 가능
+    private void Attack()
+    {
+        //테스트코드
+        if( _myTank == null ) return;
+
+        if (_myID != _myTank.GunnerID.Value) return;
+        _myTank.Shoot();
+    }
+
 }
