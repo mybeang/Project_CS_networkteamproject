@@ -87,3 +87,13 @@ Assets/ImportAssets/**
 *.aab
 *.app
 *.unitypackage
+
+##################################################
+# Firebase 관련
+##################################################
+Assets/Editor Default Resources/**
+Assets/ExternalDependencyManager/**
+Assets/Firebase/**
+Assets/Plugins/**
+Assets/google-services*
+Assets/StreamingAssets/**
