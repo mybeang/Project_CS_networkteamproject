@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90e8b8af2060ab946b70f44d2d13bfc1, type: 3}
   m_Name: PlayerableStatisticsSO
   m_EditorClassIdentifier: Assembly-CSharp::PlayerableStatisticsSO
-  _vechicleMaximumHP: 0
-  _vechicleMoveSpeed: 1
-  _vechicleRotationSpeed: 2
+  _vechicleMaximumHP: 1000
+  _vechicleMoveSpeed: 5
+  _vechicleRotationSpeed: 100
   _vechicleReloadtime: 0
   _vechicleMaximumDepressionAngle: 1
   _vechicleMaximumElevationAngle: 0
