@@ -1,10 +1,20 @@
 ﻿using UnityEngine;
 
-public abstract class Manager : MonoBehaviour
+public abstract class Manager<T> : MonoBehaviour
 {
+    [SerializeField] protected bool isDonDestoryOnLoad; 
+    
     private void Awake()
     {
-        DontDestroyOnLoad(gameObject);
+        Manager<T>[] managers = FindObjectsByType<Manager<T>>(FindObjectsSortMode.None);
+        if (isDonDestoryOnLoad && managers.Length == 0) 
+            DontDestroyOnLoad(gameObject);
+
+        Init();
+    }
+
+    protected virtual void Init()
+    {
     }
 
     protected abstract void Register();

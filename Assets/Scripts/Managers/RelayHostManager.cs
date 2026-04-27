@@ -8,7 +8,7 @@ using Unity.Services.Relay.Models;
 using UnityEngine;
 
 
-public class RelayHostManager : Manager, IRelayHostManager
+public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
 {
     protected override void Register() => ServiceLocator.Register<IRelayHostManager>(this);
     protected override void Unregister() => ServiceLocator.Unregister<IRelayHostManager>();

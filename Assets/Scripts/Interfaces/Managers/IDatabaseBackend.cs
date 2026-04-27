@@ -2,7 +2,7 @@
 
 public interface IDatabaseBackend
 {
-    public void SaveUser(string username);
-    public void RemoveUser(string username);
-    public bool ValidateDuplicateUserId(string username);
+    public void SaveUserAsync(string userId);
+    public void RemoveUserAsync(string userId);
+    public bool ValidateDuplicateUserIdAsync(string userId);
 }

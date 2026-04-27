@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class AudioManager : Manager, IAudioService
+public class AudioManager : Manager<AudioManager>, IAudioService
 {
     [SerializeField] private AudioSource _bgmSource;
     [SerializeField] private AudioSource _sfxSource;
