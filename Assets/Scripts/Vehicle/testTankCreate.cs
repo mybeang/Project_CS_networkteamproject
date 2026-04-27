@@ -34,7 +34,7 @@ public class testTankCreate : NetworkBehaviour
         NetworkObject netObj = player.GetComponent<NetworkObject>();
         netObj.SpawnAsPlayerObject(clientID);
 
-
+        //일단 테스트코드로 2명까지만 가능하게 작성
         Debug.Log($"클라이언트 접속: {clientID}");
         if(clientID == 1)
         {

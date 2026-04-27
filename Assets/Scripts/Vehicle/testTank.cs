@@ -9,18 +9,21 @@ public class testTank : NetworkBehaviour, IDamageableObject
 
     [SerializeField] private Transform _turret;
 
+    [SerializeField] private Camera _camBody;
+    [SerializeField] private Camera _camTurret;
+
 
     // driver 클라이언트 ID
     private NetworkVariable<ulong> _driverID = new();
-    public NetworkVariable<ulong> DriverID
+    public ulong DriverID
     {
-        get { return _driverID; }
+        get { return _driverID.Value; }
     }
     // gunner 클라이언트 ID
     private NetworkVariable<ulong> _gunnerID = new();
-    public NetworkVariable<ulong> GunnerID
+    public ulong GunnerID
     {
-        get { return _gunnerID; }
+        get { return _gunnerID.Value; }
     }
 
     //이것들도 networkvariable로 가야하는건가?
@@ -39,6 +42,7 @@ public class testTank : NetworkBehaviour, IDamageableObject
 
         _hp = _tankStat.VechicleMaximumHP;
         _reloadTime = _tankStat.VechicleReloadtime;
+
     }
 
     //Body 자체를 회전하고 움직이는 함수
@@ -75,6 +79,28 @@ public class testTank : NetworkBehaviour, IDamageableObject
     {
         Debug.Log($"_hp : {_hp} , dmg : {dmg}");
         _hp -= dmg;
+    }
+
+    public void TurnOnCamera(ulong clientID)
+    {
+        //테스트용 mainCam 끄기
+        Camera mainCam = Camera.main;
+        if (mainCam != null)
+        {
+            mainCam.gameObject.SetActive(false);
+        }
+
+        if (clientID == DriverID)
+            _camBody.gameObject.SetActive(true);
+        if (clientID == GunnerID)
+            _camTurret.gameObject.SetActive(true);
+        
+    }
+
+    public void TurnOffCamera(ulong clientID)
+    {
+        if (clientID == DriverID) _camBody.enabled = false;
+        if (clientID == GunnerID) _camTurret.enabled = false;
     }
 
 }

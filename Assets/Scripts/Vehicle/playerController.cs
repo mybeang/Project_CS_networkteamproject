@@ -19,7 +19,8 @@ public class playerController : NetworkBehaviour
 
         input.Player.Attack.performed += ctx => Attack();
 
-        //input.Player.Interact.performed += ctx => ChangeRole();    
+        //임시로 카메라를 E를 꾹눌러서 켬.
+        input.Player.Interact.performed += ctx => _myTank.TurnOnCamera(_myID);    
     }
 
     void OnEnable() => input.Enable();
@@ -48,6 +49,7 @@ public class playerController : NetworkBehaviour
                 //}
                 Debug.Log($"_myTank 초기화 완료 : {_myID}");
                 _myTank = tank;
+                
                 break;
             }
         }
@@ -55,7 +57,7 @@ public class playerController : NetworkBehaviour
         if (!IsOwner) return;
 
         // driver일때의 행동
-        if ( _myID == _myTank.DriverID.Value)
+        if ( _myID == _myTank.DriverID)
         {
             Debug.Log($"MoveBody : {moveInput}");
             _myTank.MoveBodyServerRpc(moveInput);
@@ -63,7 +65,7 @@ public class playerController : NetworkBehaviour
         }
 
         // gunner일때의 행동
-        if (_myID == _myTank.GunnerID.Value)
+        if (_myID == _myTank.GunnerID)
         {
             Debug.Log($"MoveTurret : {moveInput}");
             _myTank.MoveTurretServerRpc(moveInput);
@@ -76,7 +78,7 @@ public class playerController : NetworkBehaviour
         //테스트코드
         if( _myTank == null ) return;
 
-        if (_myID != _myTank.GunnerID.Value) return;
+        if (_myID != _myTank.GunnerID) return;
         _myTank.Shoot();
     }
 
