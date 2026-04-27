@@ -20,6 +20,7 @@ public class testTank : NetworkBehaviour
         get { return _gunnerID; }
     }
 
+    //이것들도 networkvariable로 가야하는건가?
     // 현재 HP
     private int _hp;
     // 공격 쿨다운
