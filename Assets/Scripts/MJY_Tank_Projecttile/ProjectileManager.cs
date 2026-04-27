@@ -63,7 +63,7 @@ public class ProjectileManager : MonoBehaviour
             if (_onDebugLog)
                 Debug.Log($"검출된 대상 : {obj.collider.name}");
 #endif
-                (obj.collider.GetComponent<teststCode>() as IDamageableObject)
+                (obj.collider.GetComponent<testTank>() as IDamageableObject)
                 .TakeDamaged(
                     (int)Mathf.Lerp(
                         _vechicleSO.ProjectileDamage,
