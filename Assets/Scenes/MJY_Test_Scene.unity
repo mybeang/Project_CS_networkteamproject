@@ -731,6 +731,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Gunner_UI
       objectReference: {fileID: 0}
+    - target: {fileID: 1185007450411204267, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5475999725440893262, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
       propertyPath: m_Camera
       value: 
