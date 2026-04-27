@@ -2,7 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
 
-public class testTank : NetworkBehaviour
+public class testTank : NetworkBehaviour, IDamageableObject
 {
 
     [SerializeField] private PlayerableStatisticsSO _tankStat;
@@ -59,5 +59,11 @@ public class testTank : NetworkBehaviour
     public void Shoot()
     {
 
+    }
+
+    public void TakeDamaged(int dmg)
+    {
+        //일단 임시
+        _hp -= dmg;
     }
 }
