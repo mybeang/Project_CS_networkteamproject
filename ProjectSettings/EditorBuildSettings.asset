@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/KTU_Test.unity
     guid: 85b02b47c3e91624ca143b7d27d9e17b
+  - enabled: 1
+    path: Assets/Scenes/MJY_Test_Scene.unity
+    guid: 07cae4f6e22540e4698f0595d3cc70c6
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
