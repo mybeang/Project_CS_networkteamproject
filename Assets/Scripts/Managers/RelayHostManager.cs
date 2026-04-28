@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
+using Unity.Services.Authentication;
+using Unity.Services.Core;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
@@ -10,8 +12,32 @@ using UnityEngine;
 
 public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
 {
+    protected override async void Init() => await InitializeAsync();
     protected override void Register() => ServiceLocator.Register<IRelayHostManager>(this);
     protected override void Unregister() => ServiceLocator.Unregister<IRelayHostManager>();
+    
+    public async Task InitializeAsync()
+    {
+        try
+        {
+            await UnityServices.InitializeAsync();
+            await LoginUsingAnonymous();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[Auth] Fail to Init: {e.Message}");
+            throw;
+        }
+    }
+    
+    private async Task LoginUsingAnonymous()
+    {
+        if (!AuthenticationService.Instance.IsSignedIn)
+        {
+            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+        }
+        Debug.Log($"[Auth] Login Successfully: {AuthenticationService.Instance.PlayerId}");
+    }
 
     public async Task<string> StartHostWithRelayAsync(int maxConnections = 7)
     {
@@ -77,16 +103,18 @@ public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
     public void RemoveListenerFromServerStartCallback(Action listener)
         => NetworkManager.Singleton.OnServerStarted -= listener;
 
-    public async void StartHost()
+    public async Task<string> StartHost()
     {
         try
         {
             string joinCode = await StartHostWithRelayAsync();
             // ToDo. Unity Lobby 관련 코드 추가시 JoinCode 처리 추가할 것.
+            return joinCode;
         }
         catch (Exception e)
         {
             Debug.LogError($"[RelayHostManager] Host 시작 오류: {e.Message}");
+            return default;
         }
     }
 

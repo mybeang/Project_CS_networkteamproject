@@ -3,6 +3,7 @@ using Firebase.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Firebase.Auth;
 using Firebase.Database;
 using UnityEngine;
@@ -61,17 +62,31 @@ public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend
         });
     }
 
-    public bool ValidateDuplicateUserIdAsync(string userId)
+    public async Task<bool> ValidateDuplicateUserIdAsync(string userId)
     {   // 중복이면 true !!
-        _db.RootReference.Child($"users/{userId}").GetValueAsync().ContinueWithOnMainThread(task =>
+        try
         {
-            if (task.IsCompleted)
+            DataSnapshot dataSnapshot = await _db.RootReference.Child($"users/{userId}").GetValueAsync();
+            if (dataSnapshot.Exists)
             {
-                DataSnapshot dataSnapshot = task.Result;
-                if (dataSnapshot.Exists) return true;
+                Debug.Log($"[DB] {userId} was duplicated.");
+                return true;
             }
-            return true;
+            return false;
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError("[DB] Could not validate duplicated user.");
+            return false;
+        }
+    }
+    
+    public void RegisterDisconnectHandler(string userId)
+    {
+        _db.RootReference.Child($"users/{userId}").OnDisconnect().RemoveValue().ContinueWithOnMainThread(task => {
+            if (task.IsCompleted) {
+                Debug.Log($"[DB] Disconnect handler registered for: {userId}");
+            }
         });
-        return false;
     }
 }

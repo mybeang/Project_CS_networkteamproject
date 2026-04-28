@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Unity.Netcode;
 using UnityEngine;
 
-public abstract class Manager<T> : MonoBehaviour
+public abstract class NetworkManager<T> : NetworkBehaviour
 {
     [SerializeField] protected bool isDonDestoryOnLoad; 
     
@@ -14,7 +14,7 @@ public abstract class Manager<T> : MonoBehaviour
     protected virtual void Init()
     {
     }
-
+    
     private void OnEnable() => Register();
     private void OnDisable() => Unregister();
 
