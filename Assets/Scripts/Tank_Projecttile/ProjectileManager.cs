@@ -43,7 +43,7 @@ public class ProjectileManager : NetworkBehaviour
         }
         _ray = new Ray(_mainCam.transform.position, _mainCam.transform.forward);
         // raycast로 메인 카메라(사수의 카메라)의 중심(사격점)을 기준으로 가장 처음 닿은 위치(물체의 위치로 받으면 아마 물체의 중심을 받게 될거임.)를 받아온 후 DeignatDamageableGround 호출
-        if (Physics.Raycast(_ray, out _targetPoint, _vechicleSO.ProjectileMaximumDinstance))
+        if (Physics.Raycast(_ray, out _targetPoint, _vechicleSO.ProjectileMaximumDinstance, _damageableObject))
         {
             Debug.Log(_targetPoint.point);
             DesignatDamageableGroundServerRpc(_targetPoint.point);
