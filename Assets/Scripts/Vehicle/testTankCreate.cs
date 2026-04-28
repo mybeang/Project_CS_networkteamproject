@@ -10,6 +10,9 @@ public class testTankCreate : NetworkBehaviour
 
     testTank tank;
     ulong cid;
+
+    ulong testInt = 0;
+
     public override void OnNetworkSpawn()
     {
         //if (!IsServer) return;
@@ -25,23 +28,25 @@ public class testTankCreate : NetworkBehaviour
     {
         Debug.Log("Start!");
 
-        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-    }
+        //NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
 
-    private void OnClientConnected(ulong clientID)
-    {
+        //var how = ServiceLocator.Get<IUserInfoManager>();
+        //var userInfo = how.GetUserInfo();
+        //var v = userInfo.userId;
+        //Debug.Log($"asdfasdf asdf {v}");
+
         if (!IsServer) return;
 
         GameObject player = Instantiate(testPlayer);
         NetworkObject netObj = player.GetComponent<NetworkObject>();
-        netObj.SpawnAsPlayerObject(clientID);
-        Debug.Log($"플레이어 생성 완료: {clientID}");
+        netObj.SpawnAsPlayerObject(testInt);
+        Debug.Log($"플레이어 생성 완료: {testInt}");
 
         //일단 테스트코드로 2명까지만 가능하게 작성
-        Debug.Log($"클라이언트 접속: {clientID}");
-        if(clientID == 1)
+        Debug.Log($"클라이언트 접속: {testInt}");
+        if (testInt == 1)
         {
-            Debug.Log($"탱크생성! {cid}, {clientID}");
+            Debug.Log($"탱크생성! {0}, {1}");
 
             GameObject t = Instantiate(tankPrefab);
             NetworkObject netT = t.GetComponent<NetworkObject>();
@@ -51,15 +56,50 @@ public class testTankCreate : NetworkBehaviour
             tank = t.GetComponent<testTank>();
 
 
-            tank.Init(cid, clientID);
+            tank.Init(0, 1);
         }
         else
         {
             Debug.Log($"Init x");
 
-            cid = clientID;
+            testInt++;
         }
+
     }
+
+    //private void OnClientConnected(ulong clientID)
+    //{   
+    //    if (!IsServer) return;
+    //
+    //    GameObject player = Instantiate(testPlayer);
+    //    NetworkObject netObj = player.GetComponent<NetworkObject>();
+    //    netObj.SpawnAsPlayerObject(clientID);
+    //    Debug.Log($"플레이어 생성 완료: {clientID}");
+    //
+    //    //일단 테스트코드로 2명까지만 가능하게 작성
+    //    Debug.Log($"클라이언트 접속: {clientID}");
+    //    if(clientID == 1)
+    //    {
+    //        Debug.Log($"탱크생성! {cid}, {clientID}");
+    //
+    //        GameObject t = Instantiate(tankPrefab);
+    //        NetworkObject netT = t.GetComponent<NetworkObject>();
+    //
+    //        netT.Spawn();
+    //
+    //        tank = t.GetComponent<testTank>();
+    //
+    //
+    //        tank.Init(cid, clientID);
+    //    }
+    //    else
+    //    {
+    //        Debug.Log($"Init x");
+    //
+    //        cid = clientID;
+    //    }
+    //}
+
 
 
 
