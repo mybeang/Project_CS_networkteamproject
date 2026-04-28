@@ -15,6 +15,8 @@ public class testTank : NetworkBehaviour, IDamageableObject
     [SerializeField] private GameObject _driverUI;
     [SerializeField] private GameObject _gunnerUI;
 
+    [SerializeField] private ProjectileManager _projectileManager;
+
     //현재 UI
     private GameObject _UI;
 
@@ -138,7 +140,8 @@ public class testTank : NetworkBehaviour, IDamageableObject
 
     public void Shoot()
     {
-        Debug.Log("Shoot!!!!");
+        //쿨다운 없이 일단 테스트
+        _projectileManager.Shot();
     }
 
     public void TakeDamaged(int dmg)

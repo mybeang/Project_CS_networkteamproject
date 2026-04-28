@@ -282,6 +282,7 @@ MonoBehaviour:
   _camTurret: {fileID: 2630312295612555100}
   _driverUI: {fileID: 6698363812054807566, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
   _gunnerUI: {fileID: 1185007450411204267, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
+  _projectileManager: {fileID: 5075638148606159221, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
 --- !u!114 &6502903586627116053
 MonoBehaviour:
   m_ObjectHideFlags: 0
