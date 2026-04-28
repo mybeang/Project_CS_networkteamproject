@@ -41,7 +41,7 @@ public class playerController : NetworkBehaviour
         // driver일때의 행동
         if ( _myID == _myTank.DriverID)
         {
-            Debug.Log($"MoveBody : {moveInput}");
+           // Debug.Log($"MoveBody : {moveInput}");
             _myTank.MoveBodyServerRpc(moveInput);
             
         }
@@ -49,7 +49,7 @@ public class playerController : NetworkBehaviour
         // gunner일때의 행동
         if (_myID == _myTank.GunnerID)
         {
-            Debug.Log($"MoveTurret : {moveInput}");
+            //Debug.Log($"MoveTurret : {moveInput}");
             _myTank.MoveTurretServerRpc(moveInput);
         }
     }

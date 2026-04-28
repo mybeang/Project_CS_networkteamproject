@@ -1270,6 +1270,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TankFree_Blue
       objectReference: {fileID: 0}
+    - target: {fileID: 1904569707985564063, guid: 8f103a9b591e54440aba0d7647946ce0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2500437485058457898, guid: 8f103a9b591e54440aba0d7647946ce0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.16833
