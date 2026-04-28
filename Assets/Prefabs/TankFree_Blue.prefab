@@ -251,7 +251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4253132058
+  GlobalObjectIdHash: 1115679106
   InScenePlacedSourceGlobalObjectIdHash: 1115679106
   DeferredDespawnTick: 0
   Ownership: 1
@@ -281,8 +281,8 @@ MonoBehaviour:
   _turret: {fileID: 3213020253523862550}
   _camBody: {fileID: 7452164826214751309}
   _camTurret: {fileID: 2630312295612555100}
-  _driverUI: {fileID: 0}
-  _gunnerUI: {fileID: 0}
+  _driverUI: {fileID: 6698363812054807566, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
+  _gunnerUI: {fileID: 1185007450411204267, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
   _projectileManager: {fileID: 1223911531171656105}
 --- !u!114 &6502903586627116053
 MonoBehaviour:
