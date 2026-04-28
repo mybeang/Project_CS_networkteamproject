@@ -1,4 +1,5 @@
 ﻿using System.Net.NetworkInformation;
+using Unity.Netcode;
 using UnityEngine;
 
 public class ProjectileManager : MonoBehaviour
@@ -8,8 +9,10 @@ public class ProjectileManager : MonoBehaviour
     [SerializeField] PlayerableStatisticsSO _vechicleSO;
     [SerializeField] LayerMask _damageableObject;
 
+#if UNITY_EDITOR
     [Header("디버깅용")]
-    [SerializeField] bool _onDebugLog;
+    [Tooltip("적중된 대상의 이름을 로그에 작성함.")][SerializeField] bool _onDebugLog;
+#endif
 
     Ray _ray;
     RaycastHit _targetPoint;
@@ -26,17 +29,24 @@ public class ProjectileManager : MonoBehaviour
     // 외부에서 호출될 코드로 호출 시 Raycast 기반으로 사격 지점과 거리를 받아온 후 해당 지점에 거리 비례 시간 후에 피해를 입히는 방식으로 작동하면 될 거 같다는 생각.
     public void Shot()
     {
+        if (_vechicleSO == null)
+        {
+            Debug.LogError("PlayerableStatisticsSO가 존재하지 않습니다.");
+            return;
+        }
         _ray = new Ray(_mainCam.transform.position, _mainCam.transform.forward);
         // raycast로 메인 카메라(사수의 카메라)의 중심(사격점)을 기준으로 가장 처음 닿은 위치(물체의 위치로 받으면 아마 물체의 중심을 받게 될거임.)를 받아온 후 DeignatDamageableGround 호출
         if (Physics.Raycast(_ray, out _targetPoint, _vechicleSO.ProjectileMaximumDinstance))
         {
             Debug.Log(_targetPoint.point);
-            DesignatDamageableGround(_targetPoint.point);
+            DesignatDamageableGroundServerRpc(_targetPoint.point);
         }
     }
 
     private void OnDrawGizmos()
     {
+        if (_vechicleSO == null)
+            return;
         Gizmos.color = Color.aquamarine;
         Gizmos.DrawLine(_mainCam.transform.position, _mainCam.transform.forward * _vechicleSO.ProjectileMaximumDinstance + _mainCam.transform.position);
 
@@ -44,7 +54,8 @@ public class ProjectileManager : MonoBehaviour
         Gizmos.DrawWireSphere(_targetPoint.point, _vechicleSO.ProjectileMaximumDamageableRange);
     }
 
-    private void DesignatDamageableGround(Vector3 point)
+    [ServerRpc] // TODO : 서버측으로 잘 보내졌는 지 확인 필요 및 서버 부하 테스트 필요
+    private void DesignatDamageableGroundServerRpc(Vector3 point)
     {
         // 지정된 위치에 구형 범위를 측정 및 일정 시간(짧은 시간) 후에 범위 안에 들어간 객체(피해를 입을 수 있는 객체)들 판정( 판정할 때 조심해야될 부분이 닿은 부위를 기준으로 해야됌, 중심으로 받으면 안됌)
         int count = Physics.SphereCastNonAlloc(
@@ -52,24 +63,26 @@ public class ProjectileManager : MonoBehaviour
             _vechicleSO.ProjectileMaximumDamageableRange,
             Vector3.forward,
             _hitedTargets,
-            _vechicleSO.ProjectileMaximumDinstance,
+            0.001f,
             _damageableObject);
 
         if (count < 1 || _hitedTargets == null) return;
 
-        foreach (var obj in _hitedTargets)
+        for (int i = 0; i < count; i++)
         {
 #if UNITY_EDITOR
             if (_onDebugLog)
-                Debug.Log($"검출된 대상 : {obj.collider.name}");
+            {
+                Debug.Log($"검출된 대상 : {_hitedTargets[i].collider.name}");
+                Debug.Log($"폭발 중심지에서 대상까지의 거리 : {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point)}");
+            }
 #endif
-                (obj.collider.GetComponent<testTank>() as IDamageableObject)
-                .TakeDamaged(
-                    (int)Mathf.Lerp(
+            (_hitedTargets[i].collider.GetComponent<testTank>() as IDamageableObject)
+            .TakeDamaged(
+                    (int)Mathf.Lerp( // 거리에 따라 피해를 다를 게 주기 위해(선형 보간 처리를 위해) Mathf.Lerp로 처리
                         _vechicleSO.ProjectileDamage,
-                        (25 / _vechicleSO.ProjectileDamage) * 100,
-                        obj.distance / _vechicleSO.ProjectileMaximumDamageableRange));
-            // TODO : Mathf.Lerp(최대 피해량, 최소 피해량, 현재 거리 / 최대 거리) 후에 다시 작업.
+                        (_vechicleSO.ProjectileDamage / 4),
+                        Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point) / _vechicleSO.ProjectileMaximumDamageableRange)); // 폭심지를 기준으로 콜라이더의 접촉부위 중 가장 가까운 지점과 거리 비교 후 피해량 측정
         }
     }
 }

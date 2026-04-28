@@ -871,7 +871,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileManager
   _mainCam: {fileID: 2006279199}
-  _maxProjectileDistance: 10
+  _vechicleSO: {fileID: 11400000, guid: 7293aaab1e87101499a92eaed4577e34, type: 2}
   _damageableObject:
     serializedVersion: 2
     m_Bits: 4294967295
