@@ -89,6 +89,7 @@ public class ProjectileManager : NetworkBehaviour
                         _vechicleSO.ProjectileDamage,
                         (_vechicleSO.ProjectileDamage / 4),
                         Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point) / _vechicleSO.ProjectileMaximumDamageableRange)); // 폭심지를 기준으로 콜라이더의 접촉부위 중 가장 가까운 지점과 거리 비교 후 피해량 측정
+            Debug.Log($"TakeDamage: {_vechicleSO.ProjectileDamage} , {_vechicleSO.ProjectileDamage / 4} , {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point) / _vechicleSO.ProjectileMaximumDamageableRange}");
         }
     }
 }
