@@ -179,6 +179,7 @@ Transform:
   - {fileID: 504960500229382664}
   - {fileID: 6604666598170398890}
   - {fileID: 1672056108703563016}
+  - {fileID: 3869096125555130}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &7411898932106338690
@@ -250,7 +251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1115679106
+  GlobalObjectIdHash: 4253132058
   InScenePlacedSourceGlobalObjectIdHash: 1115679106
   DeferredDespawnTick: 0
   Ownership: 1
@@ -280,9 +281,9 @@ MonoBehaviour:
   _turret: {fileID: 3213020253523862550}
   _camBody: {fileID: 7452164826214751309}
   _camTurret: {fileID: 2630312295612555100}
-  _driverUI: {fileID: 6698363812054807566, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
-  _gunnerUI: {fileID: 1185007450411204267, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
-  _projectileManager: {fileID: 5075638148606159221, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+  _driverUI: {fileID: 0}
+  _gunnerUI: {fileID: 0}
+  _projectileManager: {fileID: 871854616907959031}
 --- !u!114 &6502903586627116053
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1053,3 +1054,88 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!1001 &5361879669828363138
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2500437485058457898}
+    m_Modifications:
+    - target: {fileID: 5075638148606159221, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+      propertyPath: _mainCam
+      value: 
+      objectReference: {fileID: 2630312295612555100}
+    - target: {fileID: 5360558760759149112, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.63207
+      objectReference: {fileID: 0}
+    - target: {fileID: 5360558760759149112, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.02868
+      objectReference: {fileID: 0}
+    - target: {fileID: 5360558760759149112, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -2.19343
+      objectReference: {fileID: 0}
+    - target: {fileID: 5360558760759149112, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5360558760759149112, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5360558760759149112, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5360558760759149112, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5360558760759149112, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5360558760759149112, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5360558760759149112, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7858697102506119700, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3965562067
+      objectReference: {fileID: 0}
+    - target: {fileID: 7858697102506119700, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 110074864
+      objectReference: {fileID: 0}
+    - target: {fileID: 9093327271688358567, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+      propertyPath: m_Name
+      value: PersonalProjectileManager
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+--- !u!4 &3869096125555130 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5360558760759149112, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+  m_PrefabInstance: {fileID: 5361879669828363138}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &871854616907959031 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5075638148606159221, guid: 1450be61d480f38488cb8476ee5fa535, type: 3}
+  m_PrefabInstance: {fileID: 5361879669828363138}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38d0e16dc64252b4c9f9c32a3393b5cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectileManager

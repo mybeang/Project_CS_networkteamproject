@@ -1270,10 +1270,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: TankFree_Blue
       objectReference: {fileID: 0}
-    - target: {fileID: 1904569707985564063, guid: 8f103a9b591e54440aba0d7647946ce0, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2500437485058457898, guid: 8f103a9b591e54440aba0d7647946ce0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.16833
@@ -1313,6 +1309,14 @@ PrefabInstance:
     - target: {fileID: 2500437485058457898, guid: 8f103a9b591e54440aba0d7647946ce0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2839108648637493654, guid: 8f103a9b591e54440aba0d7647946ce0, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1492338895
+      objectReference: {fileID: 0}
+    - target: {fileID: 2839108648637493654, guid: 8f103a9b591e54440aba0d7647946ce0, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 1115679106
       objectReference: {fileID: 0}
     - target: {fileID: 3414534851690804295, guid: 8f103a9b591e54440aba0d7647946ce0, type: 3}
       propertyPath: _driverUI
