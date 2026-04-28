@@ -2,7 +2,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class ProjectileManager : MonoBehaviour
+public class ProjectileManager : NetworkBehaviour
 {
     // raycast, 투사체 속도, 피해량, 범위, 범위별 피해 계수, 투사체 최대 비행 거리(사거리)
     [SerializeField] Camera _mainCam;
@@ -18,6 +18,11 @@ public class ProjectileManager : MonoBehaviour
     RaycastHit _targetPoint;
     RaycastHit[] _hitedTargets;
 
+    public override void OnNetworkSpawn()
+    {
+
+    }
+
     void Start()
     {
         _hitedTargets = new RaycastHit[5]; // 현재 게임 내에서 5개가 검출될 일은 없을 거라고 생각하지만, 설계 실수를 검출하기 위해 5개로 설정
@@ -29,6 +34,7 @@ public class ProjectileManager : MonoBehaviour
     // 외부에서 호출될 코드로 호출 시 Raycast 기반으로 사격 지점과 거리를 받아온 후 해당 지점에 거리 비례 시간 후에 피해를 입히는 방식으로 작동하면 될 거 같다는 생각.
     public void Shot()
     {
+        if (!IsOwner) return;
         if (_vechicleSO == null)
         {
             Debug.LogError("PlayerableStatisticsSO가 존재하지 않습니다.");
