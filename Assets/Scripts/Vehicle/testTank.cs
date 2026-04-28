@@ -12,6 +12,10 @@ public class testTank : NetworkBehaviour, IDamageableObject
     [SerializeField] private Camera _camBody;
     [SerializeField] private Camera _camTurret;
 
+    [SerializeField] private GameObject _driverUI;
+    [SerializeField] private GameObject _gunnerUI;
+
+    private GameObject _UI;
 
     // driver 클라이언트 ID
     private NetworkVariable<ulong> _driverID = new();
@@ -43,6 +47,7 @@ public class testTank : NetworkBehaviour, IDamageableObject
         _hp = _tankStat.VechicleMaximumHP;
         _reloadTime = _tankStat.VechicleReloadtime;
 
+        
     }
 
     //Body 자체를 회전하고 움직이는 함수
@@ -91,10 +96,19 @@ public class testTank : NetworkBehaviour, IDamageableObject
         }
 
         if (clientID == DriverID)
+        {
             _camBody.gameObject.SetActive(true);
+            if(_UI == null)
+            _UI = Instantiate(_driverUI);
+        }
         if (clientID == GunnerID)
+        {
             _camTurret.gameObject.SetActive(true);
-        
+            if (_UI == null)
+                _UI = Instantiate(_gunnerUI);
+
+        }
+
     }
 
     public void TurnOffCamera(ulong clientID)
