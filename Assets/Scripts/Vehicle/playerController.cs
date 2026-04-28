@@ -61,6 +61,7 @@ public class playerController : NetworkBehaviour
         if( _myTank == null ) return;
 
         if (_myID != _myTank.GunnerID) return;
+        Debug.Log("_myTank.Shoot();");
         _myTank.Shoot();
     }
 

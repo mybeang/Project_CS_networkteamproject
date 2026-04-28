@@ -141,6 +141,8 @@ public class testTank : NetworkBehaviour, IDamageableObject
     public void Shoot()
     {
         //쿨다운 없이 일단 테스트
+        Debug.Log("_projectileManager.Shot()");
+
         _projectileManager.Shot();
     }
 
