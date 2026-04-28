@@ -34,7 +34,6 @@ public class ProjectileManager : NetworkBehaviour
     // 외부에서 호출될 코드로 호출 시 Raycast 기반으로 사격 지점과 거리를 받아온 후 해당 지점에 거리 비례 시간 후에 피해를 입히는 방식으로 작동하면 될 거 같다는 생각.
     public void Shot()
     {
-        if (!IsOwner) return;
         if (_vechicleSO == null)
         {
             Debug.LogError("PlayerableStatisticsSO가 존재하지 않습니다.");
