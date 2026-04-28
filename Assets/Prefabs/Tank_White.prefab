@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4132754249304138110}
   - component: {fileID: 9207629497961798696}
   m_Layer: 0
-  m_Name: TankFree_Tower
+  m_Name: Tank_Turret
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -156,7 +156,7 @@ GameObject:
   - component: {fileID: 1223911531171656105}
   - component: {fileID: 6881760709742517471}
   m_Layer: 0
-  m_Name: TankFree_Blue
+  m_Name: Tank_White
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -383,7 +383,7 @@ GameObject:
   - component: {fileID: 5635559478032924844}
   - component: {fileID: 461359998928192735}
   m_Layer: 0
-  m_Name: TankFree_Wheel_f_right
+  m_Name: wheel_f_r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -610,7 +610,7 @@ GameObject:
   - component: {fileID: 3999635907766630690}
   - component: {fileID: 5592291224952267696}
   m_Layer: 0
-  m_Name: TankFree_Wheel_b_left
+  m_Name: wheel_b_l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -700,7 +700,7 @@ GameObject:
   - component: {fileID: 1842324550242205610}
   - component: {fileID: 350513107669821919}
   m_Layer: 0
-  m_Name: TankFree_Wheel_b_right
+  m_Name: wheel_b_r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -790,7 +790,7 @@ GameObject:
   - component: {fileID: 1800043609020844606}
   - component: {fileID: 2249641396721050595}
   m_Layer: 0
-  m_Name: TankFree_Wheel_f_left
+  m_Name: wheel_f_l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
