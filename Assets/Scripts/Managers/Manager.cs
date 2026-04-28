@@ -7,10 +7,7 @@ public abstract class Manager<T> : MonoBehaviour
     
     private void Awake()
     {
-        Manager<T>[] managers = FindObjectsByType<Manager<T>>(FindObjectsSortMode.None);
-        if (isDonDestoryOnLoad && managers.Length == 0) 
-            DontDestroyOnLoad(gameObject);
-
+        if (isDonDestoryOnLoad) DontDestroyOnLoad(gameObject);
         Init();
     }
 

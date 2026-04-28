@@ -7,10 +7,7 @@ public abstract class NetworkManager<T> : NetworkBehaviour
     
     private void Awake()
     {
-        NetworkManager<T>[] managers = FindObjectsByType<NetworkManager<T>>(FindObjectsSortMode.None);
-        if (isDonDestoryOnLoad && managers.Length == 0) 
-            DontDestroyOnLoad(gameObject);
-
+        if (isDonDestoryOnLoad) DontDestroyOnLoad(gameObject);
         Init();
     }
 
