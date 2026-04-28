@@ -39,31 +39,27 @@ public class testTankCreate : NetworkBehaviour
 
         GameObject player = Instantiate(testPlayer);
         NetworkObject netObj = player.GetComponent<NetworkObject>();
-        netObj.SpawnAsPlayerObject(testInt);
-        Debug.Log($"플레이어 생성 완료: {testInt}");
+        netObj.SpawnAsPlayerObject(0);
+        Debug.Log($"플레이어 생성 완료: {0}");
 
-        //일단 테스트코드로 2명까지만 가능하게 작성
-        Debug.Log($"클라이언트 접속: {testInt}");
-        if (testInt == 1)
-        {
-            Debug.Log($"탱크생성! {0}, {1}");
+        player = Instantiate(testPlayer);
+        netObj = player.GetComponent<NetworkObject>();
+        netObj.SpawnAsPlayerObject(1);
+        Debug.Log($"플레이어 생성 완료: {1}");
 
-            GameObject t = Instantiate(tankPrefab);
-            NetworkObject netT = t.GetComponent<NetworkObject>();
+        Debug.Log($"탱크생성! {0}, {1}");
 
-            netT.Spawn();
+        GameObject t = Instantiate(tankPrefab);
+        NetworkObject netT = t.GetComponent<NetworkObject>();
 
-            tank = t.GetComponent<testTank>();
+        netT.Spawn();
+
+        tank = t.GetComponent<testTank>();
 
 
-            tank.Init(0, 1);
-        }
-        else
-        {
-            Debug.Log($"Init x");
+        tank.Init(0, 1);
 
-            testInt++;
-        }
+
 
     }
 
