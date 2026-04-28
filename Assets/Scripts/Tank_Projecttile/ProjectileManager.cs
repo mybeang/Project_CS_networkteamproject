@@ -74,6 +74,8 @@ public class ProjectileManager : NetworkBehaviour
             0.001f,
             _damageableObject);
 
+        Debug.Log($"적중 위치 기반 탐지 된 대상 : {count}");
+
         if (count < 1 || _hitedTargets == null) return;
 
         for (int i = 0; i < count; i++)
