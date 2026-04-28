@@ -1,23 +1,56 @@
 using Unity.Netcode;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class testTankCreate : NetworkBehaviour
 {
     [SerializeField] private GameObject tankPrefab;
+    [SerializeField] private GameObject testPlayer;
 
+
+    testTank tank;
+    bool bbbb = false;
+    ulong cid;
     public override void OnNetworkSpawn()
     {
+        if (!IsServer) return;
         GameObject t = Instantiate(tankPrefab);
         NetworkObject netObj = t.GetComponent<NetworkObject>();
-        Debug.Log("test1");
 
         netObj.Spawn();
-        Debug.Log("test2");
 
-        testTank tank = t.GetComponent<testTank>();
-        tank.Init(OwnerClientId, 1234);
-        Debug.Log($"test3 : {OwnerClientId}");
+        tank = t.GetComponent<testTank>();
     }
 
-    
+    private void Start()
+    {
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+    }
+
+    private void OnClientConnected(ulong clientID)
+    {
+        if (!IsServer) return;
+        GameObject player = Instantiate(testPlayer);
+        NetworkObject netObj = player.GetComponent<NetworkObject>();
+        netObj.SpawnAsPlayerObject(clientID);
+
+        //일단 테스트코드로 2명까지만 가능하게 작성
+        Debug.Log($"클라이언트 접속: {clientID}");
+        if(clientID == 1)
+        {
+            Debug.Log($"Init!! {cid}, {clientID}");
+
+            tank.Init(cid, clientID);
+        }
+        else
+        {
+            Debug.Log($"Init x");
+
+            cid = clientID;
+        }
+        bbbb = !bbbb;
+    }
+
+
+
 }
