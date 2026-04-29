@@ -13,12 +13,35 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
     private Lobby _lobby;
     public string RoomID => _lobby.Id;
     private Coroutine _heartbeatCoroutine;
-
+    private LobbyEventCallbacks _callbacks = new ();
+    
     protected override async void Init() => await UnityServiceInitialize.Processing();
-    protected override void Register() => ServiceLocator.Register<ILobbyManager>(this);
-    protected override void Unregister() => ServiceLocator.Unregister<ILobbyManager>();
+
+    protected override void Register()
+    {
+        ServiceLocator.Register<ILobbyManager>(this);
+        AddListenersForLobbyEventCallbacks();
+    }
+
+    protected override void Unregister()
+    {
+        ServiceLocator.Unregister<ILobbyManager>();
+        RemoveListenersForLobbyEventCallbacks();
+    }
 
     private void PrintError(string message) => Debug.LogError($"[LobbyManager]\n{message}");
+
+    private void AddListenersForLobbyEventCallbacks()
+    {
+        _callbacks.PlayerJoined += PlayerJoinedHandler;
+        _callbacks.PlayerLeft += PlayerLeftHandler;
+    }
+    
+    private void RemoveListenersForLobbyEventCallbacks()
+    {
+        _callbacks.PlayerJoined -= PlayerJoinedHandler;
+        _callbacks.PlayerLeft -= PlayerLeftHandler;
+    }
     
     public async Task<List<Lobby>> GetRoomList(int offset = 0)
     {
@@ -109,7 +132,7 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
     {
         CreateLobbyOptions options = new CreateLobbyOptions();
         options.IsPrivate = false;  // 공개방
-        options.Data = GetMyDataFormat<DataObject>();
+        options.Data = GetMyDataFormat<DataObject>();;
         try
         {
             _lobby = await LobbyService.Instance.CreateLobbyAsync(subject, MAX_PLAYERS, options);
@@ -126,7 +149,7 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
             PrintError(e.Message);
         }
     }
-
+    
     public async Task LeaveRoom()
     {
         try
@@ -171,4 +194,10 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
             yield return delay;
         }
     }
+
+    private async void PlayerJoinedHandler(List<LobbyPlayerJoined> _list)
+        => _lobby = await LobbyService.Instance.GetLobbyAsync(_lobby.Id);
+    
+    private async void PlayerLeftHandler(List<int> _list)
+        => _lobby = await LobbyService.Instance.GetLobbyAsync(_lobby.Id);
 }
