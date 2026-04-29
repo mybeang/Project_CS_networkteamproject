@@ -438,7 +438,7 @@ MonoBehaviour:
   _joinLobbyButton: {fileID: 1831049523}
   _createLobbyButton: {fileID: 378441544}
   _quitGameButton: {fileID: 2099004759}
-  _createRoomUI: {fileID: 0}
+  _createRoomUI: {fileID: 360207041}
 --- !u!4 &200177292
 Transform:
   m_ObjectHideFlags: 0
@@ -632,7 +632,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &360207042
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1435,10 +1435,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f85bcaaf1daf4beda3ae70d517fa4add, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CreateRoomUIController
-  _createRoomPanel: {fileID: 0}
-  _roomSubjectInputField: {fileID: 0}
-  _createRoomButton: {fileID: 0}
-  _closePanelButton: {fileID: 0}
+  _createRoomPanel: {fileID: 360207041}
+  _roomSubjectInputField: {fileID: 423164010}
+  _createRoomButton: {fileID: 456022015}
+  _closePanelButton: {fileID: 2141102541}
 --- !u!4 &721993057
 Transform:
   m_ObjectHideFlags: 0

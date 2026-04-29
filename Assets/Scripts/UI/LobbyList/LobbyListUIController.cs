@@ -19,7 +19,7 @@ public class LobbyListUIController : MonoBehaviour
     [SerializeField] private Button _quitGameButton;
     
     [Header("Create Room Menu")]
-    [SerializeField] private CreateRoomUIController _createRoomUI;
+    [SerializeField] private GameObject _createRoomUI;
     
     private int offset = 0;
 
@@ -101,7 +101,7 @@ public class LobbyListUIController : MonoBehaviour
         GetLobbyListItems();
     }
 
-    private void OnCreateRoom() => _createRoomUI.gameObject.SetActive(true);
+    private void OnCreateRoom() => _createRoomUI.SetActive(true);
 
     private void OnJoinRoom()
     {
