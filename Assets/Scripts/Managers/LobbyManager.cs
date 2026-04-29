@@ -1,15 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 
-public class LobbyManager : NetworkManager<LobbyManager>, ILobbyManager
+public class LobbyManager : Manager<LobbyManager>, ILobbyManager
 {
     private const int MAX_PLAYERS = 8;
+    private const float HEART_BEAT_TIME = 15f;
     private Lobby _lobby;
     public string RoomID => _lobby.Id;
+    private Coroutine _heartbeatCoroutine;
 
     protected override async void Init() => await UnityServiceInitialize.Processing();
     protected override void Register() => ServiceLocator.Register<ILobbyManager>(this);
@@ -84,6 +87,12 @@ public class LobbyManager : NetworkManager<LobbyManager>, ILobbyManager
             options.Player = new Player{Data = GetMyDataFormat<PlayerDataObject>()};
             _lobby = await LobbyService.Instance.JoinLobbyByIdAsync(roomId, options);
             ServiceLocator.Get<IUserInfoManager>()?.SetRoomId(_lobby.Id);
+            if (_heartbeatCoroutine != null)
+            {
+                StopCoroutine(_heartbeatCoroutine);
+                _heartbeatCoroutine = null;
+            }
+            StartCoroutine(HeartBeatCoroutine());
         } 
         catch (LobbyServiceException e)
         {
@@ -105,6 +114,12 @@ public class LobbyManager : NetworkManager<LobbyManager>, ILobbyManager
         {
             _lobby = await LobbyService.Instance.CreateLobbyAsync(subject, MAX_PLAYERS, options);
             ServiceLocator.Get<IUserInfoManager>()?.SetRoomId(_lobby.Id);
+            if (_heartbeatCoroutine != null)
+            {
+                StopCoroutine(_heartbeatCoroutine);
+                _heartbeatCoroutine = null;
+            }
+            StartCoroutine(HeartBeatCoroutine());
         }
         catch (LobbyServiceException e)
         {
@@ -118,8 +133,14 @@ public class LobbyManager : NetworkManager<LobbyManager>, ILobbyManager
         {
             string playerId = AuthenticationService.Instance.PlayerId;
             await LobbyService.Instance.RemovePlayerAsync(_lobby.Id, playerId);
+            
             _lobby = null;
             ServiceLocator.Get<IUserInfoManager>()?.SetRoomId(null);
+            if (_heartbeatCoroutine != null)
+            {
+                StopCoroutine(_heartbeatCoroutine);
+                _heartbeatCoroutine = null;
+            }
         }
         catch (LobbyServiceException e)
         {
@@ -138,6 +159,16 @@ public class LobbyManager : NetworkManager<LobbyManager>, ILobbyManager
                 player.Data[key].Value = value;
                 return;
             }
+        }
+    }
+
+    private IEnumerator HeartBeatCoroutine()
+    {
+        var delay = new WaitForSecondsRealtime(HEART_BEAT_TIME);
+        while (_lobby != null)
+        {
+            LobbyService.Instance.SendHeartbeatPingAsync(_lobby.Id);
+            yield return delay;
         }
     }
 }

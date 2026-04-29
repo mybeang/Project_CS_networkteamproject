@@ -398,6 +398,50 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 6149298563158789083, guid: 070c7e82c86017d42ab1d0eabb5b28be, type: 3}
   m_PrefabInstance: {fileID: 8137141880031290619}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &200177290
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 200177292}
+  - component: {fileID: 200177291}
+  m_Layer: 0
+  m_Name: LobbyListUIController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &200177291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 200177290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eea706b7491d7a84d88b0a56918e7759, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LobbyListUIController
+--- !u!4 &200177292
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 200177290}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &201018009
 GameObject:
   m_ObjectHideFlags: 0
@@ -3754,5 +3798,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 1707071153}
   - {fileID: 1223511629}
+  - {fileID: 200177292}
   - {fileID: 1470106345}
   - {fileID: 381195004}
