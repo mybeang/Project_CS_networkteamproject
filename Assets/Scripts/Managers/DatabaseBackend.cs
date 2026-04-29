@@ -1,13 +1,8 @@
 ﻿using Firebase;
 using Firebase.Extensions;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Firebase.Auth;
 using Firebase.Database;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 
 public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend

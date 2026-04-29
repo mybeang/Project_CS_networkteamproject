@@ -11,11 +11,7 @@ public class VoiceManager : Manager<VoiceManager>, IVoiceManager
     
     protected override async void Init()
     {
-        await UnityServices.InitializeAsync();
-        if (!AuthenticationService.Instance.IsSignedIn)
-        {
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-        }
+        await UnityServiceInitialize.Processing();
         await VivoxService.Instance.InitializeAsync();
         await LoginAsync();
         OnLoginEndEvent?.Invoke();
