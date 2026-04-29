@@ -5,7 +5,8 @@ using UnityEngine.InputSystem.XR;
 public class playerController : NetworkBehaviour
 {
     private ulong _myID;
-    private testTank _myTank;
+    //임시
+    public testTank _myTank;
 
     private InputSystem_Actions input;
     private Vector2 moveInput;
@@ -19,8 +20,6 @@ public class playerController : NetworkBehaviour
 
         input.Player.Attack.performed += ctx => Attack();
 
-        //임시로 카메라를 E를 꾹눌러서 켬.
-        input.Player.Interact.performed += ctx => _myTank.TurnOnCamera(_myID);    
     }
 
     void OnEnable() => input.Enable();
@@ -36,30 +35,13 @@ public class playerController : NetworkBehaviour
 
     void Update()
     {
-        //_myTank 를 어떻게 가져올지 초기화 코드 필요
-        if (_myTank == null)
-        {
-            foreach (var tank in FindObjectsOfType<testTank>())
-            {
-                //if (tank.DriverID.Value == _myID)
-                //{
-                //    _myTank = tank;
-                //    Debug.Log($"내 탱크 찾음 : {_myID}");
-                //    break;
-                //}
-                Debug.Log($"_myTank 초기화 완료 : {_myID}");
-                _myTank = tank;
-                
-                break;
-            }
-        }
-
+        if (_myTank == null) return;
         if (!IsOwner) return;
-
+        
         // driver일때의 행동
         if ( _myID == _myTank.DriverID)
         {
-            Debug.Log($"MoveBody : {moveInput}");
+           // Debug.Log($"MoveBody : {moveInput}");
             _myTank.MoveBodyServerRpc(moveInput);
             
         }
@@ -67,7 +49,7 @@ public class playerController : NetworkBehaviour
         // gunner일때의 행동
         if (_myID == _myTank.GunnerID)
         {
-            Debug.Log($"MoveTurret : {moveInput}");
+            //Debug.Log($"MoveTurret : {moveInput}");
             _myTank.MoveTurretServerRpc(moveInput);
         }
     }
@@ -79,6 +61,7 @@ public class playerController : NetworkBehaviour
         if( _myTank == null ) return;
 
         if (_myID != _myTank.GunnerID) return;
+        Debug.Log("_myTank.Shoot();");
         _myTank.Shoot();
     }
 

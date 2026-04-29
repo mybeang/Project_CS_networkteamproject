@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4132754249304138110}
   - component: {fileID: 9207629497961798696}
   m_Layer: 0
-  m_Name: TankFree_Tower
+  m_Name: Tank_Turret
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -153,8 +153,10 @@ GameObject:
   - component: {fileID: 7232299152234488698}
   - component: {fileID: 3414534851690804295}
   - component: {fileID: 6502903586627116053}
+  - component: {fileID: 1223911531171656105}
+  - component: {fileID: 6881760709742517471}
   m_Layer: 0
-  m_Name: TankFree_Blue
+  m_Name: Tank_White
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -250,7 +252,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4253132058
+  GlobalObjectIdHash: 1115679106
   InScenePlacedSourceGlobalObjectIdHash: 1115679106
   DeferredDespawnTick: 0
   Ownership: 1
@@ -280,6 +282,9 @@ MonoBehaviour:
   _turret: {fileID: 3213020253523862550}
   _camBody: {fileID: 7452164826214751309}
   _camTurret: {fileID: 2630312295612555100}
+  _driverUI: {fileID: 6698363812054807566, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
+  _gunnerUI: {fileID: 1185007450411204267, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
+  _projectileManager: {fileID: 1223911531171656105}
 --- !u!114 &6502903586627116053
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -326,6 +331,46 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &1223911531171656105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1904569707985564063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38d0e16dc64252b4c9f9c32a3393b5cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectileManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  _mainCam: {fileID: 2630312295612555100}
+  _vechicleSO: {fileID: 11400000, guid: 7293aaab1e87101499a92eaed4577e34, type: 2}
+  _damageableObject:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  _onDebugLog: 1
+--- !u!65 &6881760709742517471
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1904569707985564063}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.9107852, y: 1.125915, z: 2.6642036}
+  m_Center: {x: 0.0000003874302, y: 0.06295732, z: -0.038929284}
 --- !u!1 &2556021190714639952
 GameObject:
   m_ObjectHideFlags: 0
@@ -338,7 +383,7 @@ GameObject:
   - component: {fileID: 5635559478032924844}
   - component: {fileID: 461359998928192735}
   m_Layer: 0
-  m_Name: TankFree_Wheel_f_right
+  m_Name: wheel_f_r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -565,7 +610,7 @@ GameObject:
   - component: {fileID: 3999635907766630690}
   - component: {fileID: 5592291224952267696}
   m_Layer: 0
-  m_Name: TankFree_Wheel_b_left
+  m_Name: wheel_b_l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -655,7 +700,7 @@ GameObject:
   - component: {fileID: 1842324550242205610}
   - component: {fileID: 350513107669821919}
   m_Layer: 0
-  m_Name: TankFree_Wheel_b_right
+  m_Name: wheel_b_r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -745,7 +790,7 @@ GameObject:
   - component: {fileID: 1800043609020844606}
   - component: {fileID: 2249641396721050595}
   m_Layer: 0
-  m_Name: TankFree_Wheel_f_left
+  m_Name: wheel_f_l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

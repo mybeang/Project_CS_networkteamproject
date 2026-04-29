@@ -16,8 +16,10 @@ MonoBehaviour:
   _vechicleMoveSpeed: 5
   _vechicleRotationSpeed: 100
   _vechicleReloadtime: 0
-  _vechicleMaximumDepressionAngle: 1
-  _vechicleMaximumElevationAngle: 0
+  _turretVerticalRotationSpeed: 50
+  _turretHorizontalRotationSpeed: 50
+  _turretMaximumDepressionAngle: 50
+  _turretMaximumElevationAngle: 50
   _projectileDamage: 1000
   _projectileFlightSpeed: 1
   _projectileMaximumDamageRange: 3
