@@ -1,17 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Unity.Collections;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
+
+public class LobbyPlayerDataKey
+{
+    public const string USER_ID = "UserID";
+    public const string TEAM = "Team";
+    public const string ROLE = "Role";
+    public const string READY = "Ready";
+}
+
 
 public class LobbyManager : Manager<LobbyManager>, ILobbyManager
 {
     private const int MAX_PLAYERS = 8;
     private const float HEART_BEAT_TIME = 15f;
     private Lobby _lobby;
-    public string RoomID => _lobby.Id;
     private Coroutine _heartbeatCoroutine;
     private LobbyEventCallbacks _callbacks = new ();
     
@@ -85,9 +94,10 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
             return data;
         }
         
-        data.Add("UserID", CreateDataObject<T>(userInfo.userId));
-        data.Add("Team", CreateDataObject<T>(""));
-        data.Add("Role", CreateDataObject<T>(""));
+        data.Add(LobbyPlayerDataKey.USER_ID, CreateDataObject<T>(userInfo.userId));
+        data.Add(LobbyPlayerDataKey.TEAM, CreateDataObject<T>(""));
+        data.Add(LobbyPlayerDataKey.ROLE, CreateDataObject<T>(""));
+        data.Add(LobbyPlayerDataKey.READY, CreateDataObject<T>("false"));  // string false/true
         return data;
     }
     
@@ -107,7 +117,7 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         try
         {
             JoinLobbyByIdOptions options = new JoinLobbyByIdOptions();
-            options.Player = new Player{Data = GetMyDataFormat<PlayerDataObject>()};
+            options.Player = new Player { Data = GetMyDataFormat<PlayerDataObject>() };
             _lobby = await LobbyService.Instance.JoinLobbyByIdAsync(roomId, options);
             ServiceLocator.Get<IUserInfoManager>()?.SetRoomId(_lobby.Id);
             if (_heartbeatCoroutine != null)
@@ -132,7 +142,7 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
     {
         CreateLobbyOptions options = new CreateLobbyOptions();
         options.IsPrivate = false;  // 공개방
-        options.Data = GetMyDataFormat<DataObject>();;
+        options.Player = new Player { Data = GetMyDataFormat<PlayerDataObject>() };
         try
         {
             _lobby = await LobbyService.Instance.CreateLobbyAsync(subject, MAX_PLAYERS, options);
@@ -200,4 +210,19 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
     
     private async void PlayerLeftHandler(List<int> _list)
         => _lobby = await LobbyService.Instance.GetLobbyAsync(_lobby.Id);
+    
+    public string GetRoomID() => _lobby.Id;
+    public string GetRoomName() => _lobby.Name;
+
+    public string GetHostId()
+    {
+        foreach (Player player in _lobby.Players)
+        {
+            if (player.Id == _lobby.HostId)
+            {
+                return player.Data[LobbyPlayerDataKey.USER_ID].Value;
+            }
+        }
+        return "";
+    }
 }

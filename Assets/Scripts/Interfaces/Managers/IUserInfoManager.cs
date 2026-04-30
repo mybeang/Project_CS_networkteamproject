@@ -8,4 +8,5 @@
     public bool IsDriver();
     public void AddScore(int score);
     public int GetScore();
+    public void SetClientId(ulong clientId);
 }
