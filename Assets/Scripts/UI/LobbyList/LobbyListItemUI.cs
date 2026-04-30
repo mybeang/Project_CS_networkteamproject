@@ -27,7 +27,7 @@ public class LobbyListItemUI : MonoBehaviour
     {
         foreach (var player in players)
         {
-            if (hostId == player.Id) return player.Data["UserId"].Value;
+            if (hostId == player.Id) return player.Data[LobbyPlayerDataKey.USER_ID].Value;
         }
         return "";
     }

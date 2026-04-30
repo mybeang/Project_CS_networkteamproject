@@ -2238,7 +2238,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9d75c551279405b89e2c7c9a7935f07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LobbyManager
-  isDonDestoryOnLoad: 0
+  isDonDestoryOnLoad: 1
 --- !u!4 &1222244689
 Transform:
   m_ObjectHideFlags: 0

@@ -1,46 +1,61 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Unity.Collections;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
+
+public class LobbyPlayerDataKey
+{
+    public const string USER_ID = "UserID";
+    public const string TEAM = "Team";
+    public const string ROLE = "Role";
+    public const string READY = "Ready";
+}
+
 
 public class LobbyManager : Manager<LobbyManager>, ILobbyManager
 {
     private const int MAX_PLAYERS = 8;
     private const float HEART_BEAT_TIME = 15f;
     private Lobby _lobby;
-    public string RoomID => _lobby.Id;
+    private Action<Lobby> _onChangeLobbyData;
+    public Lobby Lobby
+    {
+        get => _lobby;
+        set
+        {
+            _lobby = value;
+            _onChangeLobbyData?.Invoke(value);
+        }
+    }
     private Coroutine _heartbeatCoroutine;
     private LobbyEventCallbacks _callbacks = new ();
-    
+    private ILobbyEvents _lobbyEvent;
+
     protected override async void Init() => await UnityServiceInitialize.Processing();
-
-    protected override void Register()
-    {
-        ServiceLocator.Register<ILobbyManager>(this);
-        AddListenersForLobbyEventCallbacks();
-    }
-
-    protected override void Unregister()
-    {
-        ServiceLocator.Unregister<ILobbyManager>();
-        RemoveListenersForLobbyEventCallbacks();
-    }
+    protected override void Register() => ServiceLocator.Register<ILobbyManager>(this);
+    protected override void Unregister() => ServiceLocator.Unregister<ILobbyManager>();
 
     private void PrintError(string message) => Debug.LogError($"[LobbyManager]\n{message}");
 
-    private void AddListenersForLobbyEventCallbacks()
+    private async void AddListenersForLobbyEventCallbacks()
     {
         _callbacks.PlayerJoined += PlayerJoinedHandler;
         _callbacks.PlayerLeft += PlayerLeftHandler;
+        _callbacks.PlayerDataChanged += PlayerDataChangedHandler;
+        _lobbyEvent = await LobbyService.Instance.SubscribeToLobbyEventsAsync(_lobby.Id, _callbacks);
     }
     
-    private void RemoveListenersForLobbyEventCallbacks()
+    private async void RemoveListenersForLobbyEventCallbacks()
     {
         _callbacks.PlayerJoined -= PlayerJoinedHandler;
         _callbacks.PlayerLeft -= PlayerLeftHandler;
+        _callbacks.PlayerDataChanged -= PlayerDataChangedHandler;
+        await _lobbyEvent.UnsubscribeAsync();
     }
     
     public async Task<List<Lobby>> GetRoomList(int offset = 0)
@@ -85,9 +100,10 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
             return data;
         }
         
-        data.Add("UserID", CreateDataObject<T>(userInfo.userId));
-        data.Add("Team", CreateDataObject<T>(""));
-        data.Add("Role", CreateDataObject<T>(""));
+        data.Add(LobbyPlayerDataKey.USER_ID, CreateDataObject<T>(userInfo.userId));
+        data.Add(LobbyPlayerDataKey.TEAM, CreateDataObject<T>("0"));
+        data.Add(LobbyPlayerDataKey.ROLE, CreateDataObject<T>($"{PlayerRole.None}"));
+        data.Add(LobbyPlayerDataKey.READY, CreateDataObject<T>("false"));  // string false/true
         return data;
     }
     
@@ -107,8 +123,9 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         try
         {
             JoinLobbyByIdOptions options = new JoinLobbyByIdOptions();
-            options.Player = new Player{Data = GetMyDataFormat<PlayerDataObject>()};
+            options.Player = new Player { Data = GetMyDataFormat<PlayerDataObject>() };
             _lobby = await LobbyService.Instance.JoinLobbyByIdAsync(roomId, options);
+            AddListenersForLobbyEventCallbacks();
             ServiceLocator.Get<IUserInfoManager>()?.SetRoomId(_lobby.Id);
             if (_heartbeatCoroutine != null)
             {
@@ -132,10 +149,13 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
     {
         CreateLobbyOptions options = new CreateLobbyOptions();
         options.IsPrivate = false;  // 공개방
-        options.Data = GetMyDataFormat<DataObject>();;
+        options.Player = new Player { Data = GetMyDataFormat<PlayerDataObject>() };
         try
         {
+            Debug.Log("[LobbyManager] Try Creating room...");
             _lobby = await LobbyService.Instance.CreateLobbyAsync(subject, MAX_PLAYERS, options);
+            AddListenersForLobbyEventCallbacks();
+            Debug.Log("[LobbyManager] Update _lobby");
             ServiceLocator.Get<IUserInfoManager>()?.SetRoomId(_lobby.Id);
             if (_heartbeatCoroutine != null)
             {
@@ -155,9 +175,10 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         try
         {
             string playerId = AuthenticationService.Instance.PlayerId;
+            RemoveListenersForLobbyEventCallbacks();
             await LobbyService.Instance.RemovePlayerAsync(_lobby.Id, playerId);
-            
             _lobby = null;
+            _lobbyEvent = null;
             ServiceLocator.Get<IUserInfoManager>()?.SetRoomId(null);
             if (_heartbeatCoroutine != null)
             {
@@ -173,13 +194,39 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
 
     public List<Player> GetPlayerList() => _lobby.Players;
 
-    public void UpdatePlayerData(string key, string value)
+    public Dictionary<string, string> GetMyPlayerData()
     {
         foreach (Player player in _lobby.Players)
         {
             if (player.Id == AuthenticationService.Instance.PlayerId)
             {
-                player.Data[key].Value = value;
+                Dictionary<string, string> data = new();
+                foreach ((string key, PlayerDataObject value) in player.Data)
+                    data.Add(key, value.Value);
+                return data;
+            }
+        }
+        return null;
+    }
+
+    public async Task UpdatePlayerData(List<(string key, string value)> updateData)
+    {
+        foreach (Player player in _lobby.Players)
+        {
+            Debug.Log("[LobbyManager] Find Player ...");
+            if (player.Id == AuthenticationService.Instance.PlayerId)
+            {
+                Debug.Log("[LobbyManager] Find Player ... Matched");
+                Dictionary<string, PlayerDataObject> data = new();
+                foreach ((string key, string value) in updateData)
+                {
+                    player.Data[key].Value = value;
+                    data.Add(key, player.Data[key]);
+                }
+                var options = new UpdatePlayerOptions { Data = data};
+                Debug.Log("[LobbyManager] Player Update ...");
+                await LobbyService.Instance.UpdatePlayerAsync(_lobby.Id, player.Id, options);
+                Debug.Log("[LobbyManager] Player Update ... Done");
                 return;
             }
         }
@@ -187,6 +234,7 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
 
     private IEnumerator HeartBeatCoroutine()
     {
+        Debug.Log("[LobbyManager] Start to heart beat");
         var delay = new WaitForSecondsRealtime(HEART_BEAT_TIME);
         while (_lobby != null)
         {
@@ -195,9 +243,33 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         }
     }
 
-    private async void PlayerJoinedHandler(List<LobbyPlayerJoined> _list)
-        => _lobby = await LobbyService.Instance.GetLobbyAsync(_lobby.Id);
+    private async void UpdateDataHandler()
+    {
+        Debug.Log("[LobbyManager] Start to update data ... ");
+        Lobby = await LobbyService.Instance.GetLobbyAsync(_lobby.Id);
+        Debug.Log("[LobbyManager] Start to update data ... Done");
+    }
     
-    private async void PlayerLeftHandler(List<int> _list)
-        => _lobby = await LobbyService.Instance.GetLobbyAsync(_lobby.Id);
+    private void PlayerJoinedHandler(List<LobbyPlayerJoined> _list) => UpdateDataHandler();
+    private void PlayerLeftHandler(List<int> _list) => UpdateDataHandler();
+    private void PlayerDataChangedHandler(Dictionary<int, Dictionary<string, ChangedOrRemovedLobbyValue<PlayerDataObject>>> _dict) => UpdateDataHandler();
+    
+    public string GetRoomID() => _lobby.Id;
+    public string GetRoomName() => _lobby.Name;
+
+    public string GetHostId()
+    {
+        foreach (Player player in _lobby.Players)
+        {
+            if (player.Id == _lobby.HostId)
+            {
+                return player.Data[LobbyPlayerDataKey.USER_ID].Value;
+            }
+        }
+        return "";
+    }
+    
+    public void LobbyDataOnChangedAddListener(Action<Lobby> callback) => _onChangeLobbyData += callback;
+    public void LobbyDataOnChangedRemoveListener(Action<Lobby> callback) => _onChangeLobbyData -= callback;
 }
+

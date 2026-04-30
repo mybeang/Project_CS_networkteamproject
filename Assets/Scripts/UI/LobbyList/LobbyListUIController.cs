@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Firebase.Extensions;
+using TMPro;
 using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,6 +9,7 @@ using Application = UnityEngine.Application;
 public class LobbyListUIController : MonoBehaviour
 {
     [Header("Lobby List Body")]
+    [SerializeField] private TextMeshProUGUI _myIdText;
     [SerializeField] private Button _refeshButton;
     [SerializeField] private List<LobbyListItemUI> _lobbyListItems;
     
@@ -26,6 +28,8 @@ public class LobbyListUIController : MonoBehaviour
     private void Start()
     {
         DiableAllLobbyListItems();
+        GetLobbyListItems();
+        _myIdText.text = ServiceLocator.Get<IUserInfoManager>().GetUserInfo().userId;
     }
     
     private void OnEnable() => BindingHandlersToButtons();
@@ -38,7 +42,7 @@ public class LobbyListUIController : MonoBehaviour
         _rightButton.onClick.AddListener(OnGoRigtList);
         _createLobbyButton.onClick.AddListener(OnCreateRoom);
         _joinLobbyButton.onClick.AddListener(OnJoinRoom);
-        _quitGameButton.onClick.AddListener(OnQuitGame);
+        _quitGameButton.onClick.AddListener(GoToLoginPage);
     }
 
     private void UnbindingHandlersToButtons()
@@ -48,7 +52,7 @@ public class LobbyListUIController : MonoBehaviour
         _rightButton.onClick.RemoveListener(OnGoRigtList);
         _createLobbyButton.onClick.RemoveListener(OnCreateRoom);
         _joinLobbyButton.onClick.RemoveListener(OnJoinRoom);
-        _quitGameButton.onClick.RemoveListener(OnQuitGame);
+        _quitGameButton.onClick.RemoveListener(GoToLoginPage);
     }
     
 
@@ -109,11 +113,20 @@ public class LobbyListUIController : MonoBehaviour
         {
             if (item.IsSelected)
             {
-                ServiceLocator.Get<ILobbyManager>().JoinRoom(item.RoomId);
+                ServiceLocator.Get<ILobbyManager>().JoinRoom(item.RoomId).ContinueWithOnMainThread(task =>
+                {
+                    if (task.IsCompleted)
+                    {
+                        ServiceLocator.Get<ILocalSceneLoader>().LoadScene("LobbyRoom");
+                    }
+                });
                 return;
             }
         }
     }
-    
-    private void OnQuitGame() => Application.Quit();
+
+    private void GoToLoginPage()
+    {
+        ServiceLocator.Get<ILocalSceneLoader>().LoadScene("Login");
+    }
 }

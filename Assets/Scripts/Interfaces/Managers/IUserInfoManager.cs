@@ -4,8 +4,8 @@
     public void SetUserId(string userId);
     public void SetRoomId(string roomId);
     public void SetTeamNum(int teamNum);
-    public void SetIsDriver(bool isDriver);
-    public bool IsDriver();
+    public void SetIsDriver(PlayerRole isDriver);
     public void AddScore(int score);
     public int GetScore();
+    public void SetClientId(ulong clientId);
 }
