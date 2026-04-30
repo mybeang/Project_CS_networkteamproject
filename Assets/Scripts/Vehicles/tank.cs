@@ -5,7 +5,7 @@ using UnityEngine.InputSystem.XR;
 
 public class testTank : NetworkBehaviour, IDamageableObject
 {
-    [SerializeField] private PlayerableStatisticsSO _tankStat;
+    [SerializeField] private PlayerableStatisticsSO _stat;
 
     [SerializeField] private Transform _turret;
 
@@ -32,12 +32,11 @@ public class testTank : NetworkBehaviour, IDamageableObject
     {
         get { return _gunnerID.Value; }
     }
-
-    //이것들도 networkvariable로 가야하는건가?
+    
     // 현재 HP
-    private int _hp;
+    private NetworkVariable<int> _hp;
     // 공격 쿨다운
-    private float _reloadTime;
+    private NetworkVariable<float> _reloadTime;
 
     private void Awake()
     {
@@ -63,8 +62,8 @@ public class testTank : NetworkBehaviour, IDamageableObject
         _driverID.Value = driverID;
         _gunnerID.Value = gunnerID;
 
-        _hp = _tankStat.VechicleMaximumHP;
-        _reloadTime = _tankStat.VechicleReloadtime;     
+        _hp.Value = _stat.VechicleMaximumHP;
+        _reloadTime.Value = _stat.VechicleReloadtime;     
     }
 
     // tank에서 driver, gunner 초기화가 이루어졌다면 UI를 작동시킴.
@@ -119,11 +118,11 @@ public class testTank : NetworkBehaviour, IDamageableObject
     public void MoveBodyServerRpc(Vector2 input)
     {
         // 회전
-        transform.Rotate(0, input.x * _tankStat.VechicleRotationSpeed * Time.deltaTime, 0);
+        transform.Rotate(0, input.x * _stat.VechicleRotationSpeed * Time.deltaTime, 0);
 
         // 이동
         Vector3 move = transform.forward * input.y;
-        move = move * _tankStat.VechicleMoveSpeed * Time.deltaTime;
+        move = move * _stat.VechicleMoveSpeed * Time.deltaTime;
         transform.position += move;
     }
 
@@ -132,9 +131,9 @@ public class testTank : NetworkBehaviour, IDamageableObject
     public void MoveTurretServerRpc(Vector2 input)
     {
         // 수평회전
-        _turret.Rotate(0, input.x * _tankStat.TurretHorizontalRotationSpeed * Time.deltaTime, 0);
+        _turret.Rotate(0, input.x * _stat.TurretHorizontalRotationSpeed * Time.deltaTime, 0);
         // 수직회전
-        _turret.Rotate(input.y * _tankStat.TurretVerticalRotationSpeed * Time.deltaTime, 0, 0);
+        _turret.Rotate(input.y * _stat.TurretVerticalRotationSpeed * Time.deltaTime, 0, 0);
         
     }
 
@@ -149,7 +148,7 @@ public class testTank : NetworkBehaviour, IDamageableObject
     public void TakeDamaged(int dmg)
     {
         Debug.Log($"_hp : {_hp} , dmg : {dmg}");
-        _hp -= dmg;
+        _hp.Value -= dmg;
     }
 
 }
