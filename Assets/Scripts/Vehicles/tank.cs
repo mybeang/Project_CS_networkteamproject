@@ -35,8 +35,8 @@ public class testTank : NetworkBehaviour, IDamageableObject
     
     // 현재 HP
     private NetworkVariable<int> _hp;
-    // 공격 쿨다운
-    private NetworkVariable<float> _reloadTime;
+    // 공격 쿨다운 (일단 일반변수로 가보자)
+    private float _reloadTime;
 
     private void Awake()
     {
@@ -54,6 +54,14 @@ public class testTank : NetworkBehaviour, IDamageableObject
         _gunnerID.Value = ulong.MaxValue;
     }
 
+    private void Update()
+    {
+        //쿨타임 줄여주기
+        _reloadTime -= Time.deltaTime;
+        if(_reloadTime < 0 ) _reloadTime = 0;
+        
+    }
+
     //탱크 초기화 함수
     public void Init(ulong driverID, ulong gunnerID)
     {
@@ -63,7 +71,19 @@ public class testTank : NetworkBehaviour, IDamageableObject
         _gunnerID.Value = gunnerID;
 
         _hp.Value = _stat.VechicleMaximumHP;
-        _reloadTime.Value = _stat.VechicleReloadtime;     
+        _reloadTime = _stat.VechicleReloadtime;     
+    }
+
+    //탱크 체력 초기화 함수
+    public void SetHp(int hp)
+    {
+        _hp.Value = hp;
+    }
+
+    //탱크 위치 초기화 함수
+    public void SetPosition(Vector3 pos)
+    {
+        transform.position = pos;
     }
 
     // tank에서 driver, gunner 초기화가 이루어졌다면 UI를 작동시킴.
@@ -134,13 +154,18 @@ public class testTank : NetworkBehaviour, IDamageableObject
         _turret.Rotate(0, input.x * _stat.TurretHorizontalRotationSpeed * Time.deltaTime, 0);
         // 수직회전
         _turret.Rotate(input.y * _stat.TurretVerticalRotationSpeed * Time.deltaTime, 0, 0);
+
+        
         
     }
 
     public void Shoot()
     {
-        //쿨다운 없이 일단 테스트
         Debug.Log("_projectileManager.Shot()");
+
+        //재장전시간 체크
+        if (_reloadTime > 0) return;
+        _reloadTime = _stat.VechicleReloadtime;
 
         _projectileManager.Shot();
     }
