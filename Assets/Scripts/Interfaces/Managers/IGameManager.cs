@@ -1,7 +1,14 @@
-﻿using Unity.Netcode;
+﻿using System;
+using Unity.Netcode;
 
 public interface IGameManager
 {
-    public void StartGame(teamInfo[] teams, in string roomID);
+    public void StartGame(teamInfo[] teams, in string roomID, int mapNumber);
     [ServerRpc] public void OnDestoryVehicleServerRpc(playerTeamEnum self, playerTeamEnum enemy);
+
+    /// <summary>
+    /// self, enemy 순서
+    /// 받아올 때 주의할 것
+    /// </summary>
+    public event Action<playerTeamEnum, playerTeamEnum> OnKillLog;
 }

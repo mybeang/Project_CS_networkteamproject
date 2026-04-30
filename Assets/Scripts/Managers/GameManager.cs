@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameManager : NetworkManager<GameManager>, IGameManager
@@ -13,9 +15,14 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     [SerializeField] private Material[] _PlayerableMaterials;
     [Header("소환 위치")]
     [SerializeField] private List<SpawnPoint> _spanwPoints;
+    [SerializeField] private double _basicSpawnTime;
     [Header("그 외")]
     [SerializeField] private Canvas _gameResultCanvas;
     [SerializeField][Range(60, 1800)] private int _gamePlayableTime;
+    [SerializeField] private GameObject[] _map; //임시로 한개만
+
+    // 맵은 고민이 조금 필요해 보임, 생각보다 크면 Instantiate 로 하나만 생성하게 만들고, 맵이 작으면 모두 불로온 뒤 Enable, Disable 정도만
+    
 #if UNITY_EDITOR
     [Header("디버기용")]
     [SerializeField] private bool _OnLoadedLog;
@@ -32,15 +39,17 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private teamInfo[] _teams;
 
     private string _roomID;
+    private int _mapNumber;
 
     private double _startTime;
     private double _currentTime;
+    private double[] _RespawnTimer;
 
     private WaitForSeconds _tick;
-    private Coroutine _coroutine;
+    private Coroutine _timerCoroutine;
+    private Coroutine _triggerTimerCoroutine;
 
     private GameObject[] _managementObject;
-
     #endregion
 
     #region Network_Variable
@@ -51,15 +60,22 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private NetworkVariable<int> _fourTeamScore;
     #endregion
 
+    /// <summary>
+    /// self, enemy 형태로 보낼 예정
+    /// 받을 때 주의할 것
+    /// </summary>
+    public event Action<playerTeamEnum, playerTeamEnum> OnKillLog;
+
     private void Start()
     {
+        _RespawnTimer = new double[4];
         _tick = new WaitForSeconds(0.25f);
     }
 
     protected override void Register() => ServiceLocator.Register<IGameManager>(this);
     protected override void Unregister() => ServiceLocator.Unregister<IGameManager>();
 
-    [ClientRpc(Delivery = RpcDelivery.Reliable)]
+    //[ClientRpc(Delivery = RpcDelivery.Reliable)]
 
     IEnumerator Timer()
     {
@@ -75,16 +91,19 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     }
 
     // 로비에서 게임 시작 시 호출하여, 팀 정보 받아오기
-    public void StartGame(teamInfo[] teams, in string roomID)
+    public void StartGame(teamInfo[] teams, in string roomID, int mapNumber)
     {
         _teams = teams;
         _roomID = roomID;
+        _mapNumber = mapNumber;
 
         ResetGameData();
 
+        _map[_mapNumber].SetActive(true);
+
         for (int i = 0; i < _teams.Length; i++)
         {
-            ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel($"{_roomID}{_teams[i].TeamNum}"); // TODO : teamNum 바뀌면 그에 맞게 대응 필요
+            ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel($"{_roomID}{(int)_teams[i].TeamNum}");
         }
 
 #if UNITY_EDITOR
@@ -102,7 +121,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
         InstantiateVehicleClientRpc();
 
-        _coroutine = StartCoroutine(Timer());
+        _timerCoroutine = StartCoroutine(Timer());
     }
 
     [ClientRpc]
@@ -119,7 +138,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             _managementObject[i * 3] = obj;
 #if UNITY_EDITOR
             if (_OnSpawnLog)
-                Debug.Log($"{obj.name} 생성 완료");
+                Debug.Log($"조종수 객체 : {obj.name} 생성 완료");
 #endif
 
             obj = Instantiate(_playerObject, transform);
@@ -130,10 +149,11 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
 #if UNITY_EDITOR
             if (_OnSpawnLog)
-                Debug.Log($"{obj.name} 생성 완료");
+                Debug.Log($"사수 객체 : {obj.name} 생성 완료");
 #endif
 
-            //obj = Instantiate(_playerablePrefabs[여기에]); TODO : 여기에 에 어떤 전차를 갖고 올지.
+            obj = Instantiate(_playerablePrefabs[(int)_teams[i].VehicleNum]);
+            obj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)_teams[i].TeamNum];
             obj.SetActive(true);
             obj.name = $"{_teams[i].TeamNum.ToString()} + {_teams[i].VehicleNum.ToString()}";
             obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(_teams[i].DriverID, true);
@@ -141,17 +161,19 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
 #if UNITY_EDITOR
             if (_OnSpawnLog)
-                Debug.Log($"{obj.name} 생성 완료");
+                Debug.Log($"이동 객체 : {obj.name} 생성 완료");
 #endif
         }
     }
 
     // 소환된 경우 모든 Client 들에게 알려야함.
     [ClientRpc]
-    private void SpawnVehicleClientRpc(playerTeamEnum team) // TODO : 재소환 시 체력, 위치 재설정 가능하게 열려 있어야함.
+    private void ReSpawnVehicleClientRpc(playerTeamEnum team) // TODO : 재소환 시 체력, 위치 재설정 가능하게 열려 있어야함.
     {
         int teamNum = (int)team * 3 + 2;
         _managementObject[teamNum].SetActive(true);
+
+        // TODO : 여기에 이동 객체 초기화 함수 호출.
 
 #if UNITY_EDITOR
         if (_OnReSpawnLog)
@@ -170,46 +192,79 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     {
         // TODO : 킬로그, 점수, 파괴된 이동 수단 비활성화 및 플레그 호출
 
-        //_managementObject[]
+        // 이동 수단 비활성화 및 플레그 호출
+        _managementObject[(int)self * 3 + 2].SetActive(false);
+        // 플레그 호출 관련 논의 필요??
+
+        _RespawnTimer[(int)self] = _currentTime + _basicSpawnTime;
+        if (_triggerTimerCoroutine == null)
+            StartCoroutine(TrrigerTimer());
 
         // 점수
         switch(enemy)
         {
             case playerTeamEnum.firstTeam:
-                _firstTeamScore.OnValueChanged(_firstTeamScore.Value,_firstTeamScore.Value + 1);
+                _firstTeamScore.OnValueChanged(_firstTeamScore.Value,_firstTeamScore.Value += 1);
                 break;
             case playerTeamEnum.secondTeam:
-                _secondTeamScore.OnValueChanged(_secondTeamScore.Value, _secondTeamScore.Value + 1);
+                _secondTeamScore.OnValueChanged(_secondTeamScore.Value, _secondTeamScore.Value += 1);
                 break;
             case playerTeamEnum.thirdTeam:
-                _thirdTeamScore.OnValueChanged(_thirdTeamScore.Value, _thirdTeamScore.Value + 1);
+                _thirdTeamScore.OnValueChanged(_thirdTeamScore.Value, _thirdTeamScore.Value += 1);
                 break;
             case playerTeamEnum.fourthTeam:
-                _fourTeamScore.OnValueChanged(_fourTeamScore.Value, _fourTeamScore.Value + 1);
+                _fourTeamScore.OnValueChanged(_fourTeamScore.Value, _fourTeamScore.Value += 1);
                 break;
         }
 
         // 킬로그 호출
+        OnKillLog?.Invoke(self,enemy);
+    }
 
-        
-        // 파괴된 이동 수단 비활성 화 및 플레그 호출(아마 호출은 내부적으로 하면 좋을 듯)
-
-
+    IEnumerator TrrigerTimer()
+    {
+        byte i;
+        byte counter;
+        while (true)
+        {
+            counter = 0;
+            for (i = 0; i < _RespawnTimer.Length; i++)
+            {
+                if (_currentTime <= _RespawnTimer[i])
+                {
+                    ReSpawnVehicleClientRpc((playerTeamEnum)i);
+                }
+                else
+                {
+                    counter++;
+                }
+                    
+            }
+            if (3 < counter)
+                break;
+            yield return _tick;
+        }
+        _triggerTimerCoroutine = null;
+        yield break;
     }
 
     private void GameEnd()
     {
         // 게임 종료 시 호출 될 것들
 
+        // 맵 끄기
+        _map[_mapNumber].SetActive(false);
         // 음성 채널 탈퇴
-        for (int i = 0; i < _teams.Length; i++)
+        byte i;
+        for (i = 0; i < _teams.Length; i++)
         {
-            ServiceLocator.Get<IVoiceManager>()?.OnLeaveVoiceChannel($"{_roomID}{_teams[i].TeamNum}");
+            ServiceLocator.Get<IVoiceManager>()?.OnLeaveVoiceChannel($"{_roomID}{(int)_teams[i].TeamNum}");
         }
         // 타이머 정지
-        StopCoroutine(_coroutine);
+        StopCoroutine(_timerCoroutine);
+        StopCoroutine(_triggerTimerCoroutine);
 
-        for (byte i = 0; i < _teams.Length; i++)
+        for (i = 0; i < _teams.Length; i++)
         {
             Destroy(_managementObject[i]);
         }
