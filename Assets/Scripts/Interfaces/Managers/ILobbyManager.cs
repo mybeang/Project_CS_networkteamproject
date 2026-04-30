@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Services.Lobbies.Models;
 
@@ -11,8 +12,11 @@ public interface ILobbyManager
     public Task CreateRoom(string subject);
     public Task LeaveRoom();
     public List<Player> GetPlayerList();
-    public void UpdatePlayerData(string key, string value);
+    public Dictionary<string, string> GetMyPlayerData();
+    public void UpdatePlayerData(List<(string key, string value)> updateData);
     public string GetRoomID();
     public string GetRoomName();
     public string GetHostId();
+    public void LobbyDataOnChangedAddListener(Action callback);
+    public void LobbyDataOnChangedRemoveListener(Action callback);
 }

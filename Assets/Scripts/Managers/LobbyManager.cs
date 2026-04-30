@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Collections;
@@ -21,6 +22,16 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
     private const int MAX_PLAYERS = 8;
     private const float HEART_BEAT_TIME = 15f;
     private Lobby _lobby;
+    private Action OnChangeLobby;  
+    public Lobby Lobby
+    {
+        get => _lobby;
+        set
+        {
+            _lobby = value;
+            OnChangeLobby?.Invoke();
+        }
+    }
     private Coroutine _heartbeatCoroutine;
     private LobbyEventCallbacks _callbacks = new ();
     
@@ -183,13 +194,30 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
 
     public List<Player> GetPlayerList() => _lobby.Players;
 
-    public void UpdatePlayerData(string key, string value)
+    public Dictionary<string, string> GetMyPlayerData()
     {
         foreach (Player player in _lobby.Players)
         {
             if (player.Id == AuthenticationService.Instance.PlayerId)
             {
-                player.Data[key].Value = value;
+                Dictionary<string, string> data = new();
+                foreach ((string key, PlayerDataObject value) in player.Data)
+                    data.Add(key, value.Value);
+                return data;
+            }
+        }
+        return null;
+    }
+
+    public async void UpdatePlayerData(List<(string key, string value)> updateData)
+    {
+        foreach (Player player in _lobby.Players)
+        {
+            if (player.Id == AuthenticationService.Instance.PlayerId)
+            {
+                foreach ((string key, string value) in updateData)
+                    player.Data[key].Value = value;
+                Lobby = await LobbyService.Instance.GetLobbyAsync(_lobby.Id);
                 return;
             }
         }
@@ -206,10 +234,10 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
     }
 
     private async void PlayerJoinedHandler(List<LobbyPlayerJoined> _list)
-        => _lobby = await LobbyService.Instance.GetLobbyAsync(_lobby.Id);
+        => Lobby = await LobbyService.Instance.GetLobbyAsync(_lobby.Id);
     
     private async void PlayerLeftHandler(List<int> _list)
-        => _lobby = await LobbyService.Instance.GetLobbyAsync(_lobby.Id);
+        => Lobby = await LobbyService.Instance.GetLobbyAsync(_lobby.Id);
     
     public string GetRoomID() => _lobby.Id;
     public string GetRoomName() => _lobby.Name;
@@ -225,4 +253,8 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         }
         return "";
     }
+    
+    public void LobbyDataOnChangedAddListener(Action callback) => OnChangeLobby += callback;
+    public void LobbyDataOnChangedRemoveListener(Action callback) => OnChangeLobby -= callback;
 }
+

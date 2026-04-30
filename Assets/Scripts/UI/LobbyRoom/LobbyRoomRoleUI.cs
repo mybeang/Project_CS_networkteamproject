@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,7 +11,7 @@ public class LobbyRoomRoleUI : MonoBehaviour
     [SerializeField] private Toggle _ready;
     
     [SerializeField] private int _teamNumber;
-    [SerializeField] private bool _isDriver;
+    [SerializeField] private PlayerRole _playerRole;
     
     private void OnEnable() => BindCallbackToButtons();
     private void OnDisable() => UnbindCallbackToButtons();
@@ -33,19 +34,29 @@ public class LobbyRoomRoleUI : MonoBehaviour
     public bool AssignToRole()
     {
         if (_userId.text != "") return false;
-        _userId.text = ServiceLocator.Get<IUserInfoManager>()?.GetUserInfo().userId;
         // UserInfo Update
-        ServiceLocator.Get<IUserInfoManager>().SetIsDriver(_isDriver);
-        ServiceLocator.Get<IUserInfoManager>().SetTeamNum(_teamNumber);
-        // Lobby Update
+        UpdateData(_playerRole, _teamNumber);
         return true;
     }
     
     public void UnassignFromRole()
     {
         _userId.text = "";
-        // UserInfo Update
+        UpdateData(PlayerRole.None, 0);
+    }
+
+    private void UpdateData(PlayerRole playerRole, int teamNumber)
+    {
+        var userInfo = ServiceLocator.Get<IUserInfoManager>();
+        userInfo?.SetIsDriver(playerRole);
+        userInfo?.SetTeamNum(teamNumber);
+        
         // Lobby Update
+        var lobby = ServiceLocator.Get<ILobbyManager>();
+        List<(string key, string value)> updateData = new ();
+        updateData.Add((LobbyPlayerDataKey.TEAM, $"{teamNumber}"));
+        updateData.Add((LobbyPlayerDataKey.ROLE, nameof(playerRole)));
+        lobby?.UpdatePlayerData(updateData);
     }
 }
 
