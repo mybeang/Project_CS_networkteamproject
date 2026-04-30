@@ -12,33 +12,10 @@ using UnityEngine;
 
 public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
 {
-    protected override async void Init() => await InitializeAsync();
+    protected override async void Init() => await UnityServiceInitialize.Processing();
     protected override void Register() => ServiceLocator.Register<IRelayHostManager>(this);
     protected override void Unregister() => ServiceLocator.Unregister<IRelayHostManager>();
     
-    public async Task InitializeAsync()
-    {
-        try
-        {
-            await UnityServices.InitializeAsync();
-            await LoginUsingAnonymous();
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"[Auth] Fail to Init: {e.Message}");
-            throw;
-        }
-    }
-    
-    private async Task LoginUsingAnonymous()
-    {
-        if (!AuthenticationService.Instance.IsSignedIn)
-        {
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-        }
-        Debug.Log($"[Auth] Login Successfully: {AuthenticationService.Instance.PlayerId}");
-    }
-
     public async Task<string> StartHostWithRelayAsync(int maxConnections = 7)
     {
         try

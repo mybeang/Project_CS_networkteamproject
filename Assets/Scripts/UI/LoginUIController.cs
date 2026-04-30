@@ -15,7 +15,8 @@ public class LoginUIController : MonoBehaviour
     
     private bool _openedWarningPanel;
     private string _warningTextFormat = " 은(는) 이미 사용중인 닉네임 입니다.";
-
+    private string _nextSceneName = "LobbyList";
+    
     private void OnEnable() => SubscribButtons();
     private void OnDisable() => UnsubscribButtons();
 
@@ -52,7 +53,7 @@ public class LoginUIController : MonoBehaviour
         Debug.Log($"[Login] UserId: {userId}");
         ServiceLocator.Get<IDatabaseBackend>()?.SaveUserAsync(userId);
         ServiceLocator.Get<IDatabaseBackend>()?.RegisterDisconnectHandler(userId);  // 비 정상 종료 방어 코드
-        ServiceLocator.Get<ILocalSceneLoader>()?.LoadScene("NetworkTestScene");  // Test 용 씬으로 전환
+        ServiceLocator.Get<ILocalSceneLoader>()?.LoadScene(_nextSceneName);  // Test 용 씬으로 전환
     }
     
     private void OpenWarningMessage()
@@ -75,4 +76,18 @@ public class LoginUIController : MonoBehaviour
         if (userId != "") ServiceLocator.Get<IDatabaseBackend>()?.RemoveUserAsync(userId);
         Application.Quit();
     }
+
+# if UNITY_EDITOR
+    [ContextMenu("ChangeNextScene/ToTestScene")]
+    public void ChangeNextSceneIsTestScene()
+    {
+        _nextSceneName = "NetworkTestScene";
+    }
+    
+    [ContextMenu("ChangeNextScene/ToLiveScene")]
+    public void ChangeNextSceneIsLiveScene()
+    {
+        _nextSceneName = "LobbyList";
+    }
+# endif
 }
