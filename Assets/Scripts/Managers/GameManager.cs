@@ -56,11 +56,20 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private NetworkVariable<int> _fourTeamScore;
     #endregion
 
+    #region ActionFuntion
+
     /// <summary>
     /// self, enemy 형태로 보낼 예정
     /// 받을 때 주의할 것
     /// </summary>
     public event Action<PlayerTeamEnum, PlayerTeamEnum> OnKillLog;
+
+    /// <summary>
+    /// 시간을 전역적으로 알려줄 함수.
+    /// </summary>
+    public event Action<int> OnChangeTime;
+
+    #endregion
 
     private void Start()
     {
@@ -80,6 +89,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         while(_currentTime <= _gamePlayableTime)
         {
             _currentTime = NetworkManager.Singleton.ServerTime.Time - _startTime;
+            OnChangeTime?.Invoke((int)(_gamePlayableTime - _currentTime));
             yield return _tick;
         }
 
