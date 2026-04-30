@@ -17,6 +17,6 @@ public interface ILobbyManager
     public string GetRoomID();
     public string GetRoomName();
     public string GetHostId();
-    public void LobbyDataOnChangedAddListener(Action callback);
-    public void LobbyDataOnChangedRemoveListener(Action callback);
+    public void LobbyDataOnChangedAddListener(Action<Lobby> callback);
+    public void LobbyDataOnChangedRemoveListener(Action<Lobby> callback);
 }

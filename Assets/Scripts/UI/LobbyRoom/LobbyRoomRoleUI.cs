@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Services.Lobbies.Models;
 
 public class LobbyRoomRoleUI : MonoBehaviour
 {
@@ -12,18 +13,17 @@ public class LobbyRoomRoleUI : MonoBehaviour
     
     [SerializeField] private int _teamNumber;
     [SerializeField] private PlayerRole _playerRole;
-    
-    private void OnEnable() => BindCallbackToButtons();
-    private void OnDisable() => UnbindCallbackToButtons();
 
-    private void BindCallbackToButtons()
+    private void OnEnable()
     {
         _moveButton.onClick.AddListener(OnMove);
+        ServiceLocator.Get<ILobbyManager>()?.LobbyDataOnChangedAddListener(OnRender);
     }
 
-    private void UnbindCallbackToButtons()
+    private void OnDisable()
     {
         _moveButton.onClick.RemoveListener(OnMove);
+        ServiceLocator.Get<ILobbyManager>()?.LobbyDataOnChangedRemoveListener(OnRender);
     }
 
     private void OnMove()
@@ -57,6 +57,22 @@ public class LobbyRoomRoleUI : MonoBehaviour
         updateData.Add((LobbyPlayerDataKey.TEAM, $"{teamNumber}"));
         updateData.Add((LobbyPlayerDataKey.ROLE, nameof(playerRole)));
         lobby?.UpdatePlayerData(updateData);
+    }
+
+    private void OnRender(Lobby lobby)
+    {
+        List<Player> players = lobby.Players;
+        foreach (var player in players)
+        {
+            var teamId = player.Data[LobbyPlayerDataKey.TEAM].Value;
+            var role = player.Data[LobbyPlayerDataKey.ROLE].Value;
+            if ($"{_teamNumber}" == teamId && nameof(_playerRole) == role)
+            {
+                _userId.text = player.Data[LobbyPlayerDataKey.USER_ID].Value;
+                return;
+            }
+        }
+        _userId.text = "";
     }
 }
 
