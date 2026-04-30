@@ -20,6 +20,7 @@ public interface IGameManager
 
     /// <summary>
     /// 스코어가 바뀐 경우 바뀐 스코어를 전달하기 위한 함수.
+    /// int 배열 4개가 들어올 예정 (int[4])
     /// </summary>
     public event Action<int[]> OnChangeScore;
 }
