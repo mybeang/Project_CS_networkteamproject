@@ -17,4 +17,9 @@ public interface IGameManager
     /// 초단위로 넘겨줌.
     /// </summary>
     public event Action<int> OnChangeTime;
+
+    /// <summary>
+    /// 스코어가 바뀐 경우 바뀐 스코어를 전달하기 위한 함수.
+    /// </summary>
+    public event Action<int[]> OnChangeScore;
 }

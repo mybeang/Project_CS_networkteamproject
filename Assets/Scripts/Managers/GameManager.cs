@@ -28,7 +28,6 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     [SerializeField] private bool _OnReSpawnLog;
 
     #endregion
-    // TODO : 맵 선택 enum으로 
 
     #region Private_Variable
     // 내부 변수 
@@ -57,7 +56,6 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     #endregion
 
     #region ActionFuntion
-
     /// <summary>
     /// self, enemy 형태로 보낼 예정
     /// 받을 때 주의할 것
@@ -69,6 +67,10 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     /// </summary>
     public event Action<int> OnChangeTime;
 
+    /// <summary>
+    /// 스코어가 바뀔 경우 Invoke해줄 함수.
+    /// </summary>
+    public event Action<int[]> OnChangeScore;
     #endregion
 
     private void Start()
@@ -187,8 +189,6 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     [ServerRpc]
     public void OnDestoryVehicleServerRpc(PlayerTeamEnum self, PlayerTeamEnum enemy)
     {
-        // TODO : 킬로그, 점수, 파괴된 이동 수단 비활성화 및 플레그 호출
-
         // 이동 수단 비활성화 및 플레그 호출
         _managementObject[(int)self * 3 + 2].SetActive(false);
         // TODO : 플레그 관련 호출 정의될 시 여기서 호출
@@ -198,7 +198,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             StartCoroutine(TrrigerTimer());
 
         // 점수
-        switch(enemy)
+        switch(enemy) // TODO : 메모리 변조 같은 간단한 값에 대한 위조 방지 장치가 필요한지 논의 필요
         {
             case PlayerTeamEnum.firstTeam:
                 _firstTeamScore.OnValueChanged(_firstTeamScore.Value,_firstTeamScore.Value += 1);
@@ -213,6 +213,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 _fourTeamScore.OnValueChanged(_fourTeamScore.Value, _fourTeamScore.Value += 1);
                 break;
         }
+        OnChangeScore?.Invoke(new int[4] {_firstTeamScore.Value, _secondTeamScore.Value, _thirdTeamScore.Value, _fourTeamScore.Value});
 
         // 킬로그 호출
         OnKillLog?.Invoke(self,enemy);
