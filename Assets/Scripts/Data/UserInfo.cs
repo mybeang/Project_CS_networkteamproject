@@ -9,4 +9,5 @@ public class UserInfo
     public int teamNum;
     public bool isDriver;
     public int score;
+    public ulong clientId;
 }

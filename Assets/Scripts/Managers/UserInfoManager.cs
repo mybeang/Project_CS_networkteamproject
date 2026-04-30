@@ -18,4 +18,5 @@
     public bool IsDriver() => _userInfo.isDriver;
     public void AddScore(int score) => _userInfo.score += score;
     public int GetScore() => _userInfo.score;
+    public void SetClientId(ulong clientId) => _userInfo.clientId = clientId;
 }

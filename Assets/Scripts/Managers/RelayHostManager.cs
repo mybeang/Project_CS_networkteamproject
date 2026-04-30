@@ -85,7 +85,8 @@ public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
         try
         {
             string joinCode = await StartHostWithRelayAsync();
-            // ToDo. Unity Lobby 관련 코드 추가시 JoinCode 처리 추가할 것.
+            ulong clientId = NetworkManager.Singleton.LocalClientId;
+            ServiceLocator.Get<IUserInfoManager>()?.SetClientId(clientId);
             return joinCode;
         }
         catch (Exception e)
@@ -102,6 +103,8 @@ public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
         try
         {
             await StartClientWithRelayAsync(joinCode);
+            ulong clientId = NetworkManager.Singleton.LocalClientId;
+            ServiceLocator.Get<IUserInfoManager>()?.SetClientId(clientId);
         }
         catch (Exception e)
         {
