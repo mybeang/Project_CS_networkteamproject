@@ -5,7 +5,7 @@ using UnityEngine.InputSystem.XR;
 
 public class testTank : NetworkBehaviour, IDamageableObject
 {
-    [SerializeField] private PlayerableStatisticsSO _tankStat;
+    [SerializeField] private PlayerableStatisticsSO _stat;
 
     [SerializeField] private Transform _turret;
 
@@ -32,11 +32,10 @@ public class testTank : NetworkBehaviour, IDamageableObject
     {
         get { return _gunnerID.Value; }
     }
-
-    //이것들도 networkvariable로 가야하는건가?
+    
     // 현재 HP
-    private int _hp;
-    // 공격 쿨다운
+    private NetworkVariable<int> _hp;
+    // 공격 쿨다운 (일단 일반변수로 가보자)
     private float _reloadTime;
 
     private void Awake()
@@ -55,6 +54,14 @@ public class testTank : NetworkBehaviour, IDamageableObject
         _gunnerID.Value = ulong.MaxValue;
     }
 
+    private void Update()
+    {
+        //쿨타임 줄여주기
+        _reloadTime -= Time.deltaTime;
+        if(_reloadTime < 0 ) _reloadTime = 0;
+        
+    }
+
     //탱크 초기화 함수
     public void Init(ulong driverID, ulong gunnerID)
     {
@@ -63,8 +70,20 @@ public class testTank : NetworkBehaviour, IDamageableObject
         _driverID.Value = driverID;
         _gunnerID.Value = gunnerID;
 
-        _hp = _tankStat.VechicleMaximumHP;
-        _reloadTime = _tankStat.VechicleReloadtime;     
+        _hp.Value = _stat.VechicleMaximumHP;
+        _reloadTime = _stat.VechicleReloadtime;     
+    }
+
+    //탱크 체력 초기화 함수
+    public void SetHp(int hp)
+    {
+        _hp.Value = hp;
+    }
+
+    //탱크 위치 초기화 함수
+    public void SetPosition(Vector3 pos)
+    {
+        transform.position = pos;
     }
 
     // tank에서 driver, gunner 초기화가 이루어졌다면 UI를 작동시킴.
@@ -119,29 +138,78 @@ public class testTank : NetworkBehaviour, IDamageableObject
     public void MoveBodyServerRpc(Vector2 input)
     {
         // 회전
-        transform.Rotate(0, input.x * _tankStat.VechicleRotationSpeed * Time.deltaTime, 0);
+        transform.Rotate(0, input.x * _stat.VechicleRotationSpeed * Time.deltaTime, 0);
 
         // 이동
         Vector3 move = transform.forward * input.y;
-        move = move * _tankStat.VechicleMoveSpeed * Time.deltaTime;
+        move = move * _stat.VechicleMoveSpeed * Time.deltaTime;
         transform.position += move;
     }
 
     //Turret을 회전하는 함수
+    private Vector2 _lastInput; // 마지막에 어떻게 움직였는지 기록해놓고
+    private bool _isHorizontalMode; // 수평, 수직방향중 한번에 하나의 방향으로만 움직일 수 있음.
+
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void MoveTurretServerRpc(Vector2 input)
     {
-        // 수평회전
-        _turret.Rotate(0, input.x * _tankStat.TurretHorizontalRotationSpeed * Time.deltaTime, 0);
-        // 수직회전
-        _turret.Rotate(input.y * _tankStat.TurretVerticalRotationSpeed * Time.deltaTime, 0, 0);
-        
+        // 마지막에 입력된 축을 우선판정 
+        if (input.x != 0 && _lastInput.x == 0)
+        {
+            _isHorizontalMode = true;
+        }
+        else if (input.y != 0 && _lastInput.y == 0)
+        {
+            _isHorizontalMode = false;
+        }
+
+        _lastInput = input;
+
+
+        // 수평 회전
+        if (_isHorizontalMode && input.x != 0)
+        {
+            _turret.Rotate(
+                0,
+                input.x * _stat.TurretHorizontalRotationSpeed * Time.deltaTime,
+                0,
+                Space.Self
+            );
+        }
+
+        // 수직 회전
+        if (!_isHorizontalMode && input.y != 0)
+        {
+            Vector3 localRot = _turret.localEulerAngles;
+
+            // 현재 각도 변환
+            float pitch = localRot.x;
+            if (pitch > 180f)
+                pitch -= 360f;
+
+            // 목표 각도 계산
+            float targetPitch = pitch - (input.y * _stat.TurretVerticalRotationSpeed * Time.deltaTime);
+
+            // 예시) MaxElevationAngle = 60 ,MaxDepressionAngle = 30
+            // ->   -30 ~ +60 제한
+            targetPitch = Mathf.Clamp(
+                targetPitch,
+                -_stat.TurretMaximumDepressionAngle,
+                _stat.TurretMaximumElevationAngle
+            );
+
+            localRot.x = targetPitch;
+            _turret.localEulerAngles = localRot;
+        }
     }
 
     public void Shoot()
     {
-        //쿨다운 없이 일단 테스트
         Debug.Log("_projectileManager.Shot()");
+
+        //재장전시간 체크
+        if (_reloadTime > 0) return;
+        _reloadTime = _stat.VechicleReloadtime;
 
         _projectileManager.Shot();
     }
@@ -149,7 +217,7 @@ public class testTank : NetworkBehaviour, IDamageableObject
     public void TakeDamaged(int dmg)
     {
         Debug.Log($"_hp : {_hp} , dmg : {dmg}");
-        _hp -= dmg;
+        _hp.Value -= dmg;
     }
 
 }
