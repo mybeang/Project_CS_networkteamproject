@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Firebase.Extensions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,37 +29,34 @@ public class LobbyRoomRoleUI : MonoBehaviour
 
     private void OnMove()
     {
+        Debug.Log("[LobbyRoomRoleUI] On Move");
         AssignToRole();
     }
 
     public bool AssignToRole()
     {
+        Debug.Log("[LobbyRoomRoleUI] Assign to role");
         if (_userId.text != "") return false;
-        // UserInfo Update
-        UpdateData(_playerRole, _teamNumber);
+        Debug.Log($"[LobbyRoomTeamUI] Update Data ... r:{_playerRole} | t:{_teamNumber}");        
+        var lobby = ServiceLocator.Get<ILobbyManager>();
+        List<(string key, string value)> updateData = new ();
+        updateData.Add((LobbyPlayerDataKey.TEAM, $"{_teamNumber}"));
+        updateData.Add((LobbyPlayerDataKey.ROLE, $"{_playerRole}"));
+        Debug.Log("[LobbyRoomTeamUI] Update Data ... Lobby Data Async Start");
+        lobby?.UpdatePlayerData(updateData).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted) {
+                Debug.Log("[LobbyRoomTeamUI] Update Data faulted");
+                return;
+            }
+            var userInfo = ServiceLocator.Get<IUserInfoManager>();
+            userInfo?.SetIsDriver(_playerRole);
+            userInfo?.SetTeamNum(_teamNumber);
+        });
+        Debug.Log("[LobbyRoomTeamUI] Update Data ... User Info Clear");
         return true;
     }
     
-    public void UnassignFromRole()
-    {
-        _userId.text = "";
-        UpdateData(PlayerRole.None, 0);
-    }
-
-    private void UpdateData(PlayerRole playerRole, int teamNumber)
-    {
-        var userInfo = ServiceLocator.Get<IUserInfoManager>();
-        userInfo?.SetIsDriver(playerRole);
-        userInfo?.SetTeamNum(teamNumber);
-        
-        // Lobby Update
-        var lobby = ServiceLocator.Get<ILobbyManager>();
-        List<(string key, string value)> updateData = new ();
-        updateData.Add((LobbyPlayerDataKey.TEAM, $"{teamNumber}"));
-        updateData.Add((LobbyPlayerDataKey.ROLE, nameof(playerRole)));
-        lobby?.UpdatePlayerData(updateData);
-    }
-
     private void OnRender(Lobby lobby)
     {
         List<Player> players = lobby.Players;
@@ -66,9 +64,10 @@ public class LobbyRoomRoleUI : MonoBehaviour
         {
             var teamId = player.Data[LobbyPlayerDataKey.TEAM].Value;
             var role = player.Data[LobbyPlayerDataKey.ROLE].Value;
-            if ($"{_teamNumber}" == teamId && nameof(_playerRole) == role)
+            if ($"{_teamNumber}" == teamId && $"{_playerRole}" == role)
             {
                 _userId.text = player.Data[LobbyPlayerDataKey.USER_ID].Value;
+                _ready.isOn = player.Data[LobbyPlayerDataKey.READY].Value == "true";
                 return;
             }
         }

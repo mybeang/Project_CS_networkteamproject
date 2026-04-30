@@ -13,7 +13,7 @@ public interface ILobbyManager
     public Task LeaveRoom();
     public List<Player> GetPlayerList();
     public Dictionary<string, string> GetMyPlayerData();
-    public void UpdatePlayerData(List<(string key, string value)> updateData);
+    public Task UpdatePlayerData(List<(string key, string value)> updateData);
     public string GetRoomID();
     public string GetRoomName();
     public string GetHostId();
