@@ -158,7 +158,9 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         options.Player = new Player { Data = GetMyDataFormat<PlayerDataObject>() };
         try
         {
+            Debug.Log("[LobbyManager] Try Creating room...");
             _lobby = await LobbyService.Instance.CreateLobbyAsync(subject, MAX_PLAYERS, options);
+            Debug.Log("[LobbyManager] Update _lobby");
             ServiceLocator.Get<IUserInfoManager>()?.SetRoomId(_lobby.Id);
             if (_heartbeatCoroutine != null)
             {
@@ -232,6 +234,7 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
 
     private IEnumerator HeartBeatCoroutine()
     {
+        Debug.Log("[LobbyManager] Start to heart beat");
         var delay = new WaitForSecondsRealtime(HEART_BEAT_TIME);
         while (_lobby != null)
         {
