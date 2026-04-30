@@ -3,7 +3,7 @@ using Unity.Netcode;
 
 public interface IGameManager
 {
-    public void StartGame(teamInfo[] teams, in string roomID, int mapNumber);
+    public void StartGame(TeamInfo[] teams, in string roomID, int mapNumber);
     [ServerRpc] public void OnDestoryVehicleServerRpc(PlayerTeamEnum self, PlayerTeamEnum enemy);
 
     /// <summary>

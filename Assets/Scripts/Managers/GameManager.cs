@@ -34,7 +34,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
     #region Private_Variable
     // 내부 변수 
-    private teamInfo[] _teams;
+    private TeamInfo[] _teams;
 
     private string _roomID;
     private int _mapNumber;
@@ -89,7 +89,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     }
 
     // 로비에서 게임 시작 시 호출하여, 팀 정보 받아오기
-    public void StartGame(teamInfo[] teams, in string roomID, int mapNumber)
+    public void StartGame(TeamInfo[] teams, in string roomID, int mapNumber)
     {
         _teams = teams;
         _roomID = roomID;

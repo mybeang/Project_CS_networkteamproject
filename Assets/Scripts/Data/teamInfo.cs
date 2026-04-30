@@ -1,11 +1,11 @@
-﻿public struct teamInfo
+﻿public struct TeamInfo
 {
     private ulong _driverID;
     private ulong _gunnerID;
     private PlayerableVehicleEnum _vehicle;
     private PlayerTeamEnum _teamNumber;
 
-    public teamInfo(PlayerTeamEnum teamNum, ulong driver, ulong gunner, PlayerableVehicleEnum vehicleNum)
+    public TeamInfo(PlayerTeamEnum teamNum, ulong driver, ulong gunner, PlayerableVehicleEnum vehicleNum)
     {
         _teamNumber = teamNum;
         _driverID = driver;
@@ -17,7 +17,7 @@
     /// 특정 팀의 전체 정보가 필요한 경우 호출
     /// </summary>
     /// <returns></returns>
-    public teamInfo GetTeamInfo() => this;
+    public TeamInfo GetTeamInfo() => this;
 
     public ulong DriverID
     {
