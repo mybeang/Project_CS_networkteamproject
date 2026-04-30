@@ -108,8 +108,8 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         }
         
         data.Add(LobbyPlayerDataKey.USER_ID, CreateDataObject<T>(userInfo.userId));
-        data.Add(LobbyPlayerDataKey.TEAM, CreateDataObject<T>(""));
-        data.Add(LobbyPlayerDataKey.ROLE, CreateDataObject<T>(""));
+        data.Add(LobbyPlayerDataKey.TEAM, CreateDataObject<T>("0"));
+        data.Add(LobbyPlayerDataKey.ROLE, CreateDataObject<T>(nameof(PlayerRole.None)));
         data.Add(LobbyPlayerDataKey.READY, CreateDataObject<T>("false"));  // string false/true
         return data;
     }
