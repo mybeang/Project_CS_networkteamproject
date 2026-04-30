@@ -21,13 +21,11 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     [Header("그 외")]
     [SerializeField] private Canvas _gameResultCanvas;
     
-#if UNITY_EDITOR
     [Header("디버기용")]
     [SerializeField] private bool _OnLoadedLog;
     [SerializeField] private bool _OnTimerStartLog;
     [SerializeField] private bool _OnSpawnLog;
     [SerializeField] private bool _OnReSpawnLog;
-#endif
 
     #endregion
     // TODO : 맵 선택 enum으로 
@@ -43,7 +41,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private double _currentTime;
     private double[] _RespawnTimer;
 
-    private WaitForSeconds _tick;
+    private WaitForSecondsRealtime _tick;
     private Coroutine _timerCoroutine;
     private Coroutine _triggerTimerCoroutine;
 
@@ -67,7 +65,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private void Start()
     {
         _RespawnTimer = new double[4];
-        _tick = new WaitForSeconds(0.25f);
+        _tick = new WaitForSecondsRealtime(0.25f);
     }
 
     protected override void Register() => ServiceLocator.Register<IGameManager>(this);
@@ -104,10 +102,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel($"{_roomID}{(int)_teams[i].TeamNum}");
         }
 
-#if UNITY_EDITOR
         if (_OnLoadedLog)
             Debug.Log($"{name}에서 게임 시작 함수 정상 작동됌");
-#endif
     }
 
     private void ResetGameData()
@@ -134,10 +130,9 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             obj.name = $"{_teams[i].TeamNum.ToString()} + Driver";
             obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(_teams[i].DriverID,true);
             _managementObject[i * 3] = obj;
-#if UNITY_EDITOR
+
             if (_OnSpawnLog)
                 Debug.Log($"조종수 객체 : {obj.name} 생성 완료");
-#endif
 
             obj = Instantiate(_playerObject, transform);
             obj.SetActive(true);
@@ -145,10 +140,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(_teams[i].GunnerID, true);
             _managementObject[(i * 3) + 1] = obj;
 
-#if UNITY_EDITOR
             if (_OnSpawnLog)
                 Debug.Log($"사수 객체 : {obj.name} 생성 완료");
-#endif
 
             obj = Instantiate(_playerablePrefabs[(int)_teams[i].VehicleNum]);
             obj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)_teams[i].TeamNum];
@@ -157,10 +150,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(_teams[i].DriverID, true);
             _managementObject[(i * 3) + 2] = obj;
 
-#if UNITY_EDITOR
             if (_OnSpawnLog)
                 Debug.Log($"이동 객체 : {obj.name} 생성 완료");
-#endif
         }
     }
 
@@ -173,10 +164,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
         // TODO : 여기에 이동 객체 초기화 함수 호출.
 
-#if UNITY_EDITOR
         if (_OnReSpawnLog)
             Debug.Log($"{_managementObject[teamNum].name} 리스폰 완료");
-#endif
     }
 
     /// <summary>
@@ -266,6 +255,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         {
             Destroy(_managementObject[i]);
         }
+
+        Debug.Log("게임 종료 성공적으로 호출됌");
 
         // 게임 결과 화면
         _gameResultCanvas.enabled = true;
