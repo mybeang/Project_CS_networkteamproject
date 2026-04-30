@@ -11,17 +11,15 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     [Header("플레이어(조종) 객체")]
     [SerializeField] private GameObject _playerObject;
     [Header("이동 객체 관련")]
-    [SerializeField] private GameObject[] _playerablePrefabs;
-    [SerializeField] private Material[] _PlayerableMaterials;
-    [Header("소환 위치")]
-    [SerializeField] private List<SpawnPoint> _spanwPoints;
+    [SerializeField][Tooltip("전차 등의 객체(Prefab)을 직접 넣는 곳")] private GameObject[] _playerablePrefabs;
+    [SerializeField][Tooltip("해당 객체를 팀 단위로 식별하기 위해 넣어야하는 Material들")] private Material[] _PlayerableMaterials;
+    [Header("게임 정보들")]
+    // 맵은 고민이 조금 필요해 보임, 생각보다 크면 Instantiate 로 하나만 생성하게 만들고, 맵이 작으면 모두 불로온 뒤 Enable, Disable 정도만
+    [SerializeField] private List<MapInfo> _maps;
     [SerializeField] private double _basicSpawnTime;
+    [SerializeField][Range(60, 1800)] private int _gamePlayableTime;
     [Header("그 외")]
     [SerializeField] private Canvas _gameResultCanvas;
-    [SerializeField][Range(60, 1800)] private int _gamePlayableTime;
-    [SerializeField] private GameObject[] _map; //임시로 한개만
-
-    // 맵은 고민이 조금 필요해 보임, 생각보다 크면 Instantiate 로 하나만 생성하게 만들고, 맵이 작으면 모두 불로온 뒤 Enable, Disable 정도만
     
 #if UNITY_EDITOR
     [Header("디버기용")]
@@ -64,7 +62,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     /// self, enemy 형태로 보낼 예정
     /// 받을 때 주의할 것
     /// </summary>
-    public event Action<playerTeamEnum, playerTeamEnum> OnKillLog;
+    public event Action<PlayerTeamEnum, PlayerTeamEnum> OnKillLog;
 
     private void Start()
     {
@@ -99,7 +97,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
         ResetGameData();
 
-        _map[_mapNumber].SetActive(true);
+        _maps[_mapNumber].maps.SetActive(true);
 
         for (int i = 0; i < _teams.Length; i++)
         {
@@ -168,7 +166,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
     // 소환된 경우 모든 Client 들에게 알려야함.
     [ClientRpc]
-    private void ReSpawnVehicleClientRpc(playerTeamEnum team) // TODO : 재소환 시 체력, 위치 재설정 가능하게 열려 있어야함.
+    private void ReSpawnVehicleClientRpc(PlayerTeamEnum team) // TODO : 재소환 시 체력, 위치 재설정 가능하게 열려 있어야함.
     {
         int teamNum = (int)team * 3 + 2;
         _managementObject[teamNum].SetActive(true);
@@ -188,13 +186,13 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     /// <param name="self"></param>
     /// <param name="enemy"></param>
     [ServerRpc]
-    public void OnDestoryVehicleServerRpc(playerTeamEnum self, playerTeamEnum enemy)
+    public void OnDestoryVehicleServerRpc(PlayerTeamEnum self, PlayerTeamEnum enemy)
     {
         // TODO : 킬로그, 점수, 파괴된 이동 수단 비활성화 및 플레그 호출
 
         // 이동 수단 비활성화 및 플레그 호출
         _managementObject[(int)self * 3 + 2].SetActive(false);
-        // 플레그 호출 관련 논의 필요??
+        // TODO : 플레그 관련 호출 정의될 시 여기서 호출
 
         _RespawnTimer[(int)self] = _currentTime + _basicSpawnTime;
         if (_triggerTimerCoroutine == null)
@@ -203,16 +201,16 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         // 점수
         switch(enemy)
         {
-            case playerTeamEnum.firstTeam:
+            case PlayerTeamEnum.firstTeam:
                 _firstTeamScore.OnValueChanged(_firstTeamScore.Value,_firstTeamScore.Value += 1);
                 break;
-            case playerTeamEnum.secondTeam:
+            case PlayerTeamEnum.secondTeam:
                 _secondTeamScore.OnValueChanged(_secondTeamScore.Value, _secondTeamScore.Value += 1);
                 break;
-            case playerTeamEnum.thirdTeam:
+            case PlayerTeamEnum.thirdTeam:
                 _thirdTeamScore.OnValueChanged(_thirdTeamScore.Value, _thirdTeamScore.Value += 1);
                 break;
-            case playerTeamEnum.fourthTeam:
+            case PlayerTeamEnum.fourthTeam:
                 _fourTeamScore.OnValueChanged(_fourTeamScore.Value, _fourTeamScore.Value += 1);
                 break;
         }
@@ -232,7 +230,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             {
                 if (_currentTime <= _RespawnTimer[i])
                 {
-                    ReSpawnVehicleClientRpc((playerTeamEnum)i);
+                    ReSpawnVehicleClientRpc((PlayerTeamEnum)i);
                 }
                 else
                 {
@@ -253,7 +251,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         // 게임 종료 시 호출 될 것들
 
         // 맵 끄기
-        _map[_mapNumber].SetActive(false);
+        _maps[_mapNumber].maps.SetActive(false);
         // 음성 채널 탈퇴
         byte i;
         for (i = 0; i < _teams.Length; i++)

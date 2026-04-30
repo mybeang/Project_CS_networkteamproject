@@ -3,9 +3,9 @@
     private ulong _driverID;
     private ulong _gunnerID;
     private PlayerableVehicleEnum _vehicle;
-    private playerTeamEnum _teamNumber;
+    private PlayerTeamEnum _teamNumber;
 
-    public teamInfo(playerTeamEnum teamNum, ulong driver, ulong gunner, PlayerableVehicleEnum vehicleNum)
+    public teamInfo(PlayerTeamEnum teamNum, ulong driver, ulong gunner, PlayerableVehicleEnum vehicleNum)
     {
         _teamNumber = teamNum;
         _driverID = driver;
@@ -34,7 +34,7 @@
     /// <summary>
     /// 팀 번호 호출용
     /// </summary>
-    public playerTeamEnum TeamNum
+    public PlayerTeamEnum TeamNum
     {
         get => _teamNumber;
         private set => _teamNumber = value;

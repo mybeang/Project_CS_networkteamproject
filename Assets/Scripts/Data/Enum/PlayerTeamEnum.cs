@@ -1,5 +1,5 @@
 ﻿
-public enum playerTeamEnum : byte
+public enum PlayerTeamEnum : byte
 {
     firstTeam, secondTeam, thirdTeam, fourthTeam,
 }
