@@ -706,7 +706,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 801d4967abba81d4c9da704bc7e28abc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Driver_UI_Viewer
-  _isMask: 0
+  _isMask: 1
   _driverOpticalImg: {fileID: 21300000, guid: 3ff8193a4f186c842828df7a22ff081b, type: 3}
   _driverOptical: {fileID: 7463712700443273684}
   _driverOpticalMaskImg: {fileID: 21300000, guid: 64575829819e5ee42bfcba3c62404c9a, type: 3}
