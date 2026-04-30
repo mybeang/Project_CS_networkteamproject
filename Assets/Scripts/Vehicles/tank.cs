@@ -147,16 +147,60 @@ public class testTank : NetworkBehaviour, IDamageableObject
     }
 
     //Turret을 회전하는 함수
+    private Vector2 _lastInput; // 마지막에 어떻게 움직였는지 기록해놓고
+    private bool _isHorizontalMode; // 수평, 수직방향중 한번에 하나의 방향으로만 움직일 수 있음.
+
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void MoveTurretServerRpc(Vector2 input)
     {
-        // 수평회전
-        _turret.Rotate(0, input.x * _stat.TurretHorizontalRotationSpeed * Time.deltaTime, 0);
-        // 수직회전
-        _turret.Rotate(input.y * _stat.TurretVerticalRotationSpeed * Time.deltaTime, 0, 0);
+        // 마지막에 입력된 축을 우선판정 
+        if (input.x != 0 && _lastInput.x == 0)
+        {
+            _isHorizontalMode = true;
+        }
+        else if (input.y != 0 && _lastInput.y == 0)
+        {
+            _isHorizontalMode = false;
+        }
 
-        
-        
+        _lastInput = input;
+
+
+        // 수평 회전
+        if (_isHorizontalMode && input.x != 0)
+        {
+            _turret.Rotate(
+                0,
+                input.x * _stat.TurretHorizontalRotationSpeed * Time.deltaTime,
+                0,
+                Space.Self
+            );
+        }
+
+        // 수직 회전
+        if (!_isHorizontalMode && input.y != 0)
+        {
+            Vector3 localRot = _turret.localEulerAngles;
+
+            // 현재 각도 변환
+            float pitch = localRot.x;
+            if (pitch > 180f)
+                pitch -= 360f;
+
+            // 목표 각도 계산
+            float targetPitch = pitch - (input.y * _stat.TurretVerticalRotationSpeed * Time.deltaTime);
+
+            // 예시) MaxElevationAngle = 60 ,MaxDepressionAngle = 30
+            // ->   -30 ~ +60 제한
+            targetPitch = Mathf.Clamp(
+                targetPitch,
+                -_stat.TurretMaximumDepressionAngle,
+                _stat.TurretMaximumElevationAngle
+            );
+
+            localRot.x = targetPitch;
+            _turret.localEulerAngles = localRot;
+        }
     }
 
     public void Shoot()
