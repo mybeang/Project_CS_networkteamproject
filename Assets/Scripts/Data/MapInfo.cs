@@ -4,7 +4,7 @@ using UnityEngine;
 [Serializable]
 public class MapInfo
 {
-    public Vector3[] _position;
+    public Transform[] _position;
     public string _nickname;
     public GameObject maps;
 }
