@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Firebase.Extensions;
 using TMPro;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
@@ -86,16 +87,29 @@ public class LobbyRoomUIController : MonoBehaviour
     private void OnReSelect()
     {
         Debug.Log("[LobbyRoomUIController] On ReSelect ... ");
-        var userInfo = ServiceLocator.Get<IUserInfoManager>();
-        userInfo?.SetIsDriver(PlayerRole.None);
-        userInfo?.SetTeamNum(0);
-        
         var lobby = ServiceLocator.Get<ILobbyManager>();
+        if (lobby.GetMyPlayerData()[LobbyPlayerDataKey.READY] == "true")
+        {
+            Debug.Log("[LobbyRoomUIController] On ReSelect ... Canceled");
+            // ToDo. 먼저 레디 풀라고 팝업 띄우기.
+            return;
+        }
+        
         List<(string key, string value)> updateData = new();
         updateData.Add((LobbyPlayerDataKey.TEAM, "0"));
         updateData.Add((LobbyPlayerDataKey.ROLE, $"{PlayerRole.None}"));
-        lobby?.UpdatePlayerData(updateData);
-        Debug.Log($"[LobbyRoomUIController] On ReSelect ... Done");
+        lobby?.UpdatePlayerData(updateData).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted)
+            {
+                Debug.Log("[LobbyRoomUIController] On ReSelect ... Fail");
+                return;
+            }
+            var userInfo = ServiceLocator.Get<IUserInfoManager>();
+            userInfo?.SetIsDriver(PlayerRole.None);
+            userInfo?.SetTeamNum(0);
+            Debug.Log($"[LobbyRoomUIController] On ReSelect ... Done");
+        });
     }
 
     private void OnReady()

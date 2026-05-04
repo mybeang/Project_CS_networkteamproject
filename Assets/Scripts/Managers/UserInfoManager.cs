@@ -1,11 +1,6 @@
 ﻿public class UserInfoManager : Manager<UserInfoManager>, IUserInfoManager
 {
-    private UserInfo _userInfo;
-    
-    protected override void Init()
-    {
-        _userInfo = new UserInfo();
-    }
+    private UserInfo _userInfo = new();
     
     protected override void Register() => ServiceLocator.Register<IUserInfoManager>(this);
     protected override void Unregister() => ServiceLocator.Unregister<IUserInfoManager>();

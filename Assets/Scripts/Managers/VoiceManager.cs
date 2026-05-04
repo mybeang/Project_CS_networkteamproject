@@ -12,7 +12,8 @@ public class VoiceManager : Manager<VoiceManager>, IVoiceManager
     protected override async void Init()
     {
         await UnityServiceInitialize.Processing();
-        await VivoxService.Instance.InitializeAsync();
+        if (VivoxService.Instance != null && !VivoxService.Instance.IsLoggedIn)
+            await VivoxService.Instance.InitializeAsync();
         await LoginAsync();
         OnLoginEndEvent?.Invoke();
     }
@@ -24,7 +25,8 @@ public class VoiceManager : Manager<VoiceManager>, IVoiceManager
     {
         LoginOptions options = new LoginOptions();
         options.DisplayName = Guid.NewGuid().ToString();
-        await VivoxService.Instance.LoginAsync(options);
+        if (VivoxService.Instance != null && !VivoxService.Instance.IsLoggedIn)
+            await VivoxService.Instance.LoginAsync(options);
     }
 
     protected override void Register() => ServiceLocator.Register<IVoiceManager>(this);

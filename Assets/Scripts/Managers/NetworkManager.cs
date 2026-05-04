@@ -3,14 +3,7 @@ using UnityEngine;
 
 public abstract class NetworkManager<T> : NetworkBehaviour
 {
-    [SerializeField] protected bool isDonDestoryOnLoad; 
-    
-    private void Awake()
-    {
-        if (isDonDestoryOnLoad) DontDestroyOnLoad(gameObject);
-        Init();
-    }
-
+    private void Awake() => Init();
     protected virtual void Init()
     {
     }

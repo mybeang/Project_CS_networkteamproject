@@ -150,6 +150,7 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         CreateLobbyOptions options = new CreateLobbyOptions();
         options.IsPrivate = false;  // 공개방
         options.Player = new Player { Data = GetMyDataFormat<PlayerDataObject>() };
+        options.Player.Data[LobbyPlayerDataKey.READY].Value = "true";
         try
         {
             Debug.Log("[LobbyManager] Try Creating room...");
