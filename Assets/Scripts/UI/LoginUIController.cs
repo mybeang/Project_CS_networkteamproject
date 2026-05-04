@@ -16,10 +16,22 @@ public class LoginUIController : MonoBehaviour
     private bool _openedWarningPanel;
     private string _warningTextFormat = " 은(는) 이미 사용중인 닉네임 입니다.";
     private string _nextSceneName = "LobbyList";
-    
-    private void OnEnable() => SubscribButtons();
+
+    private void OnEnable()
+    {
+        Init();
+        SubscribButtons();
+    }
     private void OnDisable() => UnsubscribButtons();
 
+    private void Init()
+    {
+        var userInfo = ServiceLocator.Get<IUserInfoManager>();
+        Debug.Log($"I am {userInfo.GetUserInfo().userId}");
+        if (userInfo.GetUserInfo().userId != "")
+            _userIdInputField.text = userInfo.GetUserInfo().userId;
+    }
+    
     private void SubscribButtons()
     {
         _loginButton.onClick.AddListener(OnLogin);
@@ -40,27 +52,37 @@ public class LoginUIController : MonoBehaviour
         Debug.Log("[Login] Try Login ...");
         var db = ServiceLocator.Get<IDatabaseBackend>();
         if (db == null) return;
+
+        var userInfo = ServiceLocator.Get<IUserInfoManager>();
         
-        bool isDup = await db.ValidateDuplicateUserIdAsync(_userIdInputField.text);
-        if (isDup)
+        if (_userIdInputField.text == "")
         {
-            OpenWarningMessage();
+            OpenWarningMessage("닉네임을 입력 해 주시기 바랍니다.");
             return;
         }
-        // -> 중복 아니면 로그인
-        ServiceLocator.Get<IUserInfoManager>()?.SetUserId(_userIdInputField.text);
-        string userId = ServiceLocator.Get<IUserInfoManager>()?.GetUserInfo().userId;
-        Debug.Log($"[Login] UserId: {userId}");
-        ServiceLocator.Get<IDatabaseBackend>()?.SaveUserAsync(userId);
-        ServiceLocator.Get<IDatabaseBackend>()?.RegisterDisconnectHandler(userId);  // 비 정상 종료 방어 코드
+        if (userInfo?.GetUserInfo().userId != _userIdInputField.text)
+        {
+            bool isDup = await db.ValidateDuplicateUserIdAsync(_userIdInputField.text);
+            if (isDup)
+            {
+                OpenWarningMessage(_userIdInputField.text + _warningTextFormat);
+                return;
+            }
+            // -> 중복 아니면 로그인
+            userInfo?.SetUserId(_userIdInputField.text);
+            string userId = userInfo?.GetUserInfo().userId;
+            Debug.Log($"[Login] UserId: {userId}");
+            ServiceLocator.Get<IDatabaseBackend>()?.SaveUserAsync(userId);
+            ServiceLocator.Get<IDatabaseBackend>()?.RegisterDisconnectHandler(userId);  // 비 정상 종료 방어 코드
+        }
         ServiceLocator.Get<ILocalSceneLoader>()?.LoadScene(_nextSceneName);  // Test 용 씬으로 전환
     }
     
-    private void OpenWarningMessage()
+    private void OpenWarningMessage(string text)
     {
         _openedWarningPanel = true;
         _warningPanel.SetActive(true);
-        _warningText.text = _userIdInputField.text + _warningTextFormat;
+        _warningText.text = text;
     }
 
     private void OnCloseWarningMessage()

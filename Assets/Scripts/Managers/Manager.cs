@@ -3,14 +3,8 @@ using UnityEngine;
 
 public abstract class Manager<T> : MonoBehaviour
 {
-    [SerializeField] protected bool isDonDestoryOnLoad; 
+    private void Awake() => Init();
     
-    private void Awake()
-    {
-        if (isDonDestoryOnLoad) DontDestroyOnLoad(gameObject);
-        Init();
-    }
-
     protected virtual void Init()
     {
     }
