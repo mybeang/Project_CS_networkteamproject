@@ -431,41 +431,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 722221416843355402, guid: e493f11fd366b1c4fa3b5e97b2d5cf87, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.009
-      objectReference: {fileID: 0}
-    - target: {fileID: 1077447913167373355, guid: e493f11fd366b1c4fa3b5e97b2d5cf87, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.009
-      objectReference: {fileID: 0}
-    - target: {fileID: 3443572322765214216, guid: e493f11fd366b1c4fa3b5e97b2d5cf87, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.009
-      objectReference: {fileID: 0}
-    - target: {fileID: 4264874061454851425, guid: e493f11fd366b1c4fa3b5e97b2d5cf87, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.009
-      objectReference: {fileID: 0}
     - target: {fileID: 5366169733142515600, guid: e493f11fd366b1c4fa3b5e97b2d5cf87, type: 3}
       propertyPath: m_Name
       value: DesertCity
-      objectReference: {fileID: 0}
-    - target: {fileID: 5912538498119781262, guid: e493f11fd366b1c4fa3b5e97b2d5cf87, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.009
-      objectReference: {fileID: 0}
-    - target: {fileID: 6210496318619123430, guid: e493f11fd366b1c4fa3b5e97b2d5cf87, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.009
-      objectReference: {fileID: 0}
-    - target: {fileID: 6763127697801101333, guid: e493f11fd366b1c4fa3b5e97b2d5cf87, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.009
-      objectReference: {fileID: 0}
-    - target: {fileID: 7301087811695903210, guid: e493f11fd366b1c4fa3b5e97b2d5cf87, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.009
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
