@@ -383,21 +383,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4391675639338876978, guid: dbf59c15dfbcfc345ab056061fba9e9f, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     - target: {fileID: 4675519946814004723, guid: dbf59c15dfbcfc345ab056061fba9e9f, type: 3}
       propertyPath: m_Name
       value: Map_Lunatic
-      objectReference: {fileID: 0}
-    - target: {fileID: 6376928930769718141, guid: dbf59c15dfbcfc345ab056061fba9e9f, type: 3}
-      propertyPath: m_Color.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6376928930769718141, guid: dbf59c15dfbcfc345ab056061fba9e9f, type: 3}
-      propertyPath: m_Color.g
-      value: 0.994616
-      objectReference: {fileID: 0}
-    - target: {fileID: 6376928930769718141, guid: dbf59c15dfbcfc345ab056061fba9e9f, type: 3}
-      propertyPath: m_Color.r
-      value: 0.8820755
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
