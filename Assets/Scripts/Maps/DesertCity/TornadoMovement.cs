@@ -28,9 +28,9 @@ public class TornadoMovement : NetworkBehaviour
     
     public void Init(List<Vector3> wayPoints)
     {
-        index = 0;
         SetSpeed();
         _selectedWayPoint = wayPoints;
+        index = UnityEngine.Random.Range(0, _selectedWayPoint.Count - 1);
         transform.position = _selectedWayPoint[index];
         _nxWayPoint = _selectedWayPoint[++index];
     }

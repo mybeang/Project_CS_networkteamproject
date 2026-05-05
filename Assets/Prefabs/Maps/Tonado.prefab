@@ -136,6 +136,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6652acbe120664a4587c14f60cb7f65e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TornadoAttack
+  _attackPointPerSeconds: 1
+  _effectArea: 3
+  _playerLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1001 &4109928866885039124
 PrefabInstance:
   m_ObjectHideFlags: 0
