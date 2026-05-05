@@ -12,7 +12,8 @@ public class TornadoManager : MonoBehaviour
 {
     [SerializeField] private GameObject _tornadoPrefab;
     [SerializeField] private List<WayPoint> _wayPoints;
-    [SerializeField][Range(3, 20)] private int _numberOfTornados;
+    [SerializeField][Range(3, 20)] private int _MaxTornados;
+    [SerializeField][Range(3, 20)] private int _numOfSpawns;
     private Queue<GameObject> _pool = new();
     private List<GameObject> _activeTorndos = new();
     private Vector3 _nxWayPoint;
@@ -22,7 +23,7 @@ public class TornadoManager : MonoBehaviour
     
     private void Init()
     {
-        for (int i = 0; i < _numberOfTornados; i++)
+        for (int i = 0; i < _MaxTornados; i++)
         {
             GameObject newTornado = Instantiate(_tornadoPrefab, transform);
             newTornado.transform.parent = transform;
@@ -39,11 +40,15 @@ public class TornadoManager : MonoBehaviour
     
     private void SpawnTornado()
     {
-        GameObject tornado = _pool.Dequeue();
-        TornadoMovement tm = tornado.GetComponent<TornadoMovement>();
-        tm.Init(SelectWayPoint());
-        tornado.SetActive(true);
-        _activeTorndos.Add(tornado);
+        for (int i = 0; i < _numOfSpawns; i++)
+        {
+            if (i > _MaxTornados) break;
+            GameObject tornado = _pool.Dequeue();
+            TornadoMovement tm = tornado.GetComponent<TornadoMovement>();
+            tm.Init(SelectWayPoint());
+            tornado.SetActive(true);
+            _activeTorndos.Add(tornado);    
+        }
     }
 
     private void DespawnAllTornado()

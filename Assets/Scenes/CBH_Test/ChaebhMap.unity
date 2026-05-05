@@ -339,6 +339,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Map_DesertCity
       objectReference: {fileID: 0}
+    - target: {fileID: 5838874639591613978, guid: e493f11fd366b1c4fa3b5e97b2d5cf87, type: 3}
+      propertyPath: _MaxTornados
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5838874639591613978, guid: e493f11fd366b1c4fa3b5e97b2d5cf87, type: 3}
+      propertyPath: _numOfSpawns
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
