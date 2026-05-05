@@ -30,6 +30,7 @@ public class TornadoMovement : NetworkBehaviour
     {
         SetSpeed();
         _selectedWayPoint = wayPoints;
+        if (UnityEngine.Random.value > 0.5f) _selectedWayPoint.Reverse();
         index = UnityEngine.Random.Range(0, _selectedWayPoint.Count - 1);
         transform.position = _selectedWayPoint[index];
         _nxWayPoint = _selectedWayPoint[++index];
