@@ -215,7 +215,10 @@ MonoBehaviour:
   _closeButton: {fileID: 4364754275186411138}
   _backgroundImage: {fileID: 5787591149605914983}
   _panelUI: {fileID: 956402267124070103}
-  _presets: []
+  _presets:
+  - {fileID: 11400000, guid: 712b85e5049ef4749ae80f2c8d0c5c1e, type: 2}
+  - {fileID: 11400000, guid: 982114c610af47944a50e9d5f58d9e74, type: 2}
+  - {fileID: 11400000, guid: e1089f1c31d527e4d9773bef216bdd2c, type: 2}
 --- !u!1 &6045815560154852153
 GameObject:
   m_ObjectHideFlags: 0

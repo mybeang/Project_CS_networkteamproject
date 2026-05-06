@@ -19,16 +19,19 @@ public class MessagePopUpUIController : MonoBehaviour
     [SerializeField] private GameObject _panelUI;
     [SerializeField] private List<PopUpPreset> _presets;
 
-    public void SetPreset(MessageType msgType)
+    private void OnDisable() => _closeButton.onClick.RemoveAllListeners();
+    
+    public void Open(MessageType msgType, string text, string closedText = "닫 기", UnityAction callback = null)
     {
+        if (callback != null) _closeButton.onClick.AddListener(callback);
+        _closeButton.onClick.AddListener(() => _panelUI.SetActive(false));
         int index = (int)msgType;
         _titleUI.text = _presets[index].titleText;
         _closeButton.GetComponent<Image>().sprite = _presets[index].btSprite;
         _backgroundImage.sprite = _presets[index].bgSprite;
+        
+        _textUI.text = text;
+        _closedBtTxtUI.text = closedText;
+        _panelUI.SetActive(true);
     }
-    public void SetText(string text) => _textUI.text = text;
-    public void Open() => _panelUI.SetActive(true);
-    public void Close() => _panelUI.SetActive(false);
-    public void SetCloseButtonCallback(UnityAction callback) => _closeButton.onClick.AddListener(callback);
-    public void UnsetCloseButtonCallback(UnityAction callback) => _closeButton.onClick.RemoveListener(callback);
 }
