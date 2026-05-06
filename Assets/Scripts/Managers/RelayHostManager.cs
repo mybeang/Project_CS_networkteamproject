@@ -113,4 +113,6 @@ public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
     }
 
     public void Disconnect() => NetworkManager.Singleton.Shutdown();
+
+    public ulong GetClientId() => NetworkManager.Singleton.LocalClientId;
 }
