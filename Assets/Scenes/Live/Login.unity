@@ -1436,6 +1436,62 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 927058675}
   m_CullTransparentMesh: 1
+--- !u!1 &984736385
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 984736386}
+  - component: {fileID: 984736387}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &984736386
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 984736385}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2081579989}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &984736387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 984736385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f275e048a584c914db8cc9f7115946f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  _playerObject: {fileID: 0}
+  _playerablePrefabs: []
+  _PlayerableMaterials: []
+  _maps: []
+  _basicSpawnTime: 10
+  _gamePlayableTime: 600
+  _gameResultCanvas: {fileID: 0}
+  _OnLoadedLog: 0
+  _OnTimerStartLog: 0
+  _OnSpawnLog: 0
+  _OnReSpawnLog: 0
 --- !u!1 &994422256
 GameObject:
   m_ObjectHideFlags: 0
@@ -2774,6 +2830,7 @@ Transform:
   - {fileID: 709081920}
   - {fileID: 2141584926}
   - {fileID: 1222244689}
+  - {fileID: 984736386}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2081579990
@@ -2938,5 +2995,5 @@ SceneRoots:
   - {fileID: 2058332464}
   - {fileID: 1611778143}
   - {fileID: 220721957}
-  - {fileID: 2081579989}
   - {fileID: 367550014}
+  - {fileID: 2081579989}
