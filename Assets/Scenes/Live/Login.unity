@@ -881,11 +881,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 414278891}
   m_CullTransparentMesh: 1
---- !u!1 &536021018 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5784370838659081694, guid: 813304f42a3b8b24db03ada23452f9a7, type: 3}
-  m_PrefabInstance: {fileID: 8646997596735296632}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &536021019 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 389861519816865725, guid: 813304f42a3b8b24db03ada23452f9a7, type: 3}
@@ -2772,7 +2767,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LoginUIController
   _userIdInputField: {fileID: 927058677}
-  _warningPanel: {fileID: 536021018}
+  _warningPanel: {fileID: 8646997596735296633}
   _warningText: {fileID: 281641361}
   _loginButton: {fileID: 1295485744}
   _exitGameButton: {fileID: 294032375}
@@ -2977,6 +2972,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 956402267124070103, guid: 813304f42a3b8b24db03ada23452f9a7, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5784370838659081694, guid: 813304f42a3b8b24db03ada23452f9a7, type: 3}
       propertyPath: m_Name
       value: WarningPanel
@@ -2986,6 +2985,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 813304f42a3b8b24db03ada23452f9a7, type: 3}
+--- !u!1 &8646997596735296633 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 956402267124070103, guid: 813304f42a3b8b24db03ada23452f9a7, type: 3}
+  m_PrefabInstance: {fileID: 8646997596735296632}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
