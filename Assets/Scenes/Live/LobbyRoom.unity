@@ -3504,6 +3504,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 956402267124070103, guid: 813304f42a3b8b24db03ada23452f9a7, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5784370838659081694, guid: 813304f42a3b8b24db03ada23452f9a7, type: 3}
       propertyPath: m_Name
       value: WarningPanel
@@ -3518,17 +3522,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 389861519816865725, guid: 813304f42a3b8b24db03ada23452f9a7, type: 3}
   m_PrefabInstance: {fileID: 673375017}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &673375019 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6959689583135795345, guid: 813304f42a3b8b24db03ada23452f9a7, type: 3}
-  m_PrefabInstance: {fileID: 673375017}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a0a1a3873f553004586aeabd9ba1d03b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WarningUIController
 --- !u!1 &678940289
 GameObject:
   m_ObjectHideFlags: 0
@@ -11284,7 +11277,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LobbyRoomUIController
   _lobbySubject: {fileID: 1922907489}
   _selectedMapImage: {fileID: 1773654148}
-  _warningUIController: {fileID: 673375019}
+  _msgPopUp: {fileID: 0}
   _leftMapButton: {fileID: 1565779899}
   _rightMapButton: {fileID: 1951906569}
   _startGameButton: {fileID: 754123903}

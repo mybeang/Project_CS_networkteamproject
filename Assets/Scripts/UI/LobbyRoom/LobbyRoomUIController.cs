@@ -10,6 +10,7 @@ public class LobbyRoomUIController : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _lobbySubject;
     [SerializeField] private Image _selectedMapImage;
+    [SerializeField] private MessagePopUpUIController _msgPopUp;
     
     [Header("Buttons")]
     [SerializeField] private Button _leftMapButton;
@@ -23,6 +24,11 @@ public class LobbyRoomUIController : MonoBehaviour
     [SerializeField] private List<Sprite> _mapImages = new();
     private int _selectedMapNumber;
     private bool _ready;
+    private bool IsHost => 
+        ServiceLocator.Get<ILobbyManager>().GetHostId() == 
+        ServiceLocator.Get<IUserInfoManager>().GetUserInfo().userId;
+
+    private string _joinCode;
 
     private void Awake() => Init();
 
@@ -31,9 +37,46 @@ public class LobbyRoomUIController : MonoBehaviour
 
     private void Start()
     {
-        // ToDo. 팀 및 롤 선택 가이드 팝업 하기.
-    }
-    
+        if (IsHost)
+        {
+            var relayManager = ServiceLocator.Get<IRelayHostManager>();
+            relayManager.StartHost().ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogWarning("[LobbyRoomUIController] Could not create room !");
+                    _msgPopUp.Open(
+                        MessageType.Error, 
+                        "방 생성이 실패되었습니다.", 
+                        "돌아가기", 
+                        OnGoToLobby);
+                }
+                _joinCode = task.Result;
+            });
+        }
+        else
+        {
+            var db = ServiceLocator.Get<IDatabaseBackend>();
+            var lobby = ServiceLocator.Get<ILobbyManager>();
+            db.GetJoinCodeAsync(lobby.GetRoomID()).ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogWarning("[LobbyRoomUIController] Could not join the room !");
+                    _msgPopUp.Open(
+                        MessageType.Error, 
+                        "방 참가가 실패되었습니다.", 
+                        "돌아가기", 
+                        OnGoToLobby);
+                }
+                _joinCode = task.Result;
+            });
+        }
+        _msgPopUp.Open(
+            MessageType.Info, 
+            "'Team #', '포수' 혹은 '운전자'를 클릭하여\n팀 및 Role 이동이 가능합니다.", 
+            "닫기");
+    }    
     private void Init()
     {
         _lobbySubject.text = ServiceLocator.Get<ILobbyManager>()?.GetRoomName();
@@ -64,18 +107,8 @@ public class LobbyRoomUIController : MonoBehaviour
 
     private void ChangeButtonVisibility()
     {
-        string userId = ServiceLocator.Get<IUserInfoManager>()?.GetUserInfo().userId;
-        string hostId = ServiceLocator.Get<ILobbyManager>()?.GetHostId();
-        if (userId == hostId)
-        {
-            _startGameButton.gameObject.SetActive(true);
-            _readyButton.gameObject.SetActive(false);
-        }
-        else
-        {
-            _startGameButton.gameObject.SetActive(false);
-            _readyButton.gameObject.SetActive(true);
-        }
+        _startGameButton.gameObject.SetActive(IsHost);
+        _readyButton.gameObject.SetActive(!IsHost);
     }
 
     private void OnGoToLobby()
@@ -134,11 +167,53 @@ public class LobbyRoomUIController : MonoBehaviour
         Debug.Log("[LobbyRoomUIController] Ready ... Done");
     }
 
+    private List<TeamInfo> LobbyDataToTeamInfo()
+    {
+        var lobbyManager = ServiceLocator.Get<ILobbyManager>();
+        var relayManager = ServiceLocator.Get<IRelayHostManager>();
+        var players = lobbyManager?.GetPlayerList();
+        List<TeamInfo> teams = new();
+        if (players == null) return teams;
+        foreach (var player in players)
+        {
+            int index = int.Parse(player.Data[LobbyPlayerDataKey.TEAM].Value) - 1;
+            var teamNum = (PlayerTeamEnum)index;
+            ulong driverId = 0;
+            ulong gunnerId = 0;
+            var playerRole = player.Data[LobbyPlayerDataKey.ROLE].Value;
+            if (playerRole == $"{PlayerRole.Driver}")
+            {
+                driverId = relayManager.GetClientId();
+            } 
+            else if (playerRole == $"{PlayerRole.Gunner}")
+            {
+                gunnerId = relayManager.GetClientId();
+            }
+            PlayerableVehicleEnum pv = PlayerableVehicleEnum.tank; // ToDo. 더 만들어지면 추가하기
+            teams.Add(new TeamInfo(teamNum, driverId, gunnerId, pv));
+        }
+        return teams;
+    }
+    
     private void OnStartGame()
     {
         if (CheckAllReady())
         {
-            Debug.Log("Start Game !!");
+            Debug.Log("[LobbyRoomUIController] Start Game ... ");
+            if (!IsHost)
+            {
+                Debug.Log("[LobbyRoomUIController] Start Game ... Join Client");
+                var relayManager = ServiceLocator.Get<IRelayHostManager>();
+                relayManager.StartClient(_joinCode);
+            }
+            List<TeamInfo> teams = LobbyDataToTeamInfo();
+            string roomId = ServiceLocator.Get<ILobbyManager>()?.GetRoomID();
+            ServiceLocator.Get<IGameManager>()?.StartGame(teams.ToArray(), roomId, _selectedMapNumber);
+            if (IsHost)
+            {
+                var netChgScene = ServiceLocator.Get<INetworkSceneLoader>();
+                netChgScene.LoadScene("게임 씬????");
+            }
         }
     }
 

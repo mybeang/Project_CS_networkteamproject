@@ -30,7 +30,7 @@ public class MessagePopUpUIController : MonoBehaviour
         _closeButton.GetComponent<Image>().sprite = _presets[index].btSprite;
         _backgroundImage.sprite = _presets[index].bgSprite;
         
-        _textUI.text = text;
+        _textUI.text = text;  // ToDo. Message 는 추후 어떤 방향으로 넣는게 좋은지 고민 필요.
         _closedBtTxtUI.text = closedText;
         _panelUI.SetActive(true);
     }
