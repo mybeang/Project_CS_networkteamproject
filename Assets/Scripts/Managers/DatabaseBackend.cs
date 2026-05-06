@@ -28,7 +28,7 @@ public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend
                 // where app is a Firebase.FirebaseApp property of your application class.
                 _app = FirebaseApp.DefaultInstance;
                 _db = FirebaseDatabase.DefaultInstance;
-
+                FirebaseDatabase.DefaultInstance.SetPersistenceEnabled(false);
                 // Set a flag here to indicate whether Firebase is ready to use by your app.
                 Debug.Log("Firebase dependencies check success");
             }

@@ -4295,8 +4295,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -213, y: 146}
-  m_SizeDelta: {x: 300, y: 100}
+  m_AnchoredPosition: {x: -341, y: 63}
+  m_SizeDelta: {x: 250, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &754123903
 MonoBehaviour:
@@ -5720,8 +5720,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -212, y: 144}
-  m_SizeDelta: {x: 300, y: 100}
+  m_AnchoredPosition: {x: -342, y: 173}
+  m_SizeDelta: {x: 250, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &973998498
 MonoBehaviour:
@@ -6249,8 +6249,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -212, y: 29}
-  m_SizeDelta: {x: 300, y: 100}
+  m_AnchoredPosition: {x: -84, y: 64}
+  m_SizeDelta: {x: 250, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1044439943
 MonoBehaviour:
@@ -9824,8 +9824,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -213, y: 260}
-  m_SizeDelta: {x: 300, y: 100}
+  m_AnchoredPosition: {x: -85, y: 173}
+  m_SizeDelta: {x: 250, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1522374247
 MonoBehaviour:
@@ -11294,7 +11294,7 @@ MonoBehaviour:
   _startGameButton: {fileID: 754123903}
   _readyButton: {fileID: 973998498}
   _reSelectButton: {fileID: 1522374247}
-  _goToLobbyListButton: {fileID: 1044439943}
+  _leaveRoomButton: {fileID: 1044439943}
   _mapImages: []
 --- !u!4 &1777312170
 Transform:

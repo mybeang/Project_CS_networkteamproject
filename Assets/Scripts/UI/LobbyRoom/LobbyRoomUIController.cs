@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Firebase.Extensions;
 using TMPro;
 using Unity.Services.Lobbies.Models;
@@ -18,7 +20,7 @@ public class LobbyRoomUIController : MonoBehaviour
     [SerializeField] private Button _startGameButton;
     [SerializeField] private Button _readyButton;
     [SerializeField] private Button _reSelectButton;
-    [SerializeField] private Button _goToLobbyListButton;
+    [SerializeField] private Button _leaveRoomButton;
     
     [Header("Data")]
     [SerializeField] private List<Sprite> _mapImages = new();
@@ -32,11 +34,23 @@ public class LobbyRoomUIController : MonoBehaviour
 
     private void Awake() => Init();
 
-    private void OnEnable() => BindCallbackButtons();
-    private void OnDisable() => UnbindCallbackButtons();
+    private void OnEnable()
+    {
+        BindCallbackButtons();
+        ServiceLocator.Get<IRelayHostManager>()?.OnHostDisconnectedAddListener(ChangeRelayHost);
+    }
+    private void OnDisable()
+    {
+        UnbindCallbackButtons();
+        ServiceLocator.Get<IRelayHostManager>()?.OnHostDisconnectedRemoveListener(ChangeRelayHost);
+    }
 
     private void Start()
     {
+        if (IsHost)
+        {   // Lobby Create
+            CreateRelayHost();
+        }
         UpdateReadyState();
         _msgPopUp.Open(
             MessageType.Info, 
@@ -58,7 +72,7 @@ public class LobbyRoomUIController : MonoBehaviour
         _startGameButton.onClick.AddListener(OnStartGame);
         _readyButton.onClick.AddListener(OnReady);
         _reSelectButton.onClick.AddListener(OnReSelect);
-        _goToLobbyListButton.onClick.AddListener(OnGoToLobby);
+        _leaveRoomButton.onClick.AddListener(OnLeaveRoom);
     }
 
     private void UnbindCallbackButtons()
@@ -68,21 +82,19 @@ public class LobbyRoomUIController : MonoBehaviour
         _startGameButton.onClick.RemoveListener(OnStartGame);
         _readyButton.onClick.RemoveListener(OnReady);
         _reSelectButton.onClick.RemoveListener(OnReSelect);
-        _goToLobbyListButton.onClick.RemoveListener(OnGoToLobby);
+        _leaveRoomButton.onClick.RemoveListener(OnLeaveRoom);
     }
 
     private void ChangeButtonVisibility()
     {
         _startGameButton.gameObject.SetActive(IsHost);
-        _readyButton.gameObject.SetActive(!IsHost);
     }
 
-    private void OnGoToLobby()
+    private void OnLeaveRoom()
     {
         OnReSelect();
         ServiceLocator.Get<ILobbyManager>()?.LeaveRoom();
-        // Relay Clean 작업
-        // 
+        if (IsHost) ServiceLocator.Get<IRelayHostManager>()?.Disconnect();
         ServiceLocator.Get<ILocalSceneLoader>()?.LoadScene("LobbyScene");
     }
 
@@ -140,6 +152,21 @@ public class LobbyRoomUIController : MonoBehaviour
         }
         
         _ready = !_ready;
+        if (!IsHost)
+        {
+            GetJoinCode();
+            var relayManager = ServiceLocator.Get<IRelayHostManager>();
+            if (_ready)
+            {
+                Debug.Log("[LobbyRoomUIController] Ready ... Join Client");
+                relayManager.StartClient(_joinCode);    
+            }
+            else
+            {
+                Debug.Log("[LobbyRoomUIController] Ready ... Left Client");
+                relayManager.Disconnect();
+            }
+        }
         UpdateReadyState();
         Debug.Log("[LobbyRoomUIController] Ready ... Done");
     }
@@ -168,63 +195,67 @@ public class LobbyRoomUIController : MonoBehaviour
     
     private void OnStartGame()
     {
+        Debug.Log("[LobbyRoomUIController] Start Game ... ");
         if (CheckAllReady())
         {
             Debug.Log("[LobbyRoomUIController] Start Game ... ");
-            if (!IsHost)
-            {
-                Debug.Log("[LobbyRoomUIController] Start Game ... Join Client");
-                var relayManager = ServiceLocator.Get<IRelayHostManager>();
-                relayManager.StartClient(_joinCode);
-            }
             List<TeamInfo> teams = LobbyDataToTeamInfo();
-            string roomId = ServiceLocator.Get<ILobbyManager>()?.GetRoomID();
-            ServiceLocator.Get<IGameManager>()?.StartGame(teams.ToArray(), roomId, _selectedMapNumber);
+            string roomId = ServiceLocator.Get<ILobbyManager>().GetRoomID();
+            ServiceLocator.Get<IGameManager>().StartGame(teams.ToArray(), roomId, _selectedMapNumber);
             if (IsHost)
             {
-                var netChgScene = ServiceLocator.Get<INetworkSceneLoader>();
-                netChgScene.LoadScene("InGame_Chaebh");
+                Debug.Log("[LobbyRoomUIController] Start Game ... Change Scene");
+                ServiceLocator.Get<ILobbyManager>().Lock(true);
+                ServiceLocator.Get<INetworkSceneLoader>().LoadScene("InGame_Chaebh");
             }
-        }
-    }
-    private void RelayHost()
-    {
-        var db = ServiceLocator.Get<IDatabaseBackend>();
-        var lobby = ServiceLocator.Get<ILobbyManager>();
-        if (IsHost)
-        {
-            var relayManager = ServiceLocator.Get<IRelayHostManager>();
-            relayManager.StartHost().ContinueWithOnMainThread(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    Debug.LogWarning("[LobbyRoomUIController] Could not create room !");
-                    _msgPopUp.Open(
-                        MessageType.Error, 
-                        "방 생성이 실패되었습니다.", 
-                        "돌아가기", 
-                        OnGoToLobby);
-                }
-                _joinCode = task.Result;
-                db.SetJoinCodeAsync(lobby.GetRoomID(), _joinCode);
-            });
         }
         else
         {
-            db.GetJoinCodeAsync(lobby.GetRoomID()).ContinueWithOnMainThread(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    Debug.LogWarning("[LobbyRoomUIController] Could not join the room !");
-                    _msgPopUp.Open(
-                        MessageType.Error, 
-                        "방 참가가 실패되었습니다.", 
-                        "돌아가기", 
-                        OnGoToLobby);
-                }
-                _joinCode = task.Result;
-            });
+            _msgPopUp.Open(
+                MessageType.Warning,
+                "플레이어들의 상태를 확인해 주시기 바랍니다.");
+            Debug.Log("[LobbyRoomUIController] Start Game ... Fail; CheckAllReady is False");
         }
+    }
+
+    private void CreateRelayHost()
+    {
+        var db = ServiceLocator.Get<IDatabaseBackend>();
+        var lobby = ServiceLocator.Get<ILobbyManager>();
+        var relayManager = ServiceLocator.Get<IRelayHostManager>();
+        relayManager.StartHost().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted)
+            {
+                Debug.LogWarning("[LobbyRoomUIController] Could not create room !");
+                _msgPopUp.Open(
+                    MessageType.Error, 
+                    "방 생성이 실패되었습니다.", 
+                    "돌아가기", 
+                    OnLeaveRoom);
+            }
+            _joinCode = task.Result;
+            db.SetJoinCodeAsync(lobby.GetRoomID(), _joinCode);
+        });
+    }
+
+    private void GetJoinCode()
+    {
+        var db = ServiceLocator.Get<IDatabaseBackend>();
+        var lobby = ServiceLocator.Get<ILobbyManager>();
+        db.GetJoinCodeAsync(lobby.GetRoomID()).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted)
+            {
+                Debug.LogWarning("[LobbyRoomUIController] Could not join the room !");
+                _msgPopUp.Open(
+                    MessageType.Error, 
+                    "방 참가가 실패되었습니다.", 
+                    "돌아가기", 
+                    OnLeaveRoom);
+            }
+            _joinCode = task.Result;
+        });
     }
 
     private void OnRightMap()
@@ -256,16 +287,60 @@ public class LobbyRoomUIController : MonoBehaviour
         foreach (var player in lobbyManager.GetPlayerList())
         {
             if (player.Data[LobbyPlayerDataKey.TEAM].Value == "0" || // 모든 유저가 팀에 속해야함.
-                player.Data[LobbyPlayerDataKey.ROLE].Value == $"{PlayerRole.None}" ||  // 모든 유저가 Role 이 부여 되어있어야 함.
-                player.Data[LobbyPlayerDataKey.READY].Value == "false")  // 모든 유저가 Ready 를 해야함.
+                player.Data[LobbyPlayerDataKey.ROLE].Value == $"{PlayerRole.None}" || // 모든 유저가 Role 이 부여 되어있어야 함.
+                player.Data[LobbyPlayerDataKey.READY].Value == "false") // 모든 유저가 Ready 를 해야함.
+            {
+                Debug.LogWarning($"[LobbyRoomUIController] CheckAllReady is False; {player.Data}");
                 return false;
+            }
             int teamNum = int.Parse(player.Data[LobbyPlayerDataKey.TEAM].Value) - 1;
             playersPerTeam[teamNum]++;
         }
         foreach (var i in playersPerTeam)
         {   // 모든 팀이 0명 혹은 2명이 배속 되어있어야함.
-            if (i % 2 == 0) return false;
+            if (i % 2 != 0)
+            {
+                Debug.LogWarning($"[LobbyRoomUIController] CheckAllReady is False; [{String.Join(", ", playersPerTeam)}]");
+                return false;
+            }
         }
+        return true;
+    }
+
+    private async void ChangeRelayHost()
+    {
+        Debug.Log("[ChangeRelayHost] Relay Host ... ");
+        try
+        {
+            bool updateDone = await WaitUntilSyncLobbyDataAsync();
+            if (updateDone)
+            {
+                CreateRelayHost();
+                Debug.Log("[ChangeRelayHost] Relay Host ... Success");
+            } 
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[ChangeRelayHost] Relay Host ... Fail {e.Message}");
+        }
+    }
+
+    private async Task<bool> WaitUntilSyncLobbyDataAsync()
+    {
+        Debug.Log("[WaitUntilSyncLobbyDataAsync] Sync ... ");
+        var lobby = ServiceLocator.Get<ILobbyManager>();
+        int retryCount = 0;
+        int maxRetryCount = 5;
+        while (lobby.IsUpdating())
+        {
+            if (retryCount++ > maxRetryCount)
+            {
+                Debug.LogWarning("[WaitUntilSyncLobbyDataAsync] Sync ... Fail");
+                return false;
+            }
+            await Task.Delay(1000);
+        }
+        Debug.Log("[WaitUntilSyncLobbyDataAsync] Sync ... Success");
         return true;
     }
 }

@@ -12,11 +12,22 @@ using UnityEngine;
 
 public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
 {
-    protected override async void Init() => await UnityServiceInitialize.Processing();
-    protected override void Register() => ServiceLocator.Register<IRelayHostManager>(this);
-    protected override void Unregister() => ServiceLocator.Unregister<IRelayHostManager>();
+    private Action _onHostDisconnected;
     
-    public async Task<string> StartHostWithRelayAsync(int maxConnections = 7)
+    protected override async void Init() => await UnityServiceInitialize.Processing();
+    protected override void Register()
+    {
+        NetworkManager.Singleton.OnClientDisconnectCallback += HostDisconnected;
+        ServiceLocator.Register<IRelayHostManager>(this);
+    }
+
+    protected override void Unregister()
+    {
+        NetworkManager.Singleton.OnClientDisconnectCallback -= HostDisconnected;
+        ServiceLocator.Unregister<IRelayHostManager>();
+    }
+
+    private async Task<string> StartHostWithRelayAsync(int maxConnections = 7)
     {
         try
         {
@@ -41,7 +52,7 @@ public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
         }
     }
 
-    public async Task StartClientWithRelayAsync(string joinCode)
+    private async Task StartClientWithRelayAsync(string joinCode)
     {
         try
         {
@@ -61,24 +72,6 @@ public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
             throw;
         }
     }
-
-    public void AddListenerToClientConnectedCallback(Action<ulong> listener)
-        => NetworkManager.Singleton.OnClientConnectedCallback += listener;
-
-    public void RemoveListenerFromClientConnectedCallback(Action<ulong> listener)
-        => NetworkManager.Singleton.OnClientConnectedCallback -= listener;
-
-    public void AddListenerToClientDisconnectedCallback(Action<ulong> listener)
-        => NetworkManager.Singleton.OnClientDisconnectCallback += listener;
-
-    public void RemoveListenerFromClientDisconnectedCallback(Action<ulong> listener)
-        => NetworkManager.Singleton.OnClientDisconnectCallback -= listener;
-
-    public void AddListenerToServerStartCallback(Action listener)
-        => NetworkManager.Singleton.OnServerStarted += listener;
-
-    public void RemoveListenerFromServerStartCallback(Action listener)
-        => NetworkManager.Singleton.OnServerStarted -= listener;
 
     public async Task<string> StartHost()
     {
@@ -115,4 +108,14 @@ public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
     public void Disconnect() => NetworkManager.Singleton.Shutdown();
 
     public ulong GetClientId() => NetworkManager.Singleton.LocalClientId;
+    public void OnHostDisconnectedAddListener(Action callback) => _onHostDisconnected += callback;
+    public void OnHostDisconnectedRemoveListener(Action callback) => _onHostDisconnected += callback;
+
+    private void HostDisconnected(ulong clientId)
+    {
+        if (clientId == NetworkManager.ServerClientId)
+        {
+            _onHostDisconnected?.Invoke();
+        }
+    }
 }
