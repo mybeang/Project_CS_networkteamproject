@@ -38,6 +38,7 @@ public class LobbyRoomUIController : MonoBehaviour
     {
         _lobbySubject.text = ServiceLocator.Get<ILobbyManager>()?.GetRoomName();
         if (_mapImages.Count != 0) _selectedMapImage.sprite = _mapImages[0];
+        _ready = false;
         ChangeButtonVisibility();
     }
 
