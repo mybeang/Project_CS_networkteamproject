@@ -150,7 +150,6 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         CreateLobbyOptions options = new CreateLobbyOptions();
         options.IsPrivate = false;  // 공개방
         options.Player = new Player { Data = GetMyDataFormat<PlayerDataObject>() };
-        options.Player.Data[LobbyPlayerDataKey.READY].Value = "true";
         try
         {
             Debug.Log("[LobbyManager] Try Creating room...");
@@ -178,6 +177,12 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
             string playerId = AuthenticationService.Instance.PlayerId;
             RemoveListenersForLobbyEventCallbacks();
             await LobbyService.Instance.RemovePlayerAsync(_lobby.Id, playerId);
+            bool isExistLobby = await CheckLobbyExist(_lobby.Id);
+            if (!isExistLobby)
+            {
+                var db = ServiceLocator.Get<IDatabaseBackend>();
+                db.RemoveJoinCodeAsync(_lobby.Id);
+            }
             _lobby = null;
             _lobbyEvent = null;
             ServiceLocator.Get<IUserInfoManager>()?.SetRoomId(null);
@@ -193,6 +198,12 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         }
     }
 
+    private async Task<bool> CheckLobbyExist(string lobbyId)
+    {
+        var lobby = await LobbyService.Instance.GetLobbyAsync(lobbyId);
+        return lobby != null;
+    }
+    
     public List<Player> GetPlayerList() => _lobby.Players;
 
     public Dictionary<string, string> GetMyPlayerData()

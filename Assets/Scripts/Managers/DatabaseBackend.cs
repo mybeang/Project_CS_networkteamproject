@@ -84,11 +84,20 @@ public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend
         }
     }
     
-    public void RegisterDisconnectHandler(string userId)
+    public void RegisterUserDisconnectHandler(string userId)
     {
         _db.RootReference.Child($"{ChildKey.USERS}/{userId}").OnDisconnect().RemoveValue().ContinueWithOnMainThread(task => {
             if (task.IsCompleted) {
                 Debug.Log($"[DB] Disconnect handler registered for: {userId}");
+            }
+        });
+    }
+    
+    public void RegisterRemoveRoomHandler(string roomId)
+    {
+        _db.RootReference.Child($"{ChildKey.JOIN_CODES}/{roomId}").OnDisconnect().RemoveValue().ContinueWithOnMainThread(task => {
+            if (task.IsCompleted) {
+                Debug.Log($"[DB] Disconnect handler registered for: {roomId}");
             }
         });
     }

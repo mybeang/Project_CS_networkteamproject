@@ -73,7 +73,7 @@ public class LoginUIController : MonoBehaviour
             string userId = userInfo?.GetUserInfo().userId;
             Debug.Log($"[Login] UserId: {userId}");
             ServiceLocator.Get<IDatabaseBackend>()?.SaveUserAsync(userId);
-            ServiceLocator.Get<IDatabaseBackend>()?.RegisterDisconnectHandler(userId);  // 비 정상 종료 방어 코드
+            ServiceLocator.Get<IDatabaseBackend>()?.RegisterUserDisconnectHandler(userId);  // 비 정상 종료 방어 코드
         }
         ServiceLocator.Get<ILocalSceneLoader>()?.LoadScene(_nextSceneName);  // Test 용 씬으로 전환
     }
