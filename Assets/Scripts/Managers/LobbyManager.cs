@@ -262,6 +262,8 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         Debug.Log("[LobbyManager] Start to update data ... Done");
     }
     
+    
+    
     private void PlayerJoinedHandler(List<LobbyPlayerJoined> _list) => UpdateDataHandler();
     private void PlayerLeftHandler(List<int> _list) => UpdateDataHandler();
     private void PlayerDataChangedHandler(Dictionary<int, Dictionary<string, ChangedOrRemovedLobbyValue<PlayerDataObject>>> _dict) => UpdateDataHandler();

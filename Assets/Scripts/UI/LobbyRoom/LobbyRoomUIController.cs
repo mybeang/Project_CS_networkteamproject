@@ -81,6 +81,8 @@ public class LobbyRoomUIController : MonoBehaviour
     {
         OnReSelect();
         ServiceLocator.Get<ILobbyManager>()?.LeaveRoom();
+        // Relay Clean 작업
+        // 
         ServiceLocator.Get<ILocalSceneLoader>()?.LoadScene("LobbyScene");
     }
 
