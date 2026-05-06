@@ -38,6 +38,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private int _eventCounter;
 
     private bool _isEventEndTimer;
+    private bool _hasEventEndtimer;
 
     private double _startTime;
     private double _currentTime;
@@ -90,12 +91,6 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _isEventEndTimer = false;
         _eventCounter = 0;
         _tick = new WaitForSecondsRealtime(0.1f);
-
-    }
-
-    private void OnEnable()
-    {
-        StartCoroutine(Timer());
     }
 
     public override void OnNetworkSpawn()
@@ -105,7 +100,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
     protected override void Register()
     {
-        Debug.Log("등록 됌@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        StartCoroutine(Timer());
         ServiceLocator.Register<IGameManager>(this);
     }
     protected override void Unregister() => ServiceLocator.Unregister<IGameManager>();
@@ -117,6 +112,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _eventScheduleManager = eventSchedulemanager;
         _eventTimer = _eventScheduleManager.GetTimer();
         _eventEndTimer = eventSchedulemanager.GetStopTimer();
+        _hasEventEndtimer = _eventEndTimer != null;
     }
 
     //[ClientRpc(Delivery = RpcDelivery.Reliable)]
@@ -132,15 +128,14 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             OnChangeTime?.Invoke((int)(_gamePlayableTime - _currentTime));
             if (IsServer && _eventScheduleManager != null)
             {
-                Debug.Log($"정상 초기화 및 이벤트 준비 완료");
-                if (_eventCounter < _eventTimer.Length && _eventTimer[_eventCounter] <= _currentTime)
+                if (_eventCounter < _eventTimer.Length &&_eventTimer[_eventCounter] <= _currentTime)
                 {
-                    if (_eventEndTimer != null)
+                    if (_eventEndTimer != null && _eventCounter < _eventEndTimer.Length)
                         _isEventEndTimer = true;
                     _eventScheduleManager.OnEventSpawnServerRpc();
                     _eventCounter++;
                 }
-                else if (_isEventEndTimer && _eventEndTimer[_eventCounter - 1] <= _currentTime)
+                else if (_isEventEndTimer && _eventEndTimer != null && _eventEndTimer[_eventCounter - 1] <= _currentTime)
                 {
                     _isEventEndTimer = false;
                     _eventScheduleManager.OnEventDespawnServerRpc();

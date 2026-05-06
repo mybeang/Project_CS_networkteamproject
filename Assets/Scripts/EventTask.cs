@@ -14,11 +14,6 @@ public abstract class EventTask : NetworkBehaviour
     [Header("이벤트 시작 몇초 후 종료 시킬 것인지")]
     [SerializeField, Tooltip("0초는 Stop 호출 안함"), Range(0,float.MaxValue)] public double[] stopTriggerTime;
 
-    public override void OnNetworkSpawn()
-    {
-        
-    }
-    
     public abstract void OnEventSpawn();
 
     public abstract void OnEventDespawn();

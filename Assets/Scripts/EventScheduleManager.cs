@@ -13,17 +13,8 @@ public class EventScheduleManager : NetworkBehaviour
 
     private void Start()
     {
-        StartCoroutine(waiter());
-    }
-
-    IEnumerator waiter()
-    {
-        while(true)
-        {
-            yield return new WaitForSeconds(3f);
-            InergrityCheck();
-            ServiceLocator.Get<IGameManager>().AddEventSchedule(this);
-        }
+        InergrityCheck();
+        ServiceLocator.Get<IGameManager>().AddEventSchedule(this);
     }
 
     public double[] GetTimer() => _events.excuteTime;
