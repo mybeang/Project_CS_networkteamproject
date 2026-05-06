@@ -1,6 +1,5 @@
-﻿using NUnit;
+﻿using System.Collections;
 using Unity.Netcode;
-using Unity.Services.Matchmaker.Models;
 using UnityEngine;
 
 public class EventScheduleManager : NetworkBehaviour
@@ -9,15 +8,28 @@ public class EventScheduleManager : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-
+        
     }
 
-    private void OnEnable()
+    private void Start()
     {
-        if (!IsServer) return;
-        InergrityCheck();
+        StartCoroutine(waiter());
+    }
 
-        //gameManager.AddTimes;
+    IEnumerator waiter()
+    {
+        while(true)
+        {
+            yield return new WaitForSeconds(3f);
+            InergrityCheck();
+            ServiceLocator.Get<IGameManager>().AddEventSchedule(this);
+        }
+    }
+
+    public double[] GetTimer() => _events.excuteTime;
+    public double[] GetStopTimer()
+    {
+        return _events.stopTriggerTime != null ? _events.stopTriggerTime : null;
     }
 
     private void InergrityCheck()

@@ -532,7 +532,7 @@ MonoBehaviour:
   _PlayerableMaterials: []
   _maps: []
   _basicSpawnTime: 0
-  _gamePlayableTime: 0
+  _gamePlayableTime: 60
   _gameResultCanvas: {fileID: 0}
   _OnLoadedLog: 1
   _OnTimerStartLog: 1
