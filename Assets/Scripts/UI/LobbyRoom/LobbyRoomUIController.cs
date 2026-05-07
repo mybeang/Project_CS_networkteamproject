@@ -205,19 +205,6 @@ public class LobbyRoomUIController : MonoBehaviour
         }
         return teams;
     }
-
-    private void SelectPlayerPrefab()
-    {
-        GameObject ddolObject = GameObject.FindWithTag("ddolObject");
-        if (ddolObject != null)
-        {
-            GameManager gameManager = ddolObject.GetComponentInChildren<GameManager>(true);
-            if (gameManager != null)
-            {
-                
-            }
-        }
-    }
     
     private void OnStartGame()
     {
