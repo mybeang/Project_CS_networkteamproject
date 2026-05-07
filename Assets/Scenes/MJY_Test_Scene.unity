@@ -335,11 +335,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &7411898932983397507 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 3416943275154448508, guid: cfe1376f7b0488b4282f0fb106708d4e, type: 3}
-  m_PrefabInstance: {fileID: 7731418414423437675}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7731418414423437675
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -392,10 +387,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tank_Black
       objectReference: {fileID: 0}
-    - target: {fileID: 5085071434026481324, guid: cfe1376f7b0488b4282f0fb106708d4e, type: 3}
-      propertyPath: _rigidbody
-      value: 
-      objectReference: {fileID: 7411898932983397507}
     - target: {fileID: 6522370014387607933, guid: cfe1376f7b0488b4282f0fb106708d4e, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 1849333089
