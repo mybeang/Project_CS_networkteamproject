@@ -19,4 +19,6 @@ public interface ILobbyManager
     public string GetHostId();
     public void LobbyDataOnChangedAddListener(Action<Lobby> callback);
     public void LobbyDataOnChangedRemoveListener(Action<Lobby> callback);
+    public void Lock(bool isLock);
+    public bool IsUpdating();
 }

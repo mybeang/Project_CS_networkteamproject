@@ -2,10 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Firebase.Extensions;
 using Unity.Collections;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
+using Unity.Services.Multiplayer;
 using UnityEngine;
 
 public class LobbyPlayerDataKey
@@ -35,8 +37,19 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
     private Coroutine _heartbeatCoroutine;
     private LobbyEventCallbacks _callbacks = new ();
     private ILobbyEvents _lobbyEvent;
+    private bool _isUpdating;
+    // MPPM 환경에서 SingleTone 은 모두 같은 Session? 을 공유하는 것 같다.
+    // 이것 때문에 데이터 업데이트가 발생하지 않는 케이스가 있다.
+    // 관련하여 문제 발생시 다시 실행하기 위한 queue 를 아래와 같이 정의한다.
+    private Queue<bool> _retryQueue = new();
+    private Coroutine _retryCoroutine;
 
-    protected override async void Init() => await UnityServiceInitialize.Processing();
+    protected override async void Init()
+    {
+        Debug.Log("[LobbyManager] Initializing LobbyManager");
+        await UnityServiceInitialize.Processing();
+    }
+
     protected override void Register() => ServiceLocator.Register<ILobbyManager>(this);
     protected override void Unregister() => ServiceLocator.Unregister<ILobbyManager>();
 
@@ -44,17 +57,25 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
 
     private async void AddListenersForLobbyEventCallbacks()
     {
+        if (_retryCoroutine == null) _retryCoroutine = StartCoroutine(RetryQueueCoroutine());
         _callbacks.PlayerJoined += PlayerJoinedHandler;
         _callbacks.PlayerLeft += PlayerLeftHandler;
         _callbacks.PlayerDataChanged += PlayerDataChangedHandler;
+        _callbacks.LobbyChanged += LobbyDataChangedHander;
         _lobbyEvent = await LobbyService.Instance.SubscribeToLobbyEventsAsync(_lobby.Id, _callbacks);
     }
     
     private async void RemoveListenersForLobbyEventCallbacks()
     {
+        if (_retryCoroutine != null)
+        {
+            StopCoroutine(_retryCoroutine);
+            _retryCoroutine = null;
+        }
         _callbacks.PlayerJoined -= PlayerJoinedHandler;
         _callbacks.PlayerLeft -= PlayerLeftHandler;
         _callbacks.PlayerDataChanged -= PlayerDataChangedHandler;
+        _callbacks.LobbyChanged -= LobbyDataChangedHander;
         await _lobbyEvent.UnsubscribeAsync();
     }
     
@@ -150,7 +171,6 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         CreateLobbyOptions options = new CreateLobbyOptions();
         options.IsPrivate = false;  // 공개방
         options.Player = new Player { Data = GetMyDataFormat<PlayerDataObject>() };
-        options.Player.Data[LobbyPlayerDataKey.READY].Value = "true";
         try
         {
             Debug.Log("[LobbyManager] Try Creating room...");
@@ -164,6 +184,7 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
                 _heartbeatCoroutine = null;
             }
             StartCoroutine(HeartBeatCoroutine());
+            Debug.Log("[LobbyManager] Try Creating room ... Done");
         }
         catch (LobbyServiceException e)
         {
@@ -178,6 +199,12 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
             string playerId = AuthenticationService.Instance.PlayerId;
             RemoveListenersForLobbyEventCallbacks();
             await LobbyService.Instance.RemovePlayerAsync(_lobby.Id, playerId);
+            bool isExistLobby = await CheckLobbyExist(_lobby.Id);
+            if (!isExistLobby)
+            {
+                var db = ServiceLocator.Get<IDatabaseBackend>();
+                db.RemoveJoinCodeAsync(_lobby.Id);
+            }
             _lobby = null;
             _lobbyEvent = null;
             ServiceLocator.Get<IUserInfoManager>()?.SetRoomId(null);
@@ -193,6 +220,12 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         }
     }
 
+    private async Task<bool> CheckLobbyExist(string lobbyId)
+    {
+        var lobby = await LobbyService.Instance.GetLobbyAsync(lobbyId);
+        return lobby != null;
+    }
+    
     public List<Player> GetPlayerList() => _lobby.Players;
 
     public Dictionary<string, string> GetMyPlayerData()
@@ -247,13 +280,33 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
     private async void UpdateDataHandler()
     {
         Debug.Log("[LobbyManager] Start to update data ... ");
-        Lobby = await LobbyService.Instance.GetLobbyAsync(_lobby.Id);
+        if (_isUpdating)
+        {
+            Debug.Log("[LobbyManager] Start to update data ... Already Updating");
+            return;
+        }
+        _isUpdating = true;
+        try
+        {
+            Lobby = await LobbyService.Instance.GetLobbyAsync(_lobby.Id);
+            _retryQueue.Clear();  // 정상 Update 시 queue 를 지운다.
+        }
+        catch (Exception e)
+        {
+            _retryQueue.Enqueue(true);
+            Debug.LogWarning(e.Message);
+        }
+        
+        _isUpdating = false;
         Debug.Log("[LobbyManager] Start to update data ... Done");
     }
+    
+    public bool IsUpdating() => _isUpdating;
     
     private void PlayerJoinedHandler(List<LobbyPlayerJoined> _list) => UpdateDataHandler();
     private void PlayerLeftHandler(List<int> _list) => UpdateDataHandler();
     private void PlayerDataChangedHandler(Dictionary<int, Dictionary<string, ChangedOrRemovedLobbyValue<PlayerDataObject>>> _dict) => UpdateDataHandler();
+    private void LobbyDataChangedHander(ILobbyChanges chg) => UpdateDataHandler();
     
     public string GetRoomID() => _lobby.Id;
     public string GetRoomName() => _lobby.Name;
@@ -272,5 +325,35 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
     
     public void LobbyDataOnChangedAddListener(Action<Lobby> callback) => _onChangeLobbyData += callback;
     public void LobbyDataOnChangedRemoveListener(Action<Lobby> callback) => _onChangeLobbyData -= callback;
+
+    public void Lock(bool isLock)
+    {
+        UpdateLobbyOptions options = new UpdateLobbyOptions
+        {
+            IsLocked = isLock,
+            IsPrivate = isLock
+        };
+        LobbyService.Instance.UpdateLobbyAsync(_lobby.Id, options).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted)
+            {
+                Debug.LogError("Lobby State Change ... Fail");
+            }
+            Debug.Log($"Lobby State Change to {(isLock ? "lock" : "unlock")}... Success");
+        });
+    }
+
+    private IEnumerator RetryQueueCoroutine()
+    {
+        while (true)
+        {
+            if (_retryQueue.Count > 0)
+            {
+                Debug.Log("[LobbyManager] Exist Update Data for retry.");
+                UpdateDataHandler();
+            }
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
 }
 

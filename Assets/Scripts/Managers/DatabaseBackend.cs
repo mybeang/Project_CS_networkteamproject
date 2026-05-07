@@ -1,8 +1,16 @@
-﻿using Firebase;
+﻿using System.Collections.Generic;
+using Firebase;
 using Firebase.Extensions;
 using System.Threading.Tasks;
 using Firebase.Database;
 using UnityEngine;
+
+
+public class ChildKey
+{
+    public const string USERS = "users";
+    public const string JOIN_CODES = "joinCodes";
+}
 
 
 public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend
@@ -20,7 +28,7 @@ public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend
                 // where app is a Firebase.FirebaseApp property of your application class.
                 _app = FirebaseApp.DefaultInstance;
                 _db = FirebaseDatabase.DefaultInstance;
-
+                FirebaseDatabase.DefaultInstance.SetPersistenceEnabled(false);
                 // Set a flag here to indicate whether Firebase is ready to use by your app.
                 Debug.Log("Firebase dependencies check success");
             }
@@ -39,7 +47,7 @@ public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend
     
     public void SaveUserAsync(string userId)
     {
-        _db.RootReference.Child($"users/{userId}").SetValueAsync(true).ContinueWithOnMainThread(task =>
+        _db.RootReference.Child($"{ChildKey.USERS}/{userId}").SetValueAsync(true).ContinueWithOnMainThread(task =>
         {
             if (task.IsCompleted) Debug.Log($"[DB] User data saved successfully: {userId}");
             else if (task.IsCanceled) Debug.LogError("[DB] SaveUserAsync was canceled.");
@@ -49,7 +57,7 @@ public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend
 
     public void RemoveUserAsync(string userId)
     {
-        _db.RootReference.Child($"users/{userId}").RemoveValueAsync().ContinueWithOnMainThread(task =>
+        _db.RootReference.Child($"{ChildKey.USERS}/{userId}").RemoveValueAsync().ContinueWithOnMainThread(task =>
         {
             if (task.IsCompleted) Debug.Log($"[DB] User data removed successfully: {userId}");
             else if (task.IsCanceled) Debug.LogError("[DB] RemoveUserAsync was canceled.");
@@ -61,7 +69,7 @@ public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend
     {   // 중복이면 true !!
         try
         {
-            DataSnapshot dataSnapshot = await _db.RootReference.Child($"users/{userId}").GetValueAsync();
+            DataSnapshot dataSnapshot = await _db.RootReference.Child($"{ChildKey.USERS}/{userId}").GetValueAsync();
             if (dataSnapshot.Exists)
             {
                 Debug.Log($"[DB] {userId} was duplicated.");
@@ -76,12 +84,52 @@ public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend
         }
     }
     
-    public void RegisterDisconnectHandler(string userId)
+    public void RegisterUserDisconnectHandler(string userId)
     {
-        _db.RootReference.Child($"users/{userId}").OnDisconnect().RemoveValue().ContinueWithOnMainThread(task => {
+        _db.RootReference.Child($"{ChildKey.USERS}/{userId}").OnDisconnect().RemoveValue().ContinueWithOnMainThread(task => {
             if (task.IsCompleted) {
                 Debug.Log($"[DB] Disconnect handler registered for: {userId}");
             }
+        });
+    }
+    
+    public void RegisterRemoveRoomHandler(string roomId)
+    {
+        _db.RootReference.Child($"{ChildKey.JOIN_CODES}/{roomId}").OnDisconnect().RemoveValue().ContinueWithOnMainThread(task => {
+            if (task.IsCompleted) {
+                Debug.Log($"[DB] Disconnect handler registered for: {roomId}");
+            }
+        });
+    }
+
+    public void SetJoinCodeAsync(string roomId, string joinCode)
+    {
+        _db.RootReference.Child($"{ChildKey.JOIN_CODES}/{roomId}").SetValueAsync(joinCode).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCompleted) Debug.Log($"[DB] JoinCode data saved successfully: {joinCode}");
+            else if (task.IsCanceled) Debug.LogError("[DB] SetJoinCodeAsync was canceled.");
+            else Debug.LogError("[DB] SetJoinCodeAsync encountered an error: " + task.Exception);
+        });
+    }
+
+    public async Task<string> GetJoinCodeAsync(string roomId)
+    {
+        DataSnapshot dataSnapshot = await _db.RootReference.Child($"{ChildKey.JOIN_CODES}/{roomId}").GetValueAsync();
+        if (dataSnapshot.Exists)
+        {
+            Debug.Log($"[DB] GetJoinCodeAsync successful: {dataSnapshot.Value} ");
+            return dataSnapshot.Value as string;
+        }
+        return null;
+    }
+
+    public void RemoveJoinCodeAsync(string roomId)
+    {
+        _db.RootReference.Child($"{ChildKey.JOIN_CODES}/{roomId}").RemoveValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCompleted) Debug.Log($"[DB] JoinCode data removed successfully: {roomId}");
+            else if (task.IsCanceled) Debug.LogError("[DB] RemoveJoinCodeAsync was canceled.");
+            else Debug.LogError("[DB] RemoveJoinCodeAsync encountered an error: " + task.Exception);
         });
     }
 }
