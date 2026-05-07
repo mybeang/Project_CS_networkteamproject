@@ -323,9 +323,11 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         StopCoroutine(_timerCoroutine);
         StopCoroutine(_triggerTimerCoroutine);
 
-        for (i = 0; i < _teams.Length; i++)
+        foreach (var team in _teams)
         {
-            Destroy(_managementObject[i]);
+            Destroy(_managementObject[team.TeamNum].BodyObject);
+            Destroy(_managementObject[team.TeamNum].GunnerObject);
+            Destroy(_managementObject[team.TeamNum].BodyObject);
         }
 
         Debug.Log("게임 종료 성공적으로 호출됌");
