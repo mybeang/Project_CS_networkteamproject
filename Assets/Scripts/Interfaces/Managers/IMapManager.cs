@@ -3,5 +3,6 @@
 public interface IMapManager
 {
     public void SelectMap(int mapId);
-    public Vector3 GetStartPoint();
+    public void Restore();
+    public Vector3 GetStartPoint(PlayerTeamEnum playerTeam);
 }

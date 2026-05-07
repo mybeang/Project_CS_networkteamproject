@@ -212,7 +212,6 @@ public class LobbyRoomUIController : MonoBehaviour
         if (CheckAllReady())
         {
             Debug.Log("[LobbyRoomUIController] Start Game ... Can start the game");
-            Debug.Log("[LobbyRoomUIController] Start Game ... Select Player Character");
             Debug.Log("[LobbyRoomUIController] Start Game ... Ready Data for GameManger");
             List<TeamInfo> teams = LobbyDataToTeamInfo();
             string roomId = ServiceLocator.Get<ILobbyManager>().GetRoomID();
