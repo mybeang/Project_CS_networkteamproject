@@ -122,7 +122,7 @@ public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
 
     public ulong GetClientId() => NetworkManager.Singleton.LocalClientId;
     public void OnHostDisconnectedAddListener(Action callback) => _onHostDisconnected += callback;
-    public void OnHostDisconnectedRemoveListener(Action callback) => _onHostDisconnected += callback;
+    public void OnHostDisconnectedRemoveListener(Action callback) => _onHostDisconnected -= callback;
 
     private void HostDisconnected(ulong clientId)
     {
