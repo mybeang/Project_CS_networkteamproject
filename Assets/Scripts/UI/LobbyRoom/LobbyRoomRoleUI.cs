@@ -36,6 +36,7 @@ public class LobbyRoomRoleUI : MonoBehaviour
     public bool AssignToRole()
     {
         Debug.Log("[LobbyRoomRoleUI] Assign to role");
+        if (_ready.isOn) return false;
         if (_userId.text != "") return false;
         Debug.Log($"[LobbyRoomTeamUI] Update Data ... r:{_playerRole} | t:{_teamNumber}");        
         var lobby = ServiceLocator.Get<ILobbyManager>();

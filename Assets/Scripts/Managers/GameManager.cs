@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameManager : NetworkManager<GameManager>, IGameManager
@@ -20,12 +19,13 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     [SerializeField][Range(60, 1800)] private int _gamePlayableTime;
     [Header("그 외")]
     [SerializeField] private Canvas _gameResultCanvas;
-    
+
     [Header("디버기용")]
     [SerializeField] private bool _OnLoadedLog;
     [SerializeField] private bool _OnTimerStartLog;
     [SerializeField] private bool _OnSpawnLog;
     [SerializeField] private bool _OnReSpawnLog;
+    [SerializeField] private bool _OnEventScheduleManagerLoadedLog;
 
     #endregion
 
@@ -35,16 +35,23 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
     private string _roomID;
     private int _mapNumber;
+    private int _eventCounter;
+
+    private bool _isEventEndTimer;
+    private bool _hasEventEndtimer;
 
     private double _startTime;
     private double _currentTime;
     private double[] _RespawnTimer;
+    private double[] _eventTimer;
+    private double[] _eventEndTimer;
 
     private WaitForSecondsRealtime _tick;
     private Coroutine _timerCoroutine;
     private Coroutine _triggerTimerCoroutine;
 
     private GameObject[] _managementObject;
+    private EventScheduleManager _eventScheduleManager;
     #endregion
 
     #region Network_Variable
@@ -73,14 +80,40 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     public event Action<int[]> OnChangeScore;
     #endregion
 
-    private void Start()
+    private void Awake()
     {
+        _firstTeamScore = new NetworkVariable<int>(0);
+        _secondTeamScore = new NetworkVariable<int>(0);
+        _thirdTeamScore = new NetworkVariable<int>(0);
+        _fourTeamScore = new NetworkVariable<int>(0);
+
         _RespawnTimer = new double[4];
-        _tick = new WaitForSecondsRealtime(0.25f);
+        _isEventEndTimer = false;
+        _eventCounter = 0;
+        _tick = new WaitForSecondsRealtime(0.1f);
     }
 
-    protected override void Register() => ServiceLocator.Register<IGameManager>(this);
+    public override void OnNetworkSpawn()
+    {
+        
+    }
+
+    protected override void Register()
+    {
+        StartCoroutine(Timer());
+        ServiceLocator.Register<IGameManager>(this);
+    }
     protected override void Unregister() => ServiceLocator.Unregister<IGameManager>();
+
+    public void AddEventSchedule(EventScheduleManager eventSchedulemanager)
+    {
+        if (_OnEventScheduleManagerLoadedLog)
+            Debug.Log($"[{name}] {eventSchedulemanager.name} 등록됌");
+        _eventScheduleManager = eventSchedulemanager;
+        _eventTimer = _eventScheduleManager.GetTimer();
+        _eventEndTimer = eventSchedulemanager.GetStopTimer();
+        _hasEventEndtimer = _eventEndTimer != null;
+    }
 
     //[ClientRpc(Delivery = RpcDelivery.Reliable)]
 
@@ -88,13 +121,28 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     {
         _startTime = NetworkManager.Singleton.ServerTime.Time;
         _currentTime = 0;
-        while(_currentTime <= _gamePlayableTime)
+        Debug.Log("타이머 시작됌");
+        while (_currentTime <= _gamePlayableTime)
         {
             _currentTime = NetworkManager.Singleton.ServerTime.Time - _startTime;
             OnChangeTime?.Invoke((int)(_gamePlayableTime - _currentTime));
+            if (IsServer && _eventScheduleManager != null)
+            {
+                if (_eventCounter < _eventTimer.Length &&_eventTimer[_eventCounter] <= _currentTime)
+                {
+                    if (_eventEndTimer != null && _eventCounter < _eventEndTimer.Length)
+                        _isEventEndTimer = true;
+                    _eventScheduleManager.OnEventSpawnServerRpc();
+                    _eventCounter++;
+                }
+                else if (_isEventEndTimer && _eventEndTimer != null && _eventEndTimer[_eventCounter - 1] <= _currentTime)
+                {
+                    _isEventEndTimer = false;
+                    _eventScheduleManager.OnEventDespawnServerRpc();
+                }
+            }
             yield return _tick;
         }
-
         GameEnd();
     }
 
@@ -249,6 +297,9 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private void GameEnd()
     {
         // 게임 종료 시 호출 될 것들
+
+        // 이벤트 스케줄러 해제
+        _eventScheduleManager = null;
 
         // 맵 끄기
         _maps[_mapNumber].maps.SetActive(false);
