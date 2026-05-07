@@ -216,7 +216,7 @@ public class LobbyRoomUIController : MonoBehaviour
             Debug.Log("[LobbyRoomUIController] Start Game ... Ready Data for GameManger");
             List<TeamInfo> teams = LobbyDataToTeamInfo();
             string roomId = ServiceLocator.Get<ILobbyManager>().GetRoomID();
-            ServiceLocator.Get<IGameManager>().StartGame(teams.ToArray(), roomId, _selectedMapNumber);
+            ServiceLocator.Get<IGameManager>().SetData(teams.ToArray(), roomId, _selectedMapNumber);
             if (IsHost)
             {
                 Debug.Log("[LobbyRoomUIController] Start Game ... Change Scene");

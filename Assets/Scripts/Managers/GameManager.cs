@@ -146,17 +146,18 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         GameEnd();
     }
 
-    // 로비에서 게임 시작 시 호출하여, 팀 정보 받아오기
-    public void StartGame(TeamInfo[] teams, in string roomID, int mapNumber)
+    public void SetData(TeamInfo[] teams, in string roomID, int mapNumber)
     {
         _teams = teams;
         _roomID = roomID;
         _mapNumber = mapNumber;
-
+    }
+    
+    // 로비에서 게임 시작 시 호출하여, 팀 정보 받아오기
+    public void StartGame()
+    {
         ResetGameData();
-
-        // _maps[_mapNumber].maps.SetActive(true);
-
+        // ToDo. 맵 Enable 시키기
         for (int i = 0; i < _teams.Length; i++)
         {
             ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel($"{_roomID}{(int)_teams[i].TeamNum}");
