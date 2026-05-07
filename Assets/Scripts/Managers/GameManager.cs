@@ -164,15 +164,12 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     // 로비에서 게임 시작 시 호출하여, 팀 정보 받아오기
     public void StartGame()
     {
+        ServiceLocator.Get<IMapManager>().SelectMap(_mapNumber);
         ResetGameData();
-        
-        
-        
         for (int i = 0; i < _teams.Length; i++)
         {
             ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel($"{_roomID}{(int)_teams[i].TeamNum}");
         }
-
         if (_OnLoadedLog)
             Debug.Log($"{name}에서 게임 시작 함수 정상 작동됌");
     }
@@ -219,6 +216,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             obj.SetActive(true);
             obj.name = $"{team.TeamNum.ToString()} + {team.VehicleNum.ToString()}";
             obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(team.DriverID, true);
+            obj.transform.position = ServiceLocator.Get<IMapManager>().GetStartPoint(team.TeamNum);
             _managementObject[team.TeamNum].BodyObject = obj;
 
             if (_OnSpawnLog)
@@ -228,12 +226,12 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
     // 소환된 경우 모든 Client 들에게 알려야함.
     [ClientRpc]
-    private void ReSpawnVehicleClientRpc(PlayerTeamEnum team) // TODO : 재소환 시 체력, 위치 재설정 가능하게 열려 있어야함.
+    private void ReSpawnVehicleClientRpc(PlayerTeamEnum team) 
     {
-        _managementObject[team].BodyObject.SetActive(true);
-
-        // TODO : 여기에 이동 객체 초기화 함수 호출.
-
+        var bodyObject = _managementObject[team].BodyObject;
+        bodyObject.SetActive(true);
+        bodyObject.transform.position = ServiceLocator.Get<IMapManager>().GetStartPoint(team);
+        
         if (_OnReSpawnLog)
             Debug.Log($"{_managementObject[team].BodyObject.name} 리스폰 완료");
     }
@@ -327,7 +325,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         {
             Destroy(_managementObject[team.TeamNum].BodyObject);
             Destroy(_managementObject[team.TeamNum].GunnerObject);
-            Destroy(_managementObject[team.TeamNum].BodyObject);
+            Destroy(_managementObject[team.TeamNum].DriverObject);
         }
 
         Debug.Log("게임 종료 성공적으로 호출됌");

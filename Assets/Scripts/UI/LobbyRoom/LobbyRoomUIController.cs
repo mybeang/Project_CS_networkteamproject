@@ -220,7 +220,7 @@ public class LobbyRoomUIController : MonoBehaviour
             {
                 Debug.Log("[LobbyRoomUIController] Start Game ... Change Scene");
                 ServiceLocator.Get<ILobbyManager>().Lock(true);
-                ServiceLocator.Get<INetworkSceneLoader>().LoadScene("InGame_Chaebh");
+                ServiceLocator.Get<INetworkSceneLoader>().LoadScene("InGame");
             }
         }
         else
