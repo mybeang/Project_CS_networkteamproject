@@ -30,19 +30,20 @@ public class LobbyRoomUIController : MonoBehaviour
         ServiceLocator.Get<ILobbyManager>().GetHostId() == 
         ServiceLocator.Get<IUserInfoManager>().GetUserInfo().userId;
 
-    private string _joinCode;
+    private string _joinCode = string.Empty;
+    private const string RELAY_SYNC = "--Syncing--";
 
     private void Awake() => Init();
 
     private void OnEnable()
     {
         BindCallbackButtons();
-        ServiceLocator.Get<IRelayHostManager>()?.OnHostDisconnectedAddListener(ChangeRelayHost);
+        ServiceLocator.Get<IRelayHostManager>()?.OnHostDisconnectedAddListener(HostMigrationProcessHandler);
     }
     private void OnDisable()
     {
         UnbindCallbackButtons();
-        ServiceLocator.Get<IRelayHostManager>()?.OnHostDisconnectedRemoveListener(ChangeRelayHost);
+        ServiceLocator.Get<IRelayHostManager>()?.OnHostDisconnectedRemoveListener(HostMigrationProcessHandler);
     }
 
     private void Start()
@@ -50,6 +51,20 @@ public class LobbyRoomUIController : MonoBehaviour
         if (IsHost)
         {   // Lobby Create
             CreateRelayHost();
+        }
+        else
+        {
+            ServiceLocator.Get<IDatabaseBackend>().GetJoinCodeAsync(
+                ServiceLocator.Get<ILobbyManager>().GetRoomID()).ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogWarning("[LobbyRoomUIController] Get JoinCodeAsync task faulted.");
+                    return;
+                }
+                _joinCode = task.Result;
+                ServiceLocator.Get<IRelayHostManager>().StartClient(_joinCode);
+            });
         }
         UpdateReadyState();
         _msgPopUp.Open(
@@ -95,7 +110,7 @@ public class LobbyRoomUIController : MonoBehaviour
         OnReSelect();
         ServiceLocator.Get<ILobbyManager>()?.LeaveRoom();
         if (IsHost) ServiceLocator.Get<IRelayHostManager>()?.Disconnect();
-        ServiceLocator.Get<ILocalSceneLoader>()?.LoadScene("LobbyScene");
+        ServiceLocator.Get<ILocalSceneLoader>()?.LoadScene("LobbyList");
     }
 
     private void OnReSelect()
@@ -152,21 +167,6 @@ public class LobbyRoomUIController : MonoBehaviour
         }
         
         _ready = !_ready;
-        if (!IsHost)
-        {
-            GetJoinCode();
-            var relayManager = ServiceLocator.Get<IRelayHostManager>();
-            if (_ready)
-            {
-                Debug.Log("[LobbyRoomUIController] Ready ... Join Client");
-                relayManager.StartClient(_joinCode);    
-            }
-            else
-            {
-                Debug.Log("[LobbyRoomUIController] Ready ... Left Client");
-                relayManager.Disconnect();
-            }
-        }
         UpdateReadyState();
         Debug.Log("[LobbyRoomUIController] Ready ... Done");
     }
@@ -198,7 +198,15 @@ public class LobbyRoomUIController : MonoBehaviour
         Debug.Log("[LobbyRoomUIController] Start Game ... ");
         if (CheckAllReady())
         {
-            Debug.Log("[LobbyRoomUIController] Start Game ... ");
+            Debug.Log("[LobbyRoomUIController] Start Game ... Can start the game");
+            Debug.Log("[LobbyRoomUIController] Start Game ... GameManger is enabled");
+            GameObject ddolObject = GameObject.FindWithTag("ddolObject");
+            if (ddolObject != null)
+            {
+                GameManager gameManager = ddolObject.GetComponentInChildren<GameManager>(true);
+                if (gameManager != null) gameManager.gameObject.SetActive(true);
+            }
+            Debug.Log("[LobbyRoomUIController] Start Game ... Ready Data for GameManger");
             List<TeamInfo> teams = LobbyDataToTeamInfo();
             string roomId = ServiceLocator.Get<ILobbyManager>().GetRoomID();
             ServiceLocator.Get<IGameManager>().StartGame(teams.ToArray(), roomId, _selectedMapNumber);
@@ -220,6 +228,7 @@ public class LobbyRoomUIController : MonoBehaviour
 
     private void CreateRelayHost()
     {
+        Debug.Log("[LobbyRoomUIController] Create Relay Host ... ");
         var db = ServiceLocator.Get<IDatabaseBackend>();
         var lobby = ServiceLocator.Get<ILobbyManager>();
         var relayManager = ServiceLocator.Get<IRelayHostManager>();
@@ -235,26 +244,8 @@ public class LobbyRoomUIController : MonoBehaviour
                     OnLeaveRoom);
             }
             _joinCode = task.Result;
+            Debug.Log($"[LobbyRoomUIController] Create Relay Host ... Success ; JoinCode: {_joinCode}");
             db.SetJoinCodeAsync(lobby.GetRoomID(), _joinCode);
-        });
-    }
-
-    private void GetJoinCode()
-    {
-        var db = ServiceLocator.Get<IDatabaseBackend>();
-        var lobby = ServiceLocator.Get<ILobbyManager>();
-        db.GetJoinCodeAsync(lobby.GetRoomID()).ContinueWithOnMainThread(task =>
-        {
-            if (task.IsFaulted)
-            {
-                Debug.LogWarning("[LobbyRoomUIController] Could not join the room !");
-                _msgPopUp.Open(
-                    MessageType.Error, 
-                    "방 참가가 실패되었습니다.", 
-                    "돌아가기", 
-                    OnLeaveRoom);
-            }
-            _joinCode = task.Result;
         });
     }
 
@@ -307,27 +298,49 @@ public class LobbyRoomUIController : MonoBehaviour
         return true;
     }
 
-    private async void ChangeRelayHost()
+    private async void HostMigrationProcessHandler()
     {
-        Debug.Log("[ChangeRelayHost] Relay Host ... ");
+        Debug.Log("[LobbyRoomUIController] Change Relay Host ... ");
+        var relay = ServiceLocator.Get<IRelayHostManager>();
+        var lobby = ServiceLocator.Get<ILobbyManager>();
+        var db = ServiceLocator.Get<IDatabaseBackend>();
+        relay.Disconnect();
+        _joinCode = string.Empty;
+        db.SetJoinCodeAsync(lobby.GetRoomID(), RELAY_SYNC);
         try
         {
             bool updateDone = await WaitUntilSyncLobbyDataAsync();
             if (updateDone)
             {
-                CreateRelayHost();
-                Debug.Log("[ChangeRelayHost] Relay Host ... Success");
+                if (IsHost)
+                {
+                    Debug.Log("[LobbyRoomUIController] Change Relay Host ... I am a host");
+                    CreateRelayHost();
+                    ChangeButtonVisibility();
+                }
+                else
+                {
+                    Debug.Log("[LobbyRoomUIController] Change Relay Host ... I am not a host");
+                    bool createRelay = await WaitUntilCreateRelayHostAsync();
+                    if (createRelay)
+                    {
+                        _joinCode = await db.GetJoinCodeAsync(lobby.GetRoomID());
+                        Debug.Log($"[LobbyRoomUIController] Change Relay Host ... Try connect to host. {_joinCode}");
+                        relay.StartClient(_joinCode);
+                    }
+                }
+                Debug.Log("[LobbyRoomUIController] Change Relay Host ... Success");
             } 
         }
         catch (Exception e)
         {
-            Debug.LogError($"[ChangeRelayHost] Relay Host ... Fail {e.Message}");
+            Debug.LogError($"[LobbyRoomUIController] Change Relay Host ... Fail {e.Message}");
         }
     }
 
     private async Task<bool> WaitUntilSyncLobbyDataAsync()
     {
-        Debug.Log("[WaitUntilSyncLobbyDataAsync] Sync ... ");
+        Debug.Log("[LobbyRoomUIController] Lobby Data Sync ... ");
         var lobby = ServiceLocator.Get<ILobbyManager>();
         int retryCount = 0;
         int maxRetryCount = 5;
@@ -335,12 +348,27 @@ public class LobbyRoomUIController : MonoBehaviour
         {
             if (retryCount++ > maxRetryCount)
             {
-                Debug.LogWarning("[WaitUntilSyncLobbyDataAsync] Sync ... Fail");
+                Debug.LogWarning("[LobbyRoomUIController] Lobby Data Sync ... Fail");
                 return false;
             }
             await Task.Delay(1000);
         }
-        Debug.Log("[WaitUntilSyncLobbyDataAsync] Sync ... Success");
+        Debug.Log("[LobbyRoomUIController] Lobby Data Sync ... Success");
         return true;
+    }
+
+    private async Task<bool> WaitUntilCreateRelayHostAsync()
+    {
+        var lobby = ServiceLocator.Get<ILobbyManager>();
+        var db = ServiceLocator.Get<IDatabaseBackend>();
+        int retryCount = 0;
+        int maxRetryCount = 5;
+        while (true)
+        {
+            var code = await db.GetJoinCodeAsync(lobby.GetRoomID());
+            if (retryCount++ > maxRetryCount) return false;
+            if (code != RELAY_SYNC) return true;
+            await Task.Delay(1000);
+        }
     }
 }

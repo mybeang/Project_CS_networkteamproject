@@ -1444,11 +1444,11 @@ GameObject:
   - component: {fileID: 984736387}
   m_Layer: 0
   m_Name: GameManager
-  m_TagString: Untagged
+  m_TagString: GameController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &984736386
 Transform:
   m_ObjectHideFlags: 0
