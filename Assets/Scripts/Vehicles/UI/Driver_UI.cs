@@ -58,7 +58,7 @@ public abstract class Driver_UI : MonoBehaviour
         Debug.Log($"캔버스 설정 완료됌.");
     }
 
-    protected abstract void UpdateKillLog(PlayerTeamEnum self, PlayerTeamEnum enemy);
+    public abstract void UpdateKillLog(PlayerTeamEnum self, PlayerTeamEnum enemy);
 
     // private void // TODO : 나중에 GameManager에서 시간 받아오기
 

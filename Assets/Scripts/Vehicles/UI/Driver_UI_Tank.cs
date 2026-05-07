@@ -28,7 +28,7 @@ public class Driver_UI_Tank : Driver_UI
         _hpSlider.value = currentHealthPoint;
     }
 
-    protected override void UpdateKillLog(PlayerTeamEnum self, PlayerTeamEnum enemy)
+    public override void UpdateKillLog(PlayerTeamEnum self, PlayerTeamEnum enemy)
     {
         _killLog.text = $"{enemy} 팀이 {self} 팀을 박살냈습니다!";
     }

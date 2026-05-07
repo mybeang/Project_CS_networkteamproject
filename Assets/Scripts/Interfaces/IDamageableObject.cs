@@ -1,4 +1,4 @@
 ﻿public interface IDamageableObject
 {
-    public void TakeDamaged(int dmg);
+    public void TakeDamaged(int dmg, PlayerTeamEnum enemy);
 }

@@ -1,12 +1,15 @@
+﻿using System.Collections;
+using System.Runtime.CompilerServices;
 using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
 
-public class testTank : NetworkBehaviour, IDamageableObject
+public class TankController : NetworkBehaviour, IDamageableObject
 {
     [SerializeField] private PlayerableStatisticsSO _stat;
 
+    [SerializeField] private Rigidbody _rigidbody;
     [SerializeField] private Transform _turret;
 
     [SerializeField] private Camera _camBody;
@@ -19,6 +22,7 @@ public class testTank : NetworkBehaviour, IDamageableObject
 
     //현재 UI
     private GameObject _UI;
+    private PlayerTeamEnum _self;
 
     // driver 클라이언트 ID
     private NetworkVariable<ulong> _driverID = new();
@@ -45,6 +49,18 @@ public class testTank : NetworkBehaviour, IDamageableObject
         _gunnerID.OnValueChanged += TurnOnGunnerUI;
     }
 
+    private void OnEnable()
+    {
+        _hp.Value = _stat.VechicleMaximumHP;
+        _reloadTime = 0;
+    }
+
+    private void OnDestroy()
+    {
+        _driverID.OnValueChanged -= TurnOndriverUI;
+        _gunnerID.OnValueChanged -= TurnOnGunnerUI;
+    }
+
     public override void OnNetworkSpawn()
     {
         if (!IsServer) return;
@@ -54,36 +70,35 @@ public class testTank : NetworkBehaviour, IDamageableObject
         _gunnerID.Value = ulong.MaxValue;
     }
 
+    IEnumerator SpawnDelay()
+    {
+        yield return new WaitForSeconds(1f);
+
+        yield return new WaitForSeconds(2f);
+    }
+
     private void Update()
     {
-        //쿨타임 줄여주기
+        //쿨타임 줄여주기 / TODO : Update -> Coroutine 교체 필요...
         _reloadTime -= Time.deltaTime;
         if(_reloadTime < 0 ) _reloadTime = 0;
-        
+        _gunnerUI.GetComponent<Tank_Gunner>().UpdateToReloadUI(_reloadTime); // TODO : 나중에 UI cashing 후 사용하기
+
     }
 
     //탱크 초기화 함수
-    public void Init(ulong driverID, ulong gunnerID)
+    public void Init(ulong driverID, ulong gunnerID, PlayerTeamEnum self)
     {
         if (!IsServer) return;
+        Debug.Log("전차 초기화 완료");
 
         _driverID.Value = driverID;
         _gunnerID.Value = gunnerID;
 
+        _self = self;
+
         _hp.Value = _stat.VechicleMaximumHP;
         _reloadTime = _stat.VechicleReloadtime;     
-    }
-
-    //탱크 체력 초기화 함수
-    public void SetHp(int hp)
-    {
-        _hp.Value = hp;
-    }
-
-    //탱크 위치 초기화 함수
-    public void SetPosition(Vector3 pos)
-    {
-        transform.position = pos;
     }
 
     // tank에서 driver, gunner 초기화가 이루어졌다면 UI를 작동시킴.
@@ -134,23 +149,27 @@ public class testTank : NetworkBehaviour, IDamageableObject
 
     //Body 자체를 회전하고 움직이는 함수
     // serverRpc로 안하니까 owner가 아닌 클라이언트에서 transform을 동기화 할 수가 없음.
-    [Rpc(SendTo.Server,InvokePermission = RpcInvokePermission.Everyone)]
+    [ServerRpc]
     public void MoveBodyServerRpc(Vector2 input)
     {
+        _rigidbody.linearVelocity = _stat.VechicleMoveSpeed * input * Time.deltaTime;
+
+
+        /*
         // 회전
         transform.Rotate(0, input.x * _stat.VechicleRotationSpeed * Time.deltaTime, 0);
 
         // 이동
         Vector3 move = transform.forward * input.y;
         move = move * _stat.VechicleMoveSpeed * Time.deltaTime;
-        transform.position += move;
+        transform.position += move;*/
     }
 
     //Turret을 회전하는 함수
     private Vector2 _lastInput; // 마지막에 어떻게 움직였는지 기록해놓고
     private bool _isHorizontalMode; // 수평, 수직방향중 한번에 하나의 방향으로만 움직일 수 있음.
 
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    [ServerRpc]
     public void MoveTurretServerRpc(Vector2 input)
     {
         // 마지막에 입력된 축을 우선판정 
@@ -211,13 +230,20 @@ public class testTank : NetworkBehaviour, IDamageableObject
         if (_reloadTime > 0) return;
         _reloadTime = _stat.VechicleReloadtime;
 
-        _projectileManager.Shot();
+        _projectileManager.Shot(_self);
     }
 
-    public void TakeDamaged(int dmg)
+    public void KillLog(PlayerTeamEnum enemy)
+    {
+        _driverUI.GetComponent<Driver_UI>().UpdateKillLog(_self, enemy); // TODO : 상위 객체를 호출하다 보니 문제가 생길 수도...?
+    }
+
+    public void TakeDamaged(int dmg, PlayerTeamEnum enemy)
     {
         Debug.Log($"_hp : {_hp} , dmg : {dmg}");
         _hp.Value -= dmg;
+        _driverUI.GetComponent<Driver_UI_Tank>().ChangeVehicleHealth(_hp.Value / _stat.VechicleMaximumHP); // TODO : 나중에 UI script를 cashing해서 사용하기
+        if (_hp.Value <= 0)
+            ServiceLocator.Get<IGameManager>().OnDestoryVehicleServerRpc(_self, enemy);
     }
-
 }
