@@ -8,6 +8,13 @@ using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
+[Serializable]
+public struct MapPreview
+{
+    public Sprite image;
+    public string name;
+}
+
 public class LobbyRoomUIController : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _lobbySubject;
@@ -23,7 +30,9 @@ public class LobbyRoomUIController : MonoBehaviour
     [SerializeField] private Button _leaveRoomButton;
     
     [Header("Data")]
-    [SerializeField] private List<Sprite> _mapImages = new();
+    [SerializeField] private List<MapPreview> _mapImages = new();
+    [SerializeField] private TextMeshProUGUI _mapName;
+    
     private int _selectedMapNumber;
     private bool _ready;
     private bool IsHost => 
@@ -75,7 +84,11 @@ public class LobbyRoomUIController : MonoBehaviour
     private void Init()
     {
         _lobbySubject.text = ServiceLocator.Get<ILobbyManager>()?.GetRoomName();
-        if (_mapImages.Count != 0) _selectedMapImage.sprite = _mapImages[0];
+        if (_mapImages.Count != 0)
+        {
+            _selectedMapImage.sprite = _mapImages[0].image;
+            _mapName.text = _mapImages[0].name;
+        }
         _ready = false;
         ChangeButtonVisibility();
     }
@@ -261,9 +274,10 @@ public class LobbyRoomUIController : MonoBehaviour
         if (_mapImages.Count != 0)
         {
             _selectedMapNumber++;
-            if (_selectedMapNumber > _mapImages.Count) _selectedMapNumber = 0;
+            if (_selectedMapNumber > _mapImages.Count - 1) _selectedMapNumber = 0;
             
-            _selectedMapImage.sprite = _mapImages[_selectedMapNumber];
+            _selectedMapImage.sprite = _mapImages[_selectedMapNumber].image;
+            _mapName.text = _mapImages[_selectedMapNumber].name;
         }
     }
 
@@ -274,7 +288,8 @@ public class LobbyRoomUIController : MonoBehaviour
             _selectedMapNumber--;
             if (_selectedMapNumber < 0) _selectedMapNumber = _mapImages.Count - 1;
             
-            _selectedMapImage.sprite = _mapImages[_selectedMapNumber];
+            _selectedMapImage.sprite = _mapImages[_selectedMapNumber].image;
+            _mapName.text = _mapImages[_selectedMapNumber].name;
         }
     }
     

@@ -278,6 +278,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MapManager
   ShowTopMostFoldoutHeaderGroup: 1
   _mapObjects:
+  - _mapObject: {fileID: 791643300}
+    _startPoints:
+    - {fileID: 791643304}
+    - {fileID: 791643303}
+    - {fileID: 791643302}
+    - {fileID: 791643301}
+  - _mapObject: {fileID: 179718530}
+    _startPoints:
+    - {fileID: 179718534}
+    - {fileID: 179718533}
+    - {fileID: 179718532}
+    - {fileID: 179718531}
+  - _mapObject: {fileID: 1998706360}
+    _startPoints:
+    - {fileID: 1998706364}
+    - {fileID: 1998706363}
+    - {fileID: 1998706362}
+    - {fileID: 1998706361}
   - _mapObject: {fileID: 894902964}
     _startPoints:
     - {fileID: 894902972}
@@ -288,24 +306,6 @@ MonoBehaviour:
     - {fileID: 894902967}
     - {fileID: 894902966}
     - {fileID: 894902965}
-  - _mapObject: {fileID: 179718530}
-    _startPoints:
-    - {fileID: 179718534}
-    - {fileID: 179718533}
-    - {fileID: 179718532}
-    - {fileID: 179718531}
-  - _mapObject: {fileID: 791643300}
-    _startPoints:
-    - {fileID: 791643304}
-    - {fileID: 791643303}
-    - {fileID: 791643302}
-    - {fileID: 791643301}
-  - _mapObject: {fileID: 1998706360}
-    _startPoints:
-    - {fileID: 1998706364}
-    - {fileID: 1998706363}
-    - {fileID: 1998706362}
-    - {fileID: 1998706361}
 --- !u!4 &80179517
 Transform:
   m_ObjectHideFlags: 0
@@ -446,7 +446,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2383558454510971512, guid: 0e504fba5d500304db236aea68ef014c, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9185375842636207841, guid: 0e504fba5d500304db236aea68ef014c, type: 3}
       propertyPath: m_LocalPosition.x
