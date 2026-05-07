@@ -3,8 +3,8 @@ using Unity.Netcode;
 
 public interface IGameManager
 {
-    public void StartGame(TeamInfo[] teams, in string roomID, int mapNumber);
-    [ServerRpc] public void OnDestoryVehicleServerRpc(PlayerTeamEnum self, PlayerTeamEnum enemy);
+    public void StartGame();
+    [ServerRpc] public void OnDestoryVehicleServerRpc(PlayerTeamEnum myTeam, PlayerTeamEnum enemy);
 
     public void AddEventSchedule(EventScheduleManager eventSchedulemanager);
 
@@ -25,4 +25,6 @@ public interface IGameManager
     /// int 배열 4개가 들어올 예정 (int[4])
     /// </summary>
     public event Action<int[]> OnChangeScore;
+
+    public void SetData(TeamInfo[] teams, in string roomID, int mapNumber);
 }
