@@ -1448,7 +1448,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &984736386
 Transform:
   m_ObjectHideFlags: 0
@@ -1477,9 +1477,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   ShowTopMostFoldoutHeaderGroup: 1
-  _playerObject: {fileID: 0}
-  _playerablePrefabs: []
-  _PlayerableMaterials: []
+  _playerObject: {fileID: 6054779728764974554, guid: 04d763457bc101743866e3c73869a4f7, type: 3}
+  _playerablePrefabs:
+  - {fileID: 1904569707985564063, guid: 8f103a9b591e54440aba0d7647946ce0, type: 3}
+  _PlayerableMaterials:
+  - {fileID: 2100000, guid: 4577ee2046668dc4faae41439ead563c, type: 2}
+  - {fileID: 2100000, guid: 36797ffef13d2934b9df4b1eee1d60ad, type: 2}
+  - {fileID: 2100000, guid: 4bd122cb58a5d8645afd8bf406f31e3f, type: 2}
+  - {fileID: 2100000, guid: 546738ce5c5f3484bb590ed3d3f696ee, type: 2}
   _maps: []
   _basicSpawnTime: 10
   _gamePlayableTime: 600
@@ -1488,6 +1493,7 @@ MonoBehaviour:
   _OnTimerStartLog: 0
   _OnSpawnLog: 0
   _OnReSpawnLog: 0
+  _OnEventScheduleManagerLoadedLog: 0
 --- !u!114 &984736388
 MonoBehaviour:
   m_ObjectHideFlags: 0

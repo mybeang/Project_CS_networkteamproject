@@ -155,7 +155,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
         ResetGameData();
 
-        _maps[_mapNumber].maps.SetActive(true);
+        // _maps[_mapNumber].maps.SetActive(true);
 
         for (int i = 0; i < _teams.Length; i++)
         {
@@ -302,7 +302,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _eventScheduleManager = null;
 
         // 맵 끄기
-        _maps[_mapNumber].maps.SetActive(false);
+        // _maps[_mapNumber].maps.SetActive(false);
         // 음성 채널 탈퇴
         byte i;
         for (i = 0; i < _teams.Length; i++)

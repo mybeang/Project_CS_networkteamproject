@@ -192,6 +192,19 @@ public class LobbyRoomUIController : MonoBehaviour
         }
         return teams;
     }
+
+    private void SelectPlayerPrefab()
+    {
+        GameObject ddolObject = GameObject.FindWithTag("ddolObject");
+        if (ddolObject != null)
+        {
+            GameManager gameManager = ddolObject.GetComponentInChildren<GameManager>(true);
+            if (gameManager != null)
+            {
+                
+            }
+        }
+    }
     
     private void OnStartGame()
     {
@@ -199,13 +212,7 @@ public class LobbyRoomUIController : MonoBehaviour
         if (CheckAllReady())
         {
             Debug.Log("[LobbyRoomUIController] Start Game ... Can start the game");
-            Debug.Log("[LobbyRoomUIController] Start Game ... GameManger is enabled");
-            GameObject ddolObject = GameObject.FindWithTag("ddolObject");
-            if (ddolObject != null)
-            {
-                GameManager gameManager = ddolObject.GetComponentInChildren<GameManager>(true);
-                if (gameManager != null) gameManager.gameObject.SetActive(true);
-            }
+            Debug.Log("[LobbyRoomUIController] Start Game ... Select Player Character");
             Debug.Log("[LobbyRoomUIController] Start Game ... Ready Data for GameManger");
             List<TeamInfo> teams = LobbyDataToTeamInfo();
             string roomId = ServiceLocator.Get<ILobbyManager>().GetRoomID();
