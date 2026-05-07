@@ -4,6 +4,14 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
+
+public class GameObjectMap
+{
+    public GameObject GunnerObject;
+    public GameObject DriverObject;
+    public GameObject BodyObject;
+}
+
 public class GameManager : NetworkManager<GameManager>, IGameManager
 {
     #region Show_in_Inspector_Variable
@@ -50,7 +58,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private Coroutine _timerCoroutine;
     private Coroutine _triggerTimerCoroutine;
 
-    private GameObject[] _managementObject;
+    private Dictionary<PlayerTeamEnum, GameObjectMap> _managementObject = new();
     private EventScheduleManager _eventScheduleManager;
     #endregion
 
@@ -157,7 +165,9 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     public void StartGame()
     {
         ResetGameData();
-        // ToDo. 맵 Enable 시키기
+        
+        
+        
         for (int i = 0; i < _teams.Length; i++)
         {
             ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel($"{_roomID}{(int)_teams[i].TeamNum}");
@@ -183,33 +193,33 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private void InstantiateVehicleClientRpc()
     {
         GameObject obj;
-        _managementObject = new GameObject[_teams.Length * 3];
-        for (byte i = 0; i < _teams.Length; i++)
+        foreach (var team in _teams)
         {
-            obj = Instantiate(_playerObject,transform);
+            _managementObject[team.TeamNum] = new();
+            obj = Instantiate(_playerObject, transform);
             obj.SetActive(true);
-            obj.name = $"{_teams[i].TeamNum.ToString()} + Driver";
-            obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(_teams[i].DriverID,true);
-            _managementObject[i * 3] = obj;
+            obj.name = $"{team.TeamNum.ToString()} + Driver";
+            obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(team.DriverID,true);
+            _managementObject[team.TeamNum].DriverObject = obj;
 
             if (_OnSpawnLog)
                 Debug.Log($"조종수 객체 : {obj.name} 생성 완료");
 
             obj = Instantiate(_playerObject, transform);
             obj.SetActive(true);
-            obj.name = $"{_teams[i].TeamNum.ToString()} + Gunner";
-            obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(_teams[i].GunnerID, true);
-            _managementObject[(i * 3) + 1] = obj;
+            obj.name = $"{team.TeamNum.ToString()} + Gunner";
+            obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(team.GunnerID, true);
+            _managementObject[team.TeamNum].GunnerObject = obj;
 
             if (_OnSpawnLog)
                 Debug.Log($"사수 객체 : {obj.name} 생성 완료");
 
-            obj = Instantiate(_playerablePrefabs[(int)_teams[i].VehicleNum]);
-            obj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)_teams[i].TeamNum];
+            obj = Instantiate(_playerablePrefabs[(int)team.VehicleNum]);
+            obj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)team.TeamNum];
             obj.SetActive(true);
-            obj.name = $"{_teams[i].TeamNum.ToString()} + {_teams[i].VehicleNum.ToString()}";
-            obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(_teams[i].DriverID, true);
-            _managementObject[(i * 3) + 2] = obj;
+            obj.name = $"{team.TeamNum.ToString()} + {team.VehicleNum.ToString()}";
+            obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(team.DriverID, true);
+            _managementObject[team.TeamNum].BodyObject = obj;
 
             if (_OnSpawnLog)
                 Debug.Log($"이동 객체 : {obj.name} 생성 완료");
@@ -220,29 +230,28 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     [ClientRpc]
     private void ReSpawnVehicleClientRpc(PlayerTeamEnum team) // TODO : 재소환 시 체력, 위치 재설정 가능하게 열려 있어야함.
     {
-        int teamNum = (int)team * 3 + 2;
-        _managementObject[teamNum].SetActive(true);
+        _managementObject[team].BodyObject.SetActive(true);
 
         // TODO : 여기에 이동 객체 초기화 함수 호출.
 
         if (_OnReSpawnLog)
-            Debug.Log($"{_managementObject[teamNum].name} 리스폰 완료");
+            Debug.Log($"{_managementObject[team].BodyObject.name} 리스폰 완료");
     }
 
     /// <summary>
     /// 체력이 0 이하가 되어 파괴 판정이 된 경우 호출
-    /// 체력이 0인 경우 호출 방법 :  self(자신)이 enemy(적)에게 파괴되었습니다.
+    /// 체력이 0인 경우 호출 방법 :  myTeam(자신)이 enemy(적)에게 파괴되었습니다.
     /// </summary>
-    /// <param name="self"></param>
+    /// <param name="myTeam"></param>
     /// <param name="enemy"></param>
     [ServerRpc]
-    public void OnDestoryVehicleServerRpc(PlayerTeamEnum self, PlayerTeamEnum enemy)
+    public void OnDestoryVehicleServerRpc(PlayerTeamEnum myTeam, PlayerTeamEnum enemy)
     {
         // 이동 수단 비활성화 및 플레그 호출
-        _managementObject[(int)self * 3 + 2].SetActive(false);
+        _managementObject[myTeam].BodyObject.SetActive(false);
         // TODO : 플레그 관련 호출 정의될 시 여기서 호출
 
-        _RespawnTimer[(int)self] = _currentTime + _basicSpawnTime;
+        _RespawnTimer[(int)myTeam] = _currentTime + _basicSpawnTime;
         if (_triggerTimerCoroutine == null)
             StartCoroutine(TrrigerTimer());
 
@@ -265,7 +274,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         OnChangeScore?.Invoke(new int[4] {_firstTeamScore.Value, _secondTeamScore.Value, _thirdTeamScore.Value, _fourTeamScore.Value});
 
         // 킬로그 호출
-        OnKillLog?.Invoke(self,enemy);
+        OnKillLog?.Invoke(myTeam,enemy);
     }
 
     IEnumerator TrrigerTimer()

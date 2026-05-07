@@ -4,7 +4,7 @@ using Unity.Netcode;
 public interface IGameManager
 {
     public void StartGame();
-    [ServerRpc] public void OnDestoryVehicleServerRpc(PlayerTeamEnum self, PlayerTeamEnum enemy);
+    [ServerRpc] public void OnDestoryVehicleServerRpc(PlayerTeamEnum myTeam, PlayerTeamEnum enemy);
 
     public void AddEventSchedule(EventScheduleManager eventSchedulemanager);
 
