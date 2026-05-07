@@ -23,9 +23,9 @@ public class TeamInfo
     }
 
     public void SetScore(int score) => _score = score;
+    public int GetScore() => _score;
     public PlayerTeamEnum GetTeamNum() => _teamNum;
     public PlayerableVehicleEnum GetVehicle() => _vehicle;
-    
     /// <summary>
     /// 특정 팀의 전체 정보가 필요한 경우 호출
     /// </summary>
