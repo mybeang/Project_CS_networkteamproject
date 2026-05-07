@@ -444,10 +444,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Map_Prairie
       objectReference: {fileID: 0}
-    - target: {fileID: 2383558454510971512, guid: 0e504fba5d500304db236aea68ef014c, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 9185375842636207841, guid: 0e504fba5d500304db236aea68ef014c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
