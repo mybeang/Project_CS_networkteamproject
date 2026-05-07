@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Firebase.Extensions;
 using TMPro;
@@ -189,21 +190,30 @@ public class LobbyRoomUIController : MonoBehaviour
         var lobbyManager = ServiceLocator.Get<ILobbyManager>();
         var relayManager = ServiceLocator.Get<IRelayHostManager>();
         var players = lobbyManager?.GetPlayerList();
-        List<TeamInfo> teams = new();
-        if (players == null) return teams;
+        Dictionary<PlayerTeamEnum, TeamInfo> teams = new();
+        if (players == null) return null;
         foreach (var player in players)
         {
             int index = int.Parse(player.Data[LobbyPlayerDataKey.TEAM].Value) - 1;
             var teamNum = (PlayerTeamEnum)index;
-            ulong driverId = 0;
-            ulong gunnerId = 0;
-            var playerRole = player.Data[LobbyPlayerDataKey.ROLE].Value;
-            if (playerRole == $"{PlayerRole.Driver}") driverId = relayManager.GetClientId();
-            else if (playerRole == $"{PlayerRole.Gunner}") gunnerId = relayManager.GetClientId();
-            PlayerableVehicleEnum pv = PlayerableVehicleEnum.tank; // ToDo. 더 만들어지면 추가하기
-            teams.Add(new TeamInfo(teamNum, driverId, gunnerId, pv));
+
+            if (!teams.ContainsKey(teamNum))
+            {
+                PlayerableVehicleEnum pv = PlayerableVehicleEnum.tank; // ToDo. 더 만들어지면 추가하기
+                teams.Add(teamNum, new TeamInfo(teamNum, pv));
+            }
+            var temp = player.Data[LobbyPlayerDataKey.ROLE].Value.Split('.').Last();
+            PlayerRole playerRole = (PlayerRole)Enum.Parse(typeof(PlayerRole), temp);
+
+            PlayerInfo playerInfo = new PlayerInfo()
+            {
+                userId = player.Data[LobbyPlayerDataKey.USER_ID].Value,
+                clientId = relayManager.GetClientId(),
+                role = playerRole
+            };
+            teams[teamNum].players.Add(playerInfo);
         }
-        return teams;
+        return teams.Values.ToList();
     }
     
     private void OnStartGame()
@@ -214,6 +224,14 @@ public class LobbyRoomUIController : MonoBehaviour
             Debug.Log("[LobbyRoomUIController] Start Game ... Can start the game");
             Debug.Log("[LobbyRoomUIController] Start Game ... Ready Data for GameManger");
             List<TeamInfo> teams = LobbyDataToTeamInfo();
+            if (teams == null)
+            {
+                _msgPopUp.Open(
+                    MessageType.Error,
+                    "게임 시작에 실패하였습니다.\n다시 시도 해주세요.");
+                Debug.LogWarning("[LobbyRoomUIController] Start Game ... Could not make team data.");
+                return;
+            }
             string roomId = ServiceLocator.Get<ILobbyManager>().GetRoomID();
             ServiceLocator.Get<IGameManager>().SetData(teams.ToArray(), roomId, _selectedMapNumber);
             if (IsHost)

@@ -27,4 +27,6 @@ public interface IGameManager
     public event Action<int[]> OnChangeScore;
 
     public void SetData(TeamInfo[] teams, in string roomID, int mapNumber);
+    
+    public TeamInfo[] GetTeams();
 }
