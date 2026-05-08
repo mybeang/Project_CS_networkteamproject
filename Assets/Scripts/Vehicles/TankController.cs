@@ -24,16 +24,16 @@ public class TankController : NetworkBehaviour, IDamageableObject
 
     //현재 UI
     private GameObject _UI;
-    private PlayerTeamEnum _self;
+    private PlayerTeamEnum _teamNum;
 
     // driver 클라이언트 ID
-    private NetworkVariable<ulong> _driverID = new();
+    private NetworkVariable<ulong> _driverID = new(ulong.MaxValue);
     public ulong DriverID
     {
         get { return _driverID.Value; }
     }
     // gunner 클라이언트 ID
-    private NetworkVariable<ulong> _gunnerID = new();
+    private NetworkVariable<ulong> _gunnerID = new(ulong.MaxValue);
     public ulong GunnerID
     {
         get { return _gunnerID.Value; }
@@ -50,16 +50,13 @@ public class TankController : NetworkBehaviour, IDamageableObject
     private bool _canMove;
     private bool _isDamageable;
 
-    private void Awake()
-    {
-        //driver, gunner 초기화가 이루어지면 클라이언트에서 UI를 실행시켜줌.
-        _driverID.OnValueChanged += TurnOndriverUI;
-        _gunnerID.OnValueChanged += TurnOnGunnerUI;
-    }
-
     private void OnEnable()
     {
         //_hp.Value = _stat.VechicleMaximumHP;
+        //driver, gunner 초기화가 이루어지면 클라이언트에서 UI를 실행시켜줌.
+        _driverID.OnValueChanged += TurnOndriverUI;
+        _gunnerID.OnValueChanged += TurnOnGunnerUI;
+        
         _reloadTime = 0;
         _isDamageable = false;
         _canMove = false;
@@ -74,11 +71,7 @@ public class TankController : NetworkBehaviour, IDamageableObject
 
     public override void OnNetworkSpawn()
     {
-        if (!IsServer) return;
-
-        //첫 클라가 ID: 0 이길래 MaxValue해줬음.
-        _driverID.Value = ulong.MaxValue;
-        _gunnerID.Value = ulong.MaxValue;
+        PrintSelf();
     }
 
     IEnumerator SpawnDelay()
@@ -98,19 +91,30 @@ public class TankController : NetworkBehaviour, IDamageableObject
 
     }
 
+    private void PrintSelf()
+    {
+        string text = "[TankController] ---- Print Self ---- \n";
+        text += $"_driverID: {_driverID}\n";
+        text += $"_gunnerID: {_gunnerID}\n";
+        text += $"_team: {_teamNum}\n";
+        text += "-----------------------";
+        Debug.Log(text);
+    }
+    
     //탱크 초기화 함수
-    public void Init(ulong driverID, ulong gunnerID, PlayerTeamEnum self)
+    public void Init(ulong driverID, ulong gunnerID, PlayerTeamEnum teamNum)
     {
         if (!IsServer) return;
-        Debug.Log("전차 초기화 완료");
+        Debug.Log("[TankController] Init Tank ... ");
 
         _driverID.Value = driverID;
         _gunnerID.Value = gunnerID;
 
-        _self = self;
+        _teamNum = teamNum;
 
         _hp.Value = _stat.VechicleMaximumHP;
-        _reloadTime = _stat.VechicleReloadtime;     
+        _reloadTime = _stat.VechicleReloadtime;
+        Debug.Log("[TankController] Init Tank ... Completed");
     }
 
     // tank에서 driver, gunner 초기화가 이루어졌다면 UI를 작동시킴.
@@ -121,7 +125,7 @@ public class TankController : NetworkBehaviour, IDamageableObject
 
         //탱크 player에게 할당해주기
         var localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject;
-        if (localPlayer != null && localPlayer.TryGetComponent(out playerController pc))
+        if (localPlayer != null && localPlayer.TryGetComponent(out PlayerController pc))
         {
             pc._myTank = this;
         }
@@ -130,10 +134,7 @@ public class TankController : NetworkBehaviour, IDamageableObject
 
         //테스트용 mainCam 끄기
         Camera mainCam = Camera.main;
-        if (mainCam != null)
-        {
-            mainCam.gameObject.SetActive(false);
-        }
+        if (mainCam != null) mainCam.gameObject.SetActive(false);
         _camBody.gameObject.SetActive(true);
     }
     void TurnOnGunnerUI(ulong prevValue, ulong newValue)
@@ -142,7 +143,7 @@ public class TankController : NetworkBehaviour, IDamageableObject
 
         //탱크 player에게 할당해주기
         var localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject;
-        if (localPlayer != null && localPlayer.TryGetComponent(out playerController pc))
+        if (localPlayer != null && localPlayer.TryGetComponent(out PlayerController pc))
         {
             pc._myTank = this;
         }
@@ -165,7 +166,7 @@ public class TankController : NetworkBehaviour, IDamageableObject
     {
         transform.Rotate(0, input.x * _stat.VechicleRotationSpeed * Time.deltaTime, 0);
 
-        Vector3 moveDir = transform.forward * input.y * _stat.VechicleMoveSpeed;
+        Vector3 moveDir = transform.forward * (input.y * _stat.VechicleMoveSpeed);
 
         if (Physics.Raycast(transform.position, Vector3.down, out _rayHit, 0.1f))
         {
@@ -246,12 +247,12 @@ public class TankController : NetworkBehaviour, IDamageableObject
         if (_reloadTime > 0) return;
         _reloadTime = _stat.VechicleReloadtime;
 
-        _projectileManager.Shot(_self);
+        _projectileManager.Shot(_teamNum);
     }
 
     public void KillLog(PlayerTeamEnum enemy)
     {
-        _driverUI.GetComponent<Driver_UI>().UpdateKillLog(_self, enemy); // TODO : 상위 객체를 호출하다 보니 문제가 생길 수도...?
+        _driverUI.GetComponent<Driver_UI>().UpdateKillLog(_teamNum, enemy); // TODO : 상위 객체를 호출하다 보니 문제가 생길 수도...?
     }
 
     public void TakeDamaged(int dmg, PlayerTeamEnum enemy)
@@ -261,6 +262,6 @@ public class TankController : NetworkBehaviour, IDamageableObject
         _hp.Value -= dmg;
         _driverUI.GetComponent<Driver_UI_Tank>().ChangeVehicleHealth(_hp.Value / _stat.VechicleMaximumHP); // TODO : 나중에 UI script를 cashing해서 사용하기
         if (_hp.Value <= 0)
-            ServiceLocator.Get<IGameManager>().OnDestoryVehicleServerRpc(_self, enemy);
+            ServiceLocator.Get<IGameManager>().OnDestoryVehicleServerRpc(_teamNum, enemy);
     }
 }

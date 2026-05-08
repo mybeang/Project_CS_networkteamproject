@@ -53,7 +53,7 @@ public class LobbyRoomRoleUI : MonoBehaviour
             }
             var userInfo = ServiceLocator.Get<IUserInfoManager>();
             userInfo?.SetIsDriver(_playerRole);
-            userInfo?.SetTeamNum(_teamNumber);
+            userInfo?.SetTeamNum((PlayerTeamEnum)_teamNumber);
         });
         Debug.Log("[LobbyRoomTeamUI] Update Data ... User Info Clear");
         return true;

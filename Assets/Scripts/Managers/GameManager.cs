@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Firebase.Auth;
+using Firebase.Extensions;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -33,21 +35,14 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     [SerializeField][Range(60, 1800)] private int _gamePlayableTime;
     [Header("그 외")]
     [SerializeField] private Canvas _gameResultCanvas;
-
-    [Header("디버기용")]
-    [SerializeField] private bool _OnLoadedLog;
-    [SerializeField] private bool _OnTimerStartLog;
-    [SerializeField] private bool _OnSpawnLog;
-    [SerializeField] private bool _OnReSpawnLog;
-    [SerializeField] private bool _OnEventScheduleManagerLoadedLog;
-
     #endregion
 
     #region Private_Variable
     // 내부 변수 
     private TeamInfo[] _teams;
 
-    private string _roomID;
+    private string _roomId;
+    private string _voiceChannelName;
     private int _mapNumber;
     private int _eventCounter;
 
@@ -109,15 +104,13 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
     protected override void Register()
     {
-        StartCoroutine(Timer());
         ServiceLocator.Register<IGameManager>(this);
     }
     protected override void Unregister() => ServiceLocator.Unregister<IGameManager>();
-
+    
     public void AddEventSchedule(EventScheduleManager eventSchedulemanager)
     {
-        if (_OnEventScheduleManagerLoadedLog)
-            Debug.Log($"[{name}] {eventSchedulemanager.name} 등록됌");
+        Debug.Log($"[{name}] {eventSchedulemanager.name} 등록됌");
         _eventScheduleManager = eventSchedulemanager;
         _eventTimer = _eventScheduleManager.GetTimer();
         _eventEndTimer = eventSchedulemanager.GetStopTimer();
@@ -158,10 +151,10 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     public void SetData(TeamInfo[] teams, in string roomID, int mapNumber)
     {
         _teams = teams;
-        _roomID = roomID;
+        _roomId = roomID;
         _mapNumber = mapNumber;
         Debug.Log("[GameManager] ---- Data Updated on Server ----");
-        Debug.Log($"[GameManager] roomID: {_roomID}");
+        Debug.Log($"[GameManager] roomID: {_roomId}");
         Debug.Log($"[GameManager] mapNumber: {_mapNumber}");
         foreach (var team in _teams)
             Debug.Log($"[GameManager] teams: {team.ToPrettyString()}");
@@ -177,13 +170,13 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private void SetDataClientRpc(string teamsJson, string roomId, int mapNumber)
     {
         if (IsServer) return;
-        _roomID = roomId;
+        _roomId = roomId;
         _mapNumber = mapNumber;
         Debug.Log($"[GameManager] {teamsJson}");
         var teamInfo = JsonUtility.FromJson<TeamContainer>(teamsJson);
         _teams = teamInfo.teams;
         Debug.Log("[GameManager] ---- Data Updated on Client ----");
-        Debug.Log($"[GameManager] roomID: {_roomID}");
+        Debug.Log($"[GameManager] roomID: {_roomId}");
         Debug.Log($"[GameManager] mapNumber: {_mapNumber}");
         foreach (var team in _teams)
             Debug.Log($"[GameManager] teams: {team.ToPrettyString()}");
@@ -192,22 +185,28 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
     public TeamInfo[] GetTeams() => _teams;
 
-    // 로비에서 게임 시작 시 호출하여, 팀 정보 받아오기
+    private string VoiceChannelFormat(PlayerTeamEnum teamNum) => $"{_roomId}_{teamNum}";
+    
     public void StartGame()
     {
         ServiceLocator.Get<IMapManager>().SelectMap(_mapNumber);
-        ResetGameData();
-        for (int i = 0; i < _teams.Length; i++)
+        ResetGameData().ContinueWithOnMainThread(task =>
         {
-            ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel($"{_roomID}{(int)_teams[i].GetTeamNum()}");
-        }
-        ServiceLocator.Get<IAudioService>().PlayBGM(_mapNumber);
-        
-        if (_OnLoadedLog)
-            Debug.Log($"{name}에서 게임 시작 함수 정상 작동됌");
+            if (task.IsFaulted)
+            {
+                Debug.LogError(task.Exception);
+                if (IsServer) ServiceLocator.Get<INetworkSceneLoader>().LoadScene("LobbyRoom");
+                return;
+            }
+            var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
+            _voiceChannelName = VoiceChannelFormat(userInfo.teamNum);
+            ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel(_voiceChannelName);
+            ServiceLocator.Get<IAudioService>().PlayBGM(_mapNumber);
+            Debug.Log($"{name}에서 게임 시작 함수 정상 작동됌");    
+        });
     }
 
-    private void ResetGameData()
+    private async Task ResetGameData()
     {
         if (!IsServer) return;
         _team1Score.Value = 0;
@@ -215,8 +214,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _team3Score.Value = 0;
         _team4Score.Value = 0;
 
-        InstantiateVehicle();
-
+        await InstantiateVehicle();
         _timerCoroutine = StartCoroutine(Timer());
     }
 
@@ -229,13 +227,15 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         return obj;
     }
     
-    // [ClientRpc]
-    private void InstantiateVehicle()
+    private async Task InstantiateVehicle()
     {
+        Debug.Log("[GameManager] ---- InstantiateVehicle ----");
         foreach (var team in _teams)
         {
             _managementObject[team.GetTeamNum()] = new();
+            Debug.Log($"[GameManager] Setting {team.GetTeamNum()}");
             ulong driverId = 0L;
+            ulong gunnerId = 0L;
             foreach (var player in team.players)
             {
                 if (player.role == PlayerRole.Driver)
@@ -244,17 +244,15 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                     driverId = player.clientId;
                     var driverObj= CreatePlayerObject(team, player);
                     _managementObject[team.GetTeamNum()].DriverObject = driverObj;
-
-                    if (_OnSpawnLog)
-                        Debug.Log($"조종수 객체 : {driverObj.name} 생성 완료");
+                    Debug.Log($"[GameManager] 조종수 객체 : {driverObj.name} 생성 완료");
                 }
                 else
                 {
                     // Gunner
+                    gunnerId = player.clientId;
                     var gunnerObj = CreatePlayerObject(team, player);
                     _managementObject[team.GetTeamNum()].GunnerObject = gunnerObj;
-                    if (_OnSpawnLog)
-                        Debug.Log($"사수 객체 : {gunnerObj.name} 생성 완료");
+                    Debug.Log($"[GameManager] 사수 객체 : {gunnerObj.name} 생성 완료");
                 }
             }
             // Body
@@ -263,15 +261,20 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 GameObject bodyObj = Instantiate(_playerablePrefabs[(int)team.GetVehicle()]);
                 bodyObj.SetActive(true);
                 bodyObj.name = $"{team.GetTeamNum().ToString()}_{team.GetVehicle().ToString()}";
+                // teamColor
                 bodyObj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)team.GetTeamNum()];
+                // tankInit
+                var tankController = bodyObj.GetComponent<TankController>();
+                tankController.Init(driverId, gunnerId, team.GetTeamNum());
+                // tankPos
                 var pos = ServiceLocator.Get<IMapManager>().GetStartPoint(team.GetTeamNum());
                 Debug.Log($"[GameManager] {team.GetTeamNum()} pos is {pos}");
                 bodyObj.transform.position = pos;
+                // Spawn on Network
                 bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
                 _managementObject[team.GetTeamNum()].BodyObject = bodyObj;
 
-                if (_OnSpawnLog)
-                    Debug.Log($"이동 객체 : {bodyObj.name} 생성 완료");
+                Debug.Log($"[GameManager] 이동 객체 : {bodyObj.name} 생성 완료");
             }
             catch (Exception e)
             {
@@ -284,14 +287,12 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
     // 소환된 경우 모든 Client 들에게 알려야함.
     [ClientRpc]
-    private void ReSpawnVehicleClientRpc(PlayerTeamEnum team) 
+    private void ReSpawnVehicleClientRpc(PlayerTeamEnum team, Vector3 pos) 
     {
         var bodyObject = _managementObject[team].BodyObject;
         bodyObject.SetActive(true);
-        bodyObject.transform.position = ServiceLocator.Get<IMapManager>().GetStartPoint(team);
-        
-        if (_OnReSpawnLog)
-            Debug.Log($"{_managementObject[team].BodyObject.name} 리스폰 완료");
+        bodyObject.transform.position = pos;
+        Debug.Log($"{_managementObject[team].BodyObject.name} 리스폰 완료");
     }
 
     /// <summary>
@@ -306,10 +307,10 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         // 이동 수단 비활성화 및 플레그 호출
         _managementObject[myTeam].BodyObject.SetActive(false);
         // TODO : 플레그 관련 호출 정의될 시 여기서 호출
-
+        var respawnPos = ServiceLocator.Get<IMapManager>().GetStartPoint(myTeam);
         _RespawnTimer[(int)myTeam] = _currentTime + _basicSpawnTime;
         if (_triggerTimerCoroutine == null)
-            StartCoroutine(TrrigerTimer());
+            _triggerTimerCoroutine = StartCoroutine(RespawnCoroutine(respawnPos));
 
         // 점수
         switch(enemy) // TODO : 메모리 변조 같은 간단한 값에 대한 위조 방지 장치가 필요한지 논의 필요
@@ -333,7 +334,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         OnKillLog?.Invoke(myTeam,enemy);
     }
 
-    IEnumerator TrrigerTimer()
+    IEnumerator RespawnCoroutine(Vector3 respawnPos)
     {
         byte i;
         byte counter;
@@ -344,7 +345,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             {
                 if (_currentTime <= _RespawnTimer[i])
                 {
-                    ReSpawnVehicleClientRpc((PlayerTeamEnum)i);
+                    ReSpawnVehicleClientRpc((PlayerTeamEnum)i, respawnPos);
                 }
                 else
                 {
@@ -357,7 +358,6 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             yield return _tick;
         }
         _triggerTimerCoroutine = null;
-        yield break;
     }
 
     private void GameEnd()
@@ -370,11 +370,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         // 맵 끄기
         // _maps[_mapNumber].maps.SetActive(false);
         // 음성 채널 탈퇴
-        byte i;
-        for (i = 0; i < _teams.Length; i++)
-        {
-            ServiceLocator.Get<IVoiceManager>()?.OnLeaveVoiceChannel($"{_roomID}{(int)_teams[i].GetTeamNum()}");
-        }
+        ServiceLocator.Get<IVoiceManager>()?.OnLeaveVoiceChannel(_voiceChannelName);
+
         // 타이머 정지
         if (_timerCoroutine != null)
         {

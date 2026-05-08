@@ -3,7 +3,7 @@ using Unity.Services.Matchmaker.Models;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
 
-public class playerController : NetworkBehaviour
+public class PlayerController : NetworkBehaviour
 {
     private ulong _myID;
     //임시
@@ -52,7 +52,7 @@ public class playerController : NetworkBehaviour
         if (true) // _myID == _myTank.DriverID)
         {
            // Debug.Log($"MoveBody : {moveInput}");
-            _myTank.MoveBodyServerRpc(moveInput);
+            // _myTank.MoveBodyServerRpc(moveInput);
             
         }
         
@@ -60,7 +60,7 @@ public class playerController : NetworkBehaviour
         if (_myID == _myTank.GunnerID)
         {
             //Debug.Log($"MoveTurret : {moveInput}");
-            _myTank.MoveTurretServerRpc(moveInput);
+            // _myTank.MoveTurretServerRpc(moveInput);
         }
     }
 

@@ -6,7 +6,7 @@ public class UserInfo
 {
     public string userId = "";  // on DB
     public string roomId;
-    public int teamNum;
+    public PlayerTeamEnum teamNum;
     public PlayerRole Role;
     public int score;
     public ulong clientId;

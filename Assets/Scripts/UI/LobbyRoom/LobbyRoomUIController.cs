@@ -155,7 +155,7 @@ public class LobbyRoomUIController : MonoBehaviour
             }
             var userInfo = ServiceLocator.Get<IUserInfoManager>();
             userInfo?.SetIsDriver(PlayerRole.None);
-            userInfo?.SetTeamNum(0);
+            userInfo?.SetTeamNum(PlayerTeamEnum.neutralObject);
             Debug.Log($"[LobbyRoomUIController] On ReSelect ... Done");
         });
     }
