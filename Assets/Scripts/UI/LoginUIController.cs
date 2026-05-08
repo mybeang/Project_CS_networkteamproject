@@ -20,6 +20,7 @@ public class LoginUIController : MonoBehaviour
     private void OnEnable()
     {
         Init();
+        ServiceLocator.Get<IAudioService>().PlayMainBGM();
         SubscribButtons();
     }
     private void OnDisable() => UnsubscribButtons();

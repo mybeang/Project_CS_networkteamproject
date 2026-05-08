@@ -1,19 +1,31 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class AudioManager : Manager<AudioManager>, IAudioService
 {
     [SerializeField] private AudioSource _bgmSource;
     [SerializeField] private AudioSource _sfxSource;
     [SerializeField] private AudioClip _btSound;
+    [SerializeField] private List<AudioClip> _mapBgmClips;
+    [SerializeField] private AudioClip _mainBgmClips;
         
     private void OnEnable() => Register();
     private void OnDisable() => Unregister();
     
     protected override void Register() => ServiceLocator.Register<IAudioService>(this);
     protected override void Unregister() => ServiceLocator.Unregister<IAudioService>();
-    
-    public void PlayBGM(AudioClip clip)
+
+    public void PlayMainBGM()
     {
+        if (_mainBgmClips == null) return;
+        _bgmSource.clip = _mainBgmClips;
+        _bgmSource.Play();
+    }
+
+    public void PlayBGM(int mapNum)
+    {
+        if (mapNum > _mapBgmClips.Count) return;
+        var clip = _mapBgmClips[mapNum];
         if (clip == null) return;
         _bgmSource.clip = clip;
         _bgmSource.Play();

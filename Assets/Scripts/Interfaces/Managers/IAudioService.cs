@@ -3,7 +3,8 @@
 public interface IAudioService
 {
     // BGM
-    public void PlayBGM(AudioClip clip);
+    public void PlayMainBGM();
+    public void PlayBGM(int mapNum);
     public void GetBGMVolume(out float volume);
     public void SetBGMVolume(float volume);
     

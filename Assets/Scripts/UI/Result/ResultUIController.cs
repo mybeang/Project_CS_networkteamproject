@@ -20,6 +20,7 @@ public class ResultUIController : MonoBehaviour
     private void OnEnable()
     {
         _confirmButton.onClick.AddListener(GoToLobby);
+        ServiceLocator.Get<IAudioService>()?.PlayMainBGM();
         UpdateUI();
     }
 

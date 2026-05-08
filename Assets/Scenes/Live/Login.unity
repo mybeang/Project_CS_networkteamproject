@@ -2342,6 +2342,12 @@ MonoBehaviour:
   _bgmSource: {fileID: 1820858515}
   _sfxSource: {fileID: 1820858514}
   _btSound: {fileID: 8300000, guid: eebd650be4fc277469d398078b459656, type: 3}
+  _mapBgmClips:
+  - {fileID: 8300000, guid: 0ed9f7dac6ab9804da60f50a1772020a, type: 3}
+  - {fileID: 8300000, guid: 892ede7fcd0699c46bd730d3d2a132c8, type: 3}
+  - {fileID: 8300000, guid: 0f2ad46aafb4cfa47a9d8d119ac4566b, type: 3}
+  - {fileID: 8300000, guid: 99200f7aa2990ed429bc89ed712db38c, type: 3}
+  _mainBgmClips: {fileID: 8300000, guid: 127653d91bf39114b86afdca96c49cae, type: 3}
 --- !u!4 &1820858513
 Transform:
   m_ObjectHideFlags: 0
@@ -2469,7 +2475,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0

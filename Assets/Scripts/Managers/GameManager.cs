@@ -173,6 +173,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         {
             ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel($"{_roomID}{(int)_teams[i].GetTeamNum()}");
         }
+        ServiceLocator.Get<IAudioService>().PlayBGM(_mapNumber);
+        
         if (_OnLoadedLog)
             Debug.Log($"{name}에서 게임 시작 함수 정상 작동됌");
     }
