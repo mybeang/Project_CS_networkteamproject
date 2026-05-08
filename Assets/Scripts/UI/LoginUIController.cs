@@ -89,7 +89,7 @@ public class LoginUIController : MonoBehaviour
 
     private void OnCloseWarningMessage()
     {
-        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
+        ServiceLocator.Get<IAudioService>()?.PlayButtonSfx();
         _openedWarningPanel = false;
         _warningPanel.SetActive(false);
     }
@@ -97,10 +97,16 @@ public class LoginUIController : MonoBehaviour
     private void OnExitGame()
     {
         if (_openedWarningPanel) return;
-        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
+        ServiceLocator.Get<IAudioService>()?.PlayButtonSfx();
+        CleanUp();
+        Application.Quit();
+    }
+
+    private void CleanUp()
+    {
+        Debug.Log("[LoginUIController] CleanUp");
         string userId = ServiceLocator.Get<IUserInfoManager>()?.GetUserInfo().userId;
         if (userId != "") ServiceLocator.Get<IDatabaseBackend>()?.RemoveUserAsync(userId);
-        Application.Quit();
     }
 
 # if UNITY_EDITOR

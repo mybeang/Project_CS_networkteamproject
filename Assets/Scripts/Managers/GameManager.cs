@@ -264,10 +264,10 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 bodyObj.SetActive(true);
                 bodyObj.name = $"{team.GetTeamNum().ToString()}_{team.GetVehicle().ToString()}";
                 bodyObj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)team.GetTeamNum()];
-                bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
                 var pos = ServiceLocator.Get<IMapManager>().GetStartPoint(team.GetTeamNum());
                 Debug.Log($"[GameManager] {team.GetTeamNum()} pos is {pos}");
                 bodyObj.transform.position = pos;
+                bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
                 _managementObject[team.GetTeamNum()].BodyObject = bodyObj;
 
                 if (_OnSpawnLog)

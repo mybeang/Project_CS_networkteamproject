@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using Firebase.Extensions;
 using TMPro;
-using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.UI;
-using Application = UnityEngine.Application;
 
 public class LobbyListUIController : MonoBehaviour
 {
