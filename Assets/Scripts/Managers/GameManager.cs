@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Firebase.Auth;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -160,7 +161,9 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _roomID = roomID;
         _mapNumber = mapNumber;
     }
-    
+
+    public TeamInfo[] GetTeams() => _teams;
+
     // 로비에서 게임 시작 시 호출하여, 팀 정보 받아오기
     public void StartGame()
     {
@@ -168,7 +171,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         ResetGameData();
         for (int i = 0; i < _teams.Length; i++)
         {
-            ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel($"{_roomID}{(int)_teams[i].TeamNum}");
+            ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel($"{_roomID}{(int)_teams[i].GetTeamNum()}");
         }
         if (_OnLoadedLog)
             Debug.Log($"{name}에서 게임 시작 함수 정상 작동됌");
@@ -186,41 +189,53 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _timerCoroutine = StartCoroutine(Timer());
     }
 
+    private GameObject CreatePlayerObject(TeamInfo team, PlayerInfo player)
+    {
+        GameObject obj = Instantiate(_playerObject, transform);
+        obj.SetActive(true);
+        obj.name = $"{team.GetTeamNum().ToString()}_{player.role}";
+        obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(player.clientId,true);
+        return obj;
+    }
+    
     [ClientRpc]
     private void InstantiateVehicleClientRpc()
     {
-        GameObject obj;
         foreach (var team in _teams)
         {
-            _managementObject[team.TeamNum] = new();
-            obj = Instantiate(_playerObject, transform);
-            obj.SetActive(true);
-            obj.name = $"{team.TeamNum.ToString()} + Driver";
-            obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(team.DriverID,true);
-            _managementObject[team.TeamNum].DriverObject = obj;
+            _managementObject[team.GetTeamNum()] = new();
+            foreach (var player in team.players)
+            {
+                if (player.role == PlayerRole.Driver)
+                {
+                    // Driver
+                    var driverObj= CreatePlayerObject(team, player);
+                    _managementObject[team.GetTeamNum()].DriverObject = driverObj;
 
-            if (_OnSpawnLog)
-                Debug.Log($"조종수 객체 : {obj.name} 생성 완료");
+                    if (_OnSpawnLog)
+                        Debug.Log($"조종수 객체 : {driverObj.name} 생성 완료");
+           
+                    // Body
+                    GameObject bodyObj = Instantiate(_playerablePrefabs[(int)team.GetVehicle()]);
+                    bodyObj.SetActive(true);
+                    bodyObj.name = $"{team.GetTeamNum().ToString()}_{team.GetVehicle().ToString()}";
+                    bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(player.clientId, true);
+                    bodyObj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)team.GetTeamNum()];
+                    bodyObj.transform.position = ServiceLocator.Get<IMapManager>().GetStartPoint(team.GetTeamNum());
+                    _managementObject[team.GetTeamNum()].BodyObject = bodyObj;
 
-            obj = Instantiate(_playerObject, transform);
-            obj.SetActive(true);
-            obj.name = $"{team.TeamNum.ToString()} + Gunner";
-            obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(team.GunnerID, true);
-            _managementObject[team.TeamNum].GunnerObject = obj;
-
-            if (_OnSpawnLog)
-                Debug.Log($"사수 객체 : {obj.name} 생성 완료");
-
-            obj = Instantiate(_playerablePrefabs[(int)team.VehicleNum]);
-            obj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)team.TeamNum];
-            obj.SetActive(true);
-            obj.name = $"{team.TeamNum.ToString()} + {team.VehicleNum.ToString()}";
-            obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(team.DriverID, true);
-            obj.transform.position = ServiceLocator.Get<IMapManager>().GetStartPoint(team.TeamNum);
-            _managementObject[team.TeamNum].BodyObject = obj;
-
-            if (_OnSpawnLog)
-                Debug.Log($"이동 객체 : {obj.name} 생성 완료");
+                    if (_OnSpawnLog)
+                        Debug.Log($"이동 객체 : {bodyObj.name} 생성 완료");
+                }
+                else
+                {
+                    // Gunner
+                    var gunnerObj = CreatePlayerObject(team, player);
+                    _managementObject[team.GetTeamNum()].GunnerObject = gunnerObj;
+                    if (_OnSpawnLog)
+                        Debug.Log($"사수 객체 : {gunnerObj.name} 생성 완료");
+                }
+            }
         }
     }
 
@@ -315,24 +330,43 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         byte i;
         for (i = 0; i < _teams.Length; i++)
         {
-            ServiceLocator.Get<IVoiceManager>()?.OnLeaveVoiceChannel($"{_roomID}{(int)_teams[i].TeamNum}");
+            ServiceLocator.Get<IVoiceManager>()?.OnLeaveVoiceChannel($"{_roomID}{(int)_teams[i].GetTeamNum()}");
         }
         // 타이머 정지
-        StopCoroutine(_timerCoroutine);
-        StopCoroutine(_triggerTimerCoroutine);
+        if (_timerCoroutine != null)
+        {
+            StopCoroutine(_timerCoroutine);
+            _timerCoroutine = null;
+        }
+
+        if (_triggerTimerCoroutine != null)
+        {
+            StopCoroutine(_triggerTimerCoroutine);
+            _triggerTimerCoroutine = null;
+        }
 
         foreach (var team in _teams)
         {
-            Destroy(_managementObject[team.TeamNum].BodyObject);
-            Destroy(_managementObject[team.TeamNum].GunnerObject);
-            Destroy(_managementObject[team.TeamNum].DriverObject);
+            Destroy(_managementObject[team.GetTeamNum()].BodyObject);
+            Destroy(_managementObject[team.GetTeamNum()].GunnerObject);
+            Destroy(_managementObject[team.GetTeamNum()].DriverObject);
+            switch (team.GetTeamNum())
+            {
+                case PlayerTeamEnum.firstTeam:
+                    team.SetScore(_firstTeamScore.Value);
+                    break;
+                case PlayerTeamEnum.secondTeam:
+                    team.SetScore(_secondTeamScore.Value);
+                    break;
+                case PlayerTeamEnum.thirdTeam:
+                    team.SetScore(_thirdTeamScore.Value);
+                    break;
+                case PlayerTeamEnum.fourthTeam:
+                    team.SetScore(_fourTeamScore.Value);
+                    break;
+            }
         }
-
         Debug.Log("게임 종료 성공적으로 호출됌");
-
-        // 게임 결과 화면
-        _gameResultCanvas.enabled = true;
-
-        // 게임 결과까지만 띄우고 결과창 넘어가기는 개인 단위로 넘어가기
+        if (IsServer) ServiceLocator.Get<INetworkSceneLoader>().LoadScene("Result");
     }
 }

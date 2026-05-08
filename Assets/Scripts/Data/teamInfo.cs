@@ -1,48 +1,34 @@
-﻿public struct TeamInfo
-{
-    private ulong _driverID;
-    private ulong _gunnerID;
-    private PlayerableVehicleEnum _vehicle;
-    private PlayerTeamEnum _teamNumber;
+﻿
+using System.Collections.Generic;
 
-    public TeamInfo(PlayerTeamEnum teamNum, ulong driver, ulong gunner, PlayerableVehicleEnum vehicleNum)
+public class PlayerInfo
+{
+    public string userId;
+    public ulong clientId;
+    public PlayerRole role;
+}
+
+public class TeamInfo
+{
+    public List<PlayerInfo> players;
+    private PlayerTeamEnum _teamNum;
+    private PlayerableVehicleEnum _vehicle;
+    private int _score;
+    
+    public TeamInfo(PlayerTeamEnum teamNum, PlayerableVehicleEnum vehicle)
     {
-        _teamNumber = teamNum;
-        _driverID = driver;
-        _gunnerID = gunner;
-        _vehicle = vehicleNum;
+        _teamNum = teamNum;
+        _vehicle = vehicle;
+        _score = 0;
     }
 
+    public void SetScore(int score) => _score = score;
+    public int GetScore() => _score;
+    public PlayerTeamEnum GetTeamNum() => _teamNum;
+    public PlayerableVehicleEnum GetVehicle() => _vehicle;
     /// <summary>
     /// 특정 팀의 전체 정보가 필요한 경우 호출
     /// </summary>
     /// <returns></returns>
     public TeamInfo GetTeamInfo() => this;
-
-    public ulong DriverID
-    {
-        get => _driverID;
-        private set => _driverID = value;
-    }
-
-    public ulong GunnerID
-    {
-        get => _gunnerID;
-        private set => _gunnerID = value;
-    }
-
-    /// <summary>
-    /// 팀 번호 호출용
-    /// </summary>
-    public PlayerTeamEnum TeamNum
-    {
-        get => _teamNumber;
-        private set => _teamNumber = value;
-    }
-
-    public PlayerableVehicleEnum VehicleNum
-    {
-        get => _vehicle;
-        private set => _vehicle = value;
-    }
 }

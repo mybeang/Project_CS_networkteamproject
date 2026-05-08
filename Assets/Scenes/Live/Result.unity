@@ -255,13 +255,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 102566804}
+  - component: {fileID: 102566805}
   m_Layer: 0
   m_Name: UserInfo-Team2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &102566804
 Transform:
   m_ObjectHideFlags: 0
@@ -271,7 +272,7 @@ Transform:
   m_GameObject: {fileID: 102566803}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 9, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -280,6 +281,70 @@ Transform:
   - {fileID: 349566140}
   - {fileID: 759431332}
   m_Father: {fileID: 954773346}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &102566805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 102566803}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ecf00a7a8df4f1cbe953ec77f2da72e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ResultTeamUI
+  _gunnerName: {fileID: 1568406216}
+  _driverName: {fileID: 1345825149}
+  _winnerImg: {fileID: 759431333}
+--- !u!1 &157548073
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 157548075}
+  - component: {fileID: 157548074}
+  m_Layer: 0
+  m_Name: ResultUIController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &157548074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157548073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da3c24677ef60504d9019d5e1f4c0f3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ResultUIController
+  _team1: {fileID: 1508259834}
+  _team2: {fileID: 102566805}
+  _team3: {fileID: 464249253}
+  _team4: {fileID: 382769044}
+  _confirmButton: {fileID: 1666356829}
+--- !u!4 &157548075
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157548073}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &323844642
 GameObject:
@@ -536,7 +601,7 @@ GameObject:
   - component: {fileID: 366811900}
   - component: {fileID: 366811899}
   m_Layer: 0
-  m_Name: UserAttacker
+  m_Name: UserGunner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -670,13 +735,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 382769043}
+  - component: {fileID: 382769044}
   m_Layer: 0
   m_Name: UserInfo-Team4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &382769043
 Transform:
   m_ObjectHideFlags: 0
@@ -686,7 +752,7 @@ Transform:
   m_GameObject: {fileID: 382769042}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -273, z: 0}
+  m_LocalPosition: {x: 0, y: -300, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -696,51 +762,21 @@ Transform:
   - {fileID: 742383275}
   m_Father: {fileID: 954773346}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &398000666
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 398000668}
-  - component: {fileID: 398000667}
-  m_Layer: 0
-  m_Name: TempResultController
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &398000667
+--- !u!114 &382769044
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 398000666}
+  m_GameObject: {fileID: 382769042}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05ee920c032413c4e8ef7b6d00490300, type: 3}
+  m_Script: {fileID: 11500000, guid: 5ecf00a7a8df4f1cbe953ec77f2da72e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TempResultController
-  _OkButton: {fileID: 1666356829}
---- !u!4 &398000668
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 398000666}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 506.00565, y: 517.3114, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::ResultTeamUI
+  _gunnerName: {fileID: 366811899}
+  _driverName: {fileID: 1195726391}
+  _winnerImg: {fileID: 742383276}
 --- !u!1 &464249251
 GameObject:
   m_ObjectHideFlags: 0
@@ -750,13 +786,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 464249252}
+  - component: {fileID: 464249253}
   m_Layer: 0
   m_Name: UserInfo-Team3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &464249252
 Transform:
   m_ObjectHideFlags: 0
@@ -766,7 +803,7 @@ Transform:
   m_GameObject: {fileID: 464249251}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -129, z: 0}
+  m_LocalPosition: {x: 0, y: -150, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -776,6 +813,21 @@ Transform:
   - {fileID: 1022202910}
   m_Father: {fileID: 954773346}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &464249253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 464249251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ecf00a7a8df4f1cbe953ec77f2da72e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ResultTeamUI
+  _gunnerName: {fileID: 1860174823}
+  _driverName: {fileID: 1048388941}
+  _winnerImg: {fileID: 1022202911}
 --- !u!1 &591661393
 GameObject:
   m_ObjectHideFlags: 0
@@ -1185,7 +1237,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &742383275
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1212,7 +1264,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 742383274}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -1336,7 +1388,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &759431332
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1363,7 +1415,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 759431331}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -1406,7 +1458,7 @@ GameObject:
   - component: {fileID: 866183185}
   - component: {fileID: 866183184}
   m_Layer: 0
-  m_Name: UserAttacker
+  m_Name: UserGunner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1728,7 +1780,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1022202910
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1755,7 +1807,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1022202909}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -1803,7 +1855,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1037457352
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3059,13 +3111,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1508259833}
+  - component: {fileID: 1508259834}
   m_Layer: 0
   m_Name: UserInfo-Team1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1508259833
 Transform:
   m_ObjectHideFlags: 0
@@ -3075,7 +3128,7 @@ Transform:
   m_GameObject: {fileID: 1508259832}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 144, z: 0}
+  m_LocalPosition: {x: 0, y: 150, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3085,6 +3138,21 @@ Transform:
   - {fileID: 1037457352}
   m_Father: {fileID: 954773346}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1508259834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1508259832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ecf00a7a8df4f1cbe953ec77f2da72e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ResultTeamUI
+  _gunnerName: {fileID: 866183184}
+  _driverName: {fileID: 1019734080}
+  _winnerImg: {fileID: 1037457353}
 --- !u!1 &1568406214
 GameObject:
   m_ObjectHideFlags: 0
@@ -3097,7 +3165,7 @@ GameObject:
   - component: {fileID: 1568406217}
   - component: {fileID: 1568406216}
   m_Layer: 0
-  m_Name: UserAttacker
+  m_Name: UserGunner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3355,7 +3423,7 @@ GameObject:
   - component: {fileID: 1860174824}
   - component: {fileID: 1860174823}
   m_Layer: 0
-  m_Name: UserAttacker
+  m_Name: UserGunner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3658,6 +3726,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 323844645}
   - {fileID: 10892634}
+  - {fileID: 157548075}
   - {fileID: 633901479}
   - {fileID: 1450863452}
-  - {fileID: 398000668}
