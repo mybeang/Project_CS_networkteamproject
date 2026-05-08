@@ -1255,8 +1255,8 @@ MonoBehaviour:
     - {x: 40, y: 0, z: -40}
     - {x: -40, y: 0, z: -40}
     - {x: -40, y: 0, z: 40}
-  _MaxTornados: 0
-  _numOfSpawns: 0
+  _MaxTornados: 3
+  _numOfSpawns: 3
 --- !u!1 &2113871449686004683
 GameObject:
   m_ObjectHideFlags: 0
@@ -3558,7 +3558,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &275404582645079290
 Transform:
   m_ObjectHideFlags: 0

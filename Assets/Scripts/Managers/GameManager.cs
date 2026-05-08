@@ -13,6 +13,7 @@ public class TeamContainer
     public TeamInfo[] teams;
 }
 
+[Serializable]
 public class GameObjectMap
 {
     public GameObject GunnerObject;
@@ -63,8 +64,9 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private EventScheduleManager _eventScheduleManager;
     #endregion
 
-    #region Network_Variable
     // 네트워크 변수들
+    #region Network_Variable
+    private NetworkVariable<int> _startGameState = new(); // 0
     private NetworkVariable<int> _team1Score = new (writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<int> _team2Score = new (writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<int> _team3Score = new (writePerm: NetworkVariableWritePermission.Owner);
@@ -157,7 +159,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         Debug.Log($"[GameManager] roomID: {_roomId}");
         Debug.Log($"[GameManager] mapNumber: {_mapNumber}");
         foreach (var team in _teams)
-            Debug.Log($"[GameManager] teams: {team.ToPrettyString()}");
+            Debug.Log($"[GameManager] {team.ToPrettyString()}");
         Debug.Log("[GameManager] --------------------------------");
         if (!IsServer) return;
         var teamContainer = new TeamContainer() {teams = teams};
@@ -179,7 +181,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         Debug.Log($"[GameManager] roomID: {_roomId}");
         Debug.Log($"[GameManager] mapNumber: {_mapNumber}");
         foreach (var team in _teams)
-            Debug.Log($"[GameManager] teams: {team.ToPrettyString()}");
+            Debug.Log($"[GameManager] {team.ToPrettyString()}");
         Debug.Log("[GameManager] --------------------------------");
     }
 
@@ -189,51 +191,104 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     
     public void StartGame()
     {
+        Debug.Log($"[GameManager] Start Game at {name}");  
         ServiceLocator.Get<IMapManager>().SelectMap(_mapNumber);
-        ResetGameData().ContinueWithOnMainThread(task =>
+        if (IsServer) _startGameState.Value = 0;
+        try
         {
-            if (task.IsFaulted)
-            {
-                Debug.LogError(task.Exception);
-                if (IsServer) ServiceLocator.Get<INetworkSceneLoader>().LoadScene("LobbyRoom");
-                return;
-            }
-            var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
-            _voiceChannelName = VoiceChannelFormat(userInfo.teamNum);
-            ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel(_voiceChannelName);
-            ServiceLocator.Get<IAudioService>().PlayBGM(_mapNumber);
-            Debug.Log($"{name}에서 게임 시작 함수 정상 작동됌");    
-        });
+            StartCoroutine(StartGameStateMachineCoroutine());
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e.Message);
+            if (IsServer) ServiceLocator.Get<INetworkSceneLoader>().LoadScene("LobbyRoom");    
+        }
     }
 
-    private async Task ResetGameData()
+    /// <summary>
+    /// State 변경을 모든 Host 및 Client 가 작업 완료시에 변경하는 것이 좋을 것 같은데, 아이디어가 딱히 떠오르지가 않음 ㅠㅠ
+    /// stateNum : Desc  
+    ///        0 : Start
+    ///        1 : ResetGameData
+    ///        2 : InstantiateVeichle
+    ///        3 : SetOtherDataForGame
+    ///        4 : Finish
+    /// </summary>
+    private IEnumerator StartGameStateMachineCoroutine()
     {
-        if (!IsServer) return;
+        while (_startGameState.Value < 5)
+        {
+            Debug.Log($"[GameManager] Start Game State Machine State : {_startGameState.Value}");
+            switch (_startGameState.Value)
+            {
+                case 0:
+                    if (IsServer) _startGameState.Value++;
+                    break;
+                case 1:
+                    ResetGameData();
+                    break;
+                case 2:
+                    InstantiateVehicle();
+                    break;
+                case 3:
+                    SetOtherDataForGame();
+                    break;
+                case 4:
+                    yield break;
+            }
+            yield return new WaitForSecondsRealtime(0.5f);
+        }
+        Debug.Log($"[GameManager] The 'StartGame' method was working at {name}.");
+    }
+
+    private void SetOtherDataForGame()
+    {
+        Debug.Log("[GameManager] Set Other Data For Game ... ");
+        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
+        _voiceChannelName = VoiceChannelFormat(userInfo.teamNum);
+        ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel(_voiceChannelName);
+        ServiceLocator.Get<IAudioService>().PlayBGM(_mapNumber);
+        Debug.Log("[GameManager] Set Other Data For Game ... Done ");
+        if (IsServer) _startGameState.Value++;
+    }
+    
+    private void ResetGameData()
+    {
+        Debug.Log("[GameManager] Reset Game Data ... ");
+        if (!IsServer)
+        {
+            Debug.Log("[GameManager] Reset Game Data ... SKIP");
+            return;
+        }
         _team1Score.Value = 0;
         _team2Score.Value = 0;
         _team3Score.Value = 0;
         _team4Score.Value = 0;
-
-        await InstantiateVehicle();
         _timerCoroutine = StartCoroutine(Timer());
+        _startGameState.Value++;
     }
 
     private GameObject CreatePlayerObject(TeamInfo team, PlayerInfo player)
     {
         GameObject obj = Instantiate(_playerObject, transform);
         obj.SetActive(true);
-        obj.name = $"{team.GetTeamNum().ToString()}_{player.role}";
+        obj.name = $"{team.teamNum.ToString()}_{player.role}";
         obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(player.clientId,true);
         return obj;
     }
     
-    private async Task InstantiateVehicle()
+    private void InstantiateVehicle()
     {
         Debug.Log("[GameManager] ---- InstantiateVehicle ----");
+        if (!IsServer)
+        {
+            Debug.Log("[GameManager] ---- InstantiateVehicle ---- SKIP");
+            return;
+        }
         foreach (var team in _teams)
         {
-            _managementObject[team.GetTeamNum()] = new();
-            Debug.Log($"[GameManager] Setting {team.GetTeamNum()}");
+            _managementObject[team.teamNum] = new();
+            Debug.Log($"[GameManager] Setting {team.teamNum}");
             ulong driverId = 0L;
             ulong gunnerId = 0L;
             foreach (var player in team.players)
@@ -243,36 +298,32 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                     // Driver
                     driverId = player.clientId;
                     var driverObj= CreatePlayerObject(team, player);
-                    _managementObject[team.GetTeamNum()].DriverObject = driverObj;
+                    _managementObject[team.teamNum].DriverObject = driverObj;
                     Debug.Log($"[GameManager] 조종수 객체 : {driverObj.name} 생성 완료");
                 }
                 else
                 {
                     // Gunner
-                    gunnerId = player.clientId;
                     var gunnerObj = CreatePlayerObject(team, player);
-                    _managementObject[team.GetTeamNum()].GunnerObject = gunnerObj;
+                    _managementObject[team.teamNum].GunnerObject = gunnerObj;
                     Debug.Log($"[GameManager] 사수 객체 : {gunnerObj.name} 생성 완료");
                 }
             }
             // Body
             try
             {
-                GameObject bodyObj = Instantiate(_playerablePrefabs[(int)team.GetVehicle()]);
+                GameObject bodyObj = Instantiate(_playerablePrefabs[(int)team.vehicle]);
                 bodyObj.SetActive(true);
-                bodyObj.name = $"{team.GetTeamNum().ToString()}_{team.GetVehicle().ToString()}";
+                bodyObj.name = $"{team.teamNum.ToString()}_{team.vehicle.ToString()}";
                 // teamColor
-                bodyObj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)team.GetTeamNum()];
-                // tankInit
-                var tankController = bodyObj.GetComponent<TankController>();
-                tankController.Init(driverId, gunnerId, team.GetTeamNum());
+                bodyObj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)team.teamNum];
                 // tankPos
-                var pos = ServiceLocator.Get<IMapManager>().GetStartPoint(team.GetTeamNum());
-                Debug.Log($"[GameManager] {team.GetTeamNum()} pos is {pos}");
+                var pos = ServiceLocator.Get<IMapManager>().GetStartPoint(team.teamNum);
+                Debug.Log($"[GameManager] {team.teamNum} pos is {pos}");
                 bodyObj.transform.position = pos;
                 // Spawn on Network
                 bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
-                _managementObject[team.GetTeamNum()].BodyObject = bodyObj;
+                _managementObject[team.teamNum].BodyObject = bodyObj;
 
                 Debug.Log($"[GameManager] 이동 객체 : {bodyObj.name} 생성 완료");
             }
@@ -281,8 +332,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 Debug.LogError(e.Message);
                 throw;
             }
-            
         }
+        _startGameState.Value++;
     }
 
     // 소환된 경우 모든 Client 들에게 알려야함.
@@ -387,22 +438,22 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
         foreach (var team in _teams)
         {
-            Destroy(_managementObject[team.GetTeamNum()].BodyObject);
-            Destroy(_managementObject[team.GetTeamNum()].GunnerObject);
-            Destroy(_managementObject[team.GetTeamNum()].DriverObject);
-            switch (team.GetTeamNum())
+            Destroy(_managementObject[team.teamNum].BodyObject);
+            Destroy(_managementObject[team.teamNum].GunnerObject);
+            Destroy(_managementObject[team.teamNum].DriverObject);
+            switch (team.teamNum)
             {
                 case PlayerTeamEnum.firstTeam:
-                    team.SetScore(_team1Score.Value);
+                    team.score = _team1Score.Value;
                     break;
                 case PlayerTeamEnum.secondTeam:
-                    team.SetScore(_team2Score.Value);
+                    team.score = _team2Score.Value;
                     break;
                 case PlayerTeamEnum.thirdTeam:
-                    team.SetScore(_team3Score.Value);
+                    team.score = _team3Score.Value;
                     break;
                 case PlayerTeamEnum.fourthTeam:
-                    team.SetScore(_team4Score.Value);
+                    team.score = _team4Score.Value;
                     break;
             }
         }

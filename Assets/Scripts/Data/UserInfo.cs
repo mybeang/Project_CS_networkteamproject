@@ -7,7 +7,7 @@ public class UserInfo
     public string userId = "";  // on DB
     public string roomId;
     public PlayerTeamEnum teamNum;
-    public PlayerRole Role;
+    public PlayerRole role;
     public int score;
     public ulong clientId;
 }

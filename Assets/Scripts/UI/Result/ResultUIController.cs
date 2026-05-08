@@ -44,7 +44,7 @@ public class ResultUIController : MonoBehaviour
     private void SetUIData(TeamInfo team, ResultTeamUI teamUI)
     {
         teamUI.SetData(team);
-        _scoreBoards.Add((score:team.GetScore(), ui:teamUI));
+        _scoreBoards.Add((score:team.score, ui:teamUI));
         teamUI.gameObject.SetActive(true);
     }
     
@@ -52,7 +52,7 @@ public class ResultUIController : MonoBehaviour
     {
         foreach (var team in _teams)
         {
-            switch (team.GetTeamNum())
+            switch (team.teamNum)
             {
                 case PlayerTeamEnum.firstTeam:
                     SetUIData(team, _team1);
@@ -124,7 +124,7 @@ public class ResultUIController : MonoBehaviour
                 }
             }
         };
-        team1.SetScore(1000);
+        team1.score = 1000;
         
         var team2 = new TeamInfo(PlayerTeamEnum.secondTeam, PlayerableVehicleEnum.tank)
         {
@@ -144,7 +144,7 @@ public class ResultUIController : MonoBehaviour
                 }
             }
         };
-        team2.SetScore(900);
+        team2.score = 900;
         
         var team3 = new TeamInfo(PlayerTeamEnum.thirdTeam, PlayerableVehicleEnum.tank)
         {
@@ -164,7 +164,7 @@ public class ResultUIController : MonoBehaviour
                 }
             }
         };
-        team3.SetScore(600);
+        team3.score = 600;
         
         var team4 = new TeamInfo(PlayerTeamEnum.fourthTeam, PlayerableVehicleEnum.tank)
         {
@@ -184,7 +184,7 @@ public class ResultUIController : MonoBehaviour
                 }
             }
         };
-        team4.SetScore(500);
+        team4.score = 500;
         
         _teams = new []{team1, team2, team3};
         SetData();

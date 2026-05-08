@@ -199,7 +199,6 @@ public class LobbyRoomUIController : MonoBehaviour
         {
             int index = int.Parse(player.Data[LobbyPlayerDataKey.TEAM].Value) - 1;
             var teamNum = (PlayerTeamEnum)index;
-
             if (!teams.ContainsKey(teamNum))
             {
                 PlayerableVehicleEnum pv = PlayerableVehicleEnum.tank; // ToDo. 더 만들어지면 추가하기
