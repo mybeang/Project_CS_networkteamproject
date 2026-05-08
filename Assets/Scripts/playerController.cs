@@ -46,15 +46,16 @@ public class playerController : NetworkBehaviour
     {
         if (_myTank == null) return;
         if (!IsOwner) return;
-        
+
         // driver일때의 행동 / TODO : Update -> Function 으로 교체 필요.....
-        if ( _myID == _myTank.DriverID)
+        
+        if (true) // _myID == _myTank.DriverID)
         {
            // Debug.Log($"MoveBody : {moveInput}");
             _myTank.MoveBodyServerRpc(moveInput);
             
         }
-
+        
         // gunner일때의 행동
         if (_myID == _myTank.GunnerID)
         {

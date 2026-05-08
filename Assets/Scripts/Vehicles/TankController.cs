@@ -2,8 +2,10 @@
 using System.Runtime.CompilerServices;
 using Unity.Netcode;
 using Unity.Netcode.Components;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
+using UnityEngine.Windows;
 
 public class TankController : NetworkBehaviour, IDamageableObject
 {
@@ -42,6 +44,12 @@ public class TankController : NetworkBehaviour, IDamageableObject
     // 공격 쿨다운 (일단 일반변수로 가보자)
     private float _reloadTime;
 
+    private Coroutine _coroutine;
+    private RaycastHit _rayHit; 
+
+    private bool _canMove;
+    private bool _isDamageable;
+
     private void Awake()
     {
         //driver, gunner 초기화가 이루어지면 클라이언트에서 UI를 실행시켜줌.
@@ -51,8 +59,11 @@ public class TankController : NetworkBehaviour, IDamageableObject
 
     private void OnEnable()
     {
-        _hp.Value = _stat.VechicleMaximumHP;
+        //_hp.Value = _stat.VechicleMaximumHP;
         _reloadTime = 0;
+        _isDamageable = false;
+        _canMove = false;
+        _coroutine = StartCoroutine(SpawnDelay());
     }
 
     private void OnDestroy()
@@ -73,8 +84,9 @@ public class TankController : NetworkBehaviour, IDamageableObject
     IEnumerator SpawnDelay()
     {
         yield return new WaitForSeconds(1f);
-
+        _canMove = true;
         yield return new WaitForSeconds(2f);
+        _isDamageable = true;
     }
 
     private void Update()
@@ -146,23 +158,27 @@ public class TankController : NetworkBehaviour, IDamageableObject
         _camTurret.gameObject.SetActive(true);
     }
 
-
     //Body 자체를 회전하고 움직이는 함수
     // serverRpc로 안하니까 owner가 아닌 클라이언트에서 transform을 동기화 할 수가 없음.
     [ServerRpc]
     public void MoveBodyServerRpc(Vector2 input)
     {
-        _rigidbody.linearVelocity = _stat.VechicleMoveSpeed * input * Time.deltaTime;
-
-
-        /*
-        // 회전
         transform.Rotate(0, input.x * _stat.VechicleRotationSpeed * Time.deltaTime, 0);
 
-        // 이동
-        Vector3 move = transform.forward * input.y;
-        move = move * _stat.VechicleMoveSpeed * Time.deltaTime;
-        transform.position += move;*/
+        Vector3 moveDir = transform.forward * input.y * _stat.VechicleMoveSpeed;
+
+        if (Physics.Raycast(transform.position, Vector3.down, out _rayHit, 0.1f))
+        {
+            moveDir = Vector3.ProjectOnPlane(moveDir, _rayHit.normal).normalized;
+            Quaternion rotation = Quaternion.FromToRotation(transform.up, _rayHit.normal) * transform.rotation;
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * _stat.VechicleRotationSpeed);
+        }
+
+        if (input.y == 0)
+            _rigidbody.linearVelocity = new Vector3(0, _rigidbody.linearVelocity.y, 0);
+        else
+            _rigidbody.linearVelocity = new Vector3(moveDir.x, _rigidbody.linearVelocity.y, moveDir.z);
     }
 
     //Turret을 회전하는 함수
@@ -240,6 +256,7 @@ public class TankController : NetworkBehaviour, IDamageableObject
 
     public void TakeDamaged(int dmg, PlayerTeamEnum enemy)
     {
+        if (!_isDamageable) return;
         Debug.Log($"_hp : {_hp} , dmg : {dmg}");
         _hp.Value -= dmg;
         _driverUI.GetComponent<Driver_UI_Tank>().ChangeVehicleHealth(_hp.Value / _stat.VechicleMaximumHP); // TODO : 나중에 UI script를 cashing해서 사용하기
