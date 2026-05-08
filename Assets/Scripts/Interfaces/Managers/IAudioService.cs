@@ -10,6 +10,7 @@ public interface IAudioService
     // SFX 
     public void PlayOneShotSfx(AudioClip clip);
     public void PlaySfx(AudioClip clip);
+    public void PlayStopSfx();
     public void GetSfxVolume(out float volume);
     public void SetSfxVolume(float volume);
 }

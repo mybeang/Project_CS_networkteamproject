@@ -33,6 +33,8 @@ public class AudioManager : Manager<AudioManager>, IAudioService
         _sfxSource.clip = clip;
         _sfxSource.Play();
     }
+
+    public void PlayStopSfx() => _sfxSource.Stop();
     public void GetSfxVolume(out float volume) => volume = _sfxSource.volume;
     public void SetSfxVolume(float volume) => _sfxSource.volume = volume;
 }

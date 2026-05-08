@@ -29,6 +29,7 @@ public class LobbyRoomUIController : MonoBehaviour
     [SerializeField] private Button _readyButton;
     [SerializeField] private Button _reSelectButton;
     [SerializeField] private Button _leaveRoomButton;
+    [SerializeField] private AudioClip _btSound;
     
     [Header("Data")]
     [SerializeField] private List<MapPreview> _mapImages = new();
@@ -121,7 +122,7 @@ public class LobbyRoomUIController : MonoBehaviour
 
     private void OnLeaveRoom()
     {
-        OnReSelect();
+        OnReSelect();  // UI 사운드는 OnReSelect 에서 진행됨.
         ServiceLocator.Get<ILobbyManager>()?.LeaveRoom();
         if (IsHost) ServiceLocator.Get<IRelayHostManager>()?.Disconnect();
         ServiceLocator.Get<ILocalSceneLoader>()?.LoadScene("LobbyList");
@@ -129,6 +130,7 @@ public class LobbyRoomUIController : MonoBehaviour
 
     private void OnReSelect()
     {
+        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
         Debug.Log("[LobbyRoomUIController] On ReSelect ... ");
         var lobby = ServiceLocator.Get<ILobbyManager>();
         if (lobby.GetMyPlayerData()[LobbyPlayerDataKey.READY] == "true")
@@ -167,6 +169,7 @@ public class LobbyRoomUIController : MonoBehaviour
 
     private void OnReady()
     {
+        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
         Debug.Log("[LobbyRoomUIController] Ready ... ");
         var lobbyManager = ServiceLocator.Get<ILobbyManager>();
         var player = lobbyManager.GetMyPlayerData();
@@ -218,6 +221,7 @@ public class LobbyRoomUIController : MonoBehaviour
     
     private void OnStartGame()
     {
+        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
         Debug.Log("[LobbyRoomUIController] Start Game ... ");
         if (CheckAllReady())
         {
@@ -275,6 +279,7 @@ public class LobbyRoomUIController : MonoBehaviour
 
     private void OnRightMap()
     {
+        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
         if (_mapImages.Count != 0)
         {
             _selectedMapNumber++;
@@ -287,6 +292,7 @@ public class LobbyRoomUIController : MonoBehaviour
 
     private void OnLeftMap()
     {
+        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
         if (_mapImages.Count != 0)
         {
             _selectedMapNumber--;

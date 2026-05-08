@@ -19,6 +19,7 @@ public class LobbyListUIController : MonoBehaviour
     [SerializeField] private Button _joinLobbyButton;
     [SerializeField] private Button _createLobbyButton;
     [SerializeField] private Button _quitGameButton;
+    [SerializeField] private AudioClip _btSound;
     
     [Header("Create Room Menu")]
     [SerializeField] private GameObject _createRoomUI;
@@ -88,27 +89,35 @@ public class LobbyListUIController : MonoBehaviour
     
     private void OnRefreshLobbyListItems()
     {
+        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
         offset = 0;
         GetLobbyListItems();
     }
 
     private void OnGoRigtList()
     {
+        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
         offset += 4;
         GetLobbyListItems();
     }
     
     private void OnGoLeftList()
     {
+        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
         if (offset == 0) return;
         offset -= 4;
         GetLobbyListItems();
     }
 
-    private void OnCreateRoom() => _createRoomUI.SetActive(true);
+    private void OnCreateRoom()
+    {
+        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
+        _createRoomUI.SetActive(true);
+    }
 
     private void OnJoinRoom()
     {
+        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
         foreach (LobbyListItemUI item in _lobbyListItems)
         {
             if (item.IsSelected)
@@ -127,6 +136,7 @@ public class LobbyListUIController : MonoBehaviour
 
     private void GoToLoginPage()
     {
+        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
         ServiceLocator.Get<ILocalSceneLoader>().LoadScene("Login");
     }
 }
