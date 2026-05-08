@@ -9,7 +9,6 @@ public class CreateRoomUIController : MonoBehaviour
     [SerializeField] private TMP_InputField _roomSubjectInputField;
     [SerializeField] private Button _createRoomButton;
     [SerializeField] private Button _closePanelButton;
-    [SerializeField] private AudioClip _btSound;
 
     private void OnEnable()
     {
@@ -28,7 +27,7 @@ public class CreateRoomUIController : MonoBehaviour
         // ToDo. 최소 5글자 이상의 문자열 입력 받도록 수정.
         // ToDo. 5글자 미만일 경우 PopupMessage 보일 수 있게 하기.
         if (_roomSubjectInputField.text.Length == 0) return;
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         Debug.Log("[CreateRoomUIController] Processing Create the room.");
         var lobby = ServiceLocator.Get<ILobbyManager>();
         lobby.CreateRoom(_roomSubjectInputField.text)
@@ -48,7 +47,7 @@ public class CreateRoomUIController : MonoBehaviour
     
     private void OnClosePanel()
     {
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         _createRoomPanel.SetActive(false);
     }
 }

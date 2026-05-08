@@ -18,7 +18,6 @@ public class MessagePopUpUIController : MonoBehaviour
     [SerializeField] private Image _backgroundImage;
     [SerializeField] private GameObject _panelUI;
     [SerializeField] private List<PopUpPreset> _presets;
-    [SerializeField] private AudioClip _confirmSound;
 
     private void OnDisable() => _closeButton.onClick.RemoveAllListeners();
     
@@ -38,7 +37,7 @@ public class MessagePopUpUIController : MonoBehaviour
 
     private void Close()
     {
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_confirmSound);
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         _panelUI.SetActive(false);
     }
 }

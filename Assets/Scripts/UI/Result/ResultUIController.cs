@@ -13,7 +13,6 @@ public class ResultUIController : MonoBehaviour
 
     [Header("Button")]
     [SerializeField] private Button _confirmButton;
-    [SerializeField] private AudioClip _confirmSound;
     
     private TeamInfo[] _teams;
     private List<(int score, ResultTeamUI ui)> _scoreBoards = new();
@@ -97,7 +96,7 @@ public class ResultUIController : MonoBehaviour
 
     private void GoToLobby()
     {
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_confirmSound);
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         var loader = ServiceLocator.Get<ILocalSceneLoader>();
         loader.LoadScene("LobbyRoom");
     }

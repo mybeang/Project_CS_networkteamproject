@@ -12,7 +12,6 @@ public class LoginUIController : MonoBehaviour
     [SerializeField] private Button _loginButton;
     [SerializeField] private Button _exitGameButton;
     [SerializeField] private Button _closeWarningPanel;
-    [SerializeField] private AudioClip _confirmSound;
     
     private bool _openedWarningPanel;
     private string _warningTextFormat = " 은(는) 이미 사용중인 닉네임 입니다.";
@@ -50,7 +49,7 @@ public class LoginUIController : MonoBehaviour
     public async void OnLogin()
     {
         if (_openedWarningPanel) return;
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_confirmSound);
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         Debug.Log("[Login] Try Login ...");
         var db = ServiceLocator.Get<IDatabaseBackend>();
         if (db == null) return;
@@ -89,7 +88,7 @@ public class LoginUIController : MonoBehaviour
 
     private void OnCloseWarningMessage()
     {
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_confirmSound);
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         _openedWarningPanel = false;
         _warningPanel.SetActive(false);
     }
@@ -97,7 +96,7 @@ public class LoginUIController : MonoBehaviour
     private void OnExitGame()
     {
         if (_openedWarningPanel) return;
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_confirmSound);
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         string userId = ServiceLocator.Get<IUserInfoManager>()?.GetUserInfo().userId;
         if (userId != "") ServiceLocator.Get<IDatabaseBackend>()?.RemoveUserAsync(userId);
         Application.Quit();

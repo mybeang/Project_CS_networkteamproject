@@ -13,4 +13,5 @@ public interface IAudioService
     public void PlayStopSfx();
     public void GetSfxVolume(out float volume);
     public void SetSfxVolume(float volume);
+    public void PlayButtonSfx();
 }

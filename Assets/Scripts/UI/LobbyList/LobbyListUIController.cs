@@ -19,7 +19,6 @@ public class LobbyListUIController : MonoBehaviour
     [SerializeField] private Button _joinLobbyButton;
     [SerializeField] private Button _createLobbyButton;
     [SerializeField] private Button _quitGameButton;
-    [SerializeField] private AudioClip _btSound;
     
     [Header("Create Room Menu")]
     [SerializeField] private GameObject _createRoomUI;
@@ -89,21 +88,21 @@ public class LobbyListUIController : MonoBehaviour
     
     private void OnRefreshLobbyListItems()
     {
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         offset = 0;
         GetLobbyListItems();
     }
 
     private void OnGoRigtList()
     {
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         offset += 4;
         GetLobbyListItems();
     }
     
     private void OnGoLeftList()
     {
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         if (offset == 0) return;
         offset -= 4;
         GetLobbyListItems();
@@ -111,13 +110,13 @@ public class LobbyListUIController : MonoBehaviour
 
     private void OnCreateRoom()
     {
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         _createRoomUI.SetActive(true);
     }
 
     private void OnJoinRoom()
     {
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         foreach (LobbyListItemUI item in _lobbyListItems)
         {
             if (item.IsSelected)
@@ -136,7 +135,7 @@ public class LobbyListUIController : MonoBehaviour
 
     private void GoToLoginPage()
     {
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         ServiceLocator.Get<ILocalSceneLoader>().LoadScene("Login");
     }
 }

@@ -14,8 +14,7 @@ public class LobbyRoomRoleUI : MonoBehaviour
     
     [SerializeField] private int _teamNumber;
     [SerializeField] private PlayerRole _playerRole;
-    [SerializeField] private AudioClip _btSound;
-
+    
     private void OnEnable()
     {
         _moveButton.onClick.AddListener(OnMove);
@@ -30,7 +29,7 @@ public class LobbyRoomRoleUI : MonoBehaviour
 
     private void OnMove()
     {
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_btSound);
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         Debug.Log("[LobbyRoomRoleUI] On Move");
         AssignToRole();
     }
