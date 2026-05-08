@@ -13,6 +13,7 @@ public class AudioManager : Manager<AudioManager>, IAudioService
     
     public void PlayBGM(AudioClip clip)
     {
+        if (clip == null) return;
         _bgmSource.clip = clip;
         _bgmSource.Play();
     }
@@ -20,9 +21,15 @@ public class AudioManager : Manager<AudioManager>, IAudioService
     public void GetBGMVolume(out float volume) => volume = _bgmSource.volume;
     public void SetBGMVolume(float volume) => _bgmSource.volume = volume;
    
-    public void PlayOneShotSfx(AudioClip clip) => _sfxSource.PlayOneShot(clip);
+    public void PlayOneShotSfx(AudioClip clip)
+    {
+        if (clip == null) return;
+        _sfxSource.PlayOneShot(clip);
+    }
+
     public void PlaySfx(AudioClip clip)
     {
+        if (clip == null) return;
         _sfxSource.clip = clip;
         _sfxSource.Play();
     }
