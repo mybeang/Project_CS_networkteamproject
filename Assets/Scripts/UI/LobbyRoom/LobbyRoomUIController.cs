@@ -202,7 +202,8 @@ public class LobbyRoomUIController : MonoBehaviour
             if (!teams.ContainsKey(teamNum))
             {
                 PlayerableVehicleEnum pv = PlayerableVehicleEnum.tank; // ToDo. 더 만들어지면 추가하기
-                teams.Add(teamNum, new TeamInfo(teamNum, pv));
+                teams[teamNum] = new TeamInfo(teamNum, pv);
+                teams[teamNum].players = new List<PlayerInfo>();
             }
             var temp = player.Data[LobbyPlayerDataKey.ROLE].Value.Split('.').Last();
             PlayerRole playerRole = (PlayerRole)Enum.Parse(typeof(PlayerRole), temp);

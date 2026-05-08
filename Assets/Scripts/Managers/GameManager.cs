@@ -206,28 +206,18 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         foreach (var team in _teams)
         {
             _managementObject[team.GetTeamNum()] = new();
+            ulong driverId = 0L;
             foreach (var player in team.players)
             {
                 if (player.role == PlayerRole.Driver)
                 {
                     // Driver
+                    driverId = player.clientId;
                     var driverObj= CreatePlayerObject(team, player);
                     _managementObject[team.GetTeamNum()].DriverObject = driverObj;
 
                     if (_OnSpawnLog)
                         Debug.Log($"조종수 객체 : {driverObj.name} 생성 완료");
-           
-                    // Body
-                    GameObject bodyObj = Instantiate(_playerablePrefabs[(int)team.GetVehicle()]);
-                    bodyObj.SetActive(true);
-                    bodyObj.name = $"{team.GetTeamNum().ToString()}_{team.GetVehicle().ToString()}";
-                    bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(player.clientId, true);
-                    bodyObj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)team.GetTeamNum()];
-                    bodyObj.transform.position = ServiceLocator.Get<IMapManager>().GetStartPoint(team.GetTeamNum());
-                    _managementObject[team.GetTeamNum()].BodyObject = bodyObj;
-
-                    if (_OnSpawnLog)
-                        Debug.Log($"이동 객체 : {bodyObj.name} 생성 완료");
                 }
                 else
                 {
@@ -238,6 +228,17 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                         Debug.Log($"사수 객체 : {gunnerObj.name} 생성 완료");
                 }
             }
+            // Body
+            GameObject bodyObj = Instantiate(_playerablePrefabs[(int)team.GetVehicle()]);
+            bodyObj.SetActive(true);
+            bodyObj.name = $"{team.GetTeamNum().ToString()}_{team.GetVehicle().ToString()}";
+            bodyObj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)team.GetTeamNum()];
+            bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
+            bodyObj.transform.position = ServiceLocator.Get<IMapManager>().GetStartPoint(team.GetTeamNum());
+            _managementObject[team.GetTeamNum()].BodyObject = bodyObj;
+
+            if (_OnSpawnLog)
+                Debug.Log($"이동 객체 : {bodyObj.name} 생성 완료");
         }
     }
 
