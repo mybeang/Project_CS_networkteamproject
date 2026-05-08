@@ -2341,6 +2341,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   _bgmSource: {fileID: 1820858515}
   _sfxSource: {fileID: 1820858514}
+  _btSound: {fileID: 8300000, guid: eebd650be4fc277469d398078b459656, type: 3}
 --- !u!4 &1820858513
 Transform:
   m_ObjectHideFlags: 0
@@ -2849,7 +2850,6 @@ MonoBehaviour:
   _loginButton: {fileID: 1295485744}
   _exitGameButton: {fileID: 294032375}
   _closeWarningPanel: {fileID: 772221578}
-  _confirmSound: {fileID: 8300000, guid: eebd650be4fc277469d398078b459656, type: 3}
 --- !u!4 &2058332464
 Transform:
   m_ObjectHideFlags: 0
