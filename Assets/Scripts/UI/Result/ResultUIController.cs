@@ -20,6 +20,7 @@ public class ResultUIController : MonoBehaviour
     private void OnEnable()
     {
         _confirmButton.onClick.AddListener(GoToLobby);
+        ServiceLocator.Get<IAudioService>()?.PlayMainBGM();
         UpdateUI();
     }
 
@@ -96,6 +97,7 @@ public class ResultUIController : MonoBehaviour
 
     private void GoToLobby()
     {
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         var loader = ServiceLocator.Get<ILocalSceneLoader>();
         loader.LoadScene("LobbyRoom");
     }

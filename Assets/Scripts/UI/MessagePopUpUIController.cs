@@ -24,7 +24,7 @@ public class MessagePopUpUIController : MonoBehaviour
     public void Open(MessageType msgType, string text, string closedText = "닫 기", UnityAction callback = null)
     {
         if (callback != null) _closeButton.onClick.AddListener(callback);
-        _closeButton.onClick.AddListener(() => _panelUI.SetActive(false));
+        _closeButton.onClick.AddListener(Close);
         int index = (int)msgType;
         _titleUI.text = _presets[index].titleText;
         _closeButton.GetComponent<Image>().sprite = _presets[index].btSprite;
@@ -33,5 +33,11 @@ public class MessagePopUpUIController : MonoBehaviour
         _textUI.text = text;  // ToDo. Message 는 추후 어떤 방향으로 넣는게 좋은지 고민 필요.
         _closedBtTxtUI.text = closedText;
         _panelUI.SetActive(true);
+    }
+
+    private void Close()
+    {
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
+        _panelUI.SetActive(false);
     }
 }

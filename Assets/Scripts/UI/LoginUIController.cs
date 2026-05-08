@@ -20,6 +20,7 @@ public class LoginUIController : MonoBehaviour
     private void OnEnable()
     {
         Init();
+        ServiceLocator.Get<IAudioService>().PlayMainBGM();
         SubscribButtons();
     }
     private void OnDisable() => UnsubscribButtons();
@@ -49,6 +50,7 @@ public class LoginUIController : MonoBehaviour
     public async void OnLogin()
     {
         if (_openedWarningPanel) return;
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         Debug.Log("[Login] Try Login ...");
         var db = ServiceLocator.Get<IDatabaseBackend>();
         if (db == null) return;
@@ -87,6 +89,7 @@ public class LoginUIController : MonoBehaviour
 
     private void OnCloseWarningMessage()
     {
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         _openedWarningPanel = false;
         _warningPanel.SetActive(false);
     }
@@ -94,6 +97,7 @@ public class LoginUIController : MonoBehaviour
     private void OnExitGame()
     {
         if (_openedWarningPanel) return;
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         string userId = ServiceLocator.Get<IUserInfoManager>()?.GetUserInfo().userId;
         if (userId != "") ServiceLocator.Get<IDatabaseBackend>()?.RemoveUserAsync(userId);
         Application.Quit();

@@ -88,27 +88,35 @@ public class LobbyListUIController : MonoBehaviour
     
     private void OnRefreshLobbyListItems()
     {
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         offset = 0;
         GetLobbyListItems();
     }
 
     private void OnGoRigtList()
     {
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         offset += 4;
         GetLobbyListItems();
     }
     
     private void OnGoLeftList()
     {
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         if (offset == 0) return;
         offset -= 4;
         GetLobbyListItems();
     }
 
-    private void OnCreateRoom() => _createRoomUI.SetActive(true);
+    private void OnCreateRoom()
+    {
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
+        _createRoomUI.SetActive(true);
+    }
 
     private void OnJoinRoom()
     {
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         foreach (LobbyListItemUI item in _lobbyListItems)
         {
             if (item.IsSelected)
@@ -127,6 +135,7 @@ public class LobbyListUIController : MonoBehaviour
 
     private void GoToLoginPage()
     {
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         ServiceLocator.Get<ILocalSceneLoader>().LoadScene("Login");
     }
 }
