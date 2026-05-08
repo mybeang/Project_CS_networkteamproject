@@ -1,5 +1,4 @@
-using Unity.Netcode;
-using UnityEditor.PackageManager;
+﻿using Unity.Netcode;
 using UnityEngine;
 
 public class testTankCreate : NetworkBehaviour
@@ -8,7 +7,7 @@ public class testTankCreate : NetworkBehaviour
     [SerializeField] private GameObject testPlayer;
 
 
-    testTank tank;
+    TankController tank;
     ulong cid;
 
     ulong testInt = 0;
@@ -54,10 +53,10 @@ public class testTankCreate : NetworkBehaviour
 
         netT.Spawn();
 
-        tank = t.GetComponent<testTank>();
+        tank = t.GetComponent<TankController>();
 
 
-        tank.Init(0, 1);
+        //tank.Init(0, 1);
 
 
 

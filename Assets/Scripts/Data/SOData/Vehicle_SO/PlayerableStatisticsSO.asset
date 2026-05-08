@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlayerableStatisticsSO
   m_EditorClassIdentifier: Assembly-CSharp::PlayerableStatisticsSO
   _vechicleMaximumHP: 1000
-  _vechicleMoveSpeed: 5
+  _vechicleMoveSpeed: 3
   _vechicleRotationSpeed: 100
   _vechicleReloadtime: 0
   _turretVerticalRotationSpeed: 50

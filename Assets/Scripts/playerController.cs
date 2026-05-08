@@ -1,4 +1,5 @@
-using Unity.Netcode;
+﻿using Unity.Netcode;
+using Unity.Services.Matchmaker.Models;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
 
@@ -6,7 +7,7 @@ public class playerController : NetworkBehaviour
 {
     private ulong _myID;
     //임시
-    public testTank _myTank;
+    public TankController _myTank;
 
     private InputSystem_Actions input;
     private Vector2 moveInput;
@@ -26,6 +27,14 @@ public class playerController : NetworkBehaviour
 
     void OnDisable() => input.Disable();
 
+    private void OnDestroy()
+    {
+        input.Player.Move.performed -= ctx => moveInput = ctx.ReadValue<Vector2>();
+        input.Player.Move.canceled -= ctx => moveInput = Vector2.zero;
+
+        input.Player.Attack.performed -= ctx => Attack();
+    }
+
     public override void OnNetworkSpawn()
     {
         //클라이언트 ID 부여
@@ -37,15 +46,16 @@ public class playerController : NetworkBehaviour
     {
         if (_myTank == null) return;
         if (!IsOwner) return;
+
+        // driver일때의 행동 / TODO : Update -> Function 으로 교체 필요.....
         
-        // driver일때의 행동
-        if ( _myID == _myTank.DriverID)
+        if (true) // _myID == _myTank.DriverID)
         {
            // Debug.Log($"MoveBody : {moveInput}");
             _myTank.MoveBodyServerRpc(moveInput);
             
         }
-
+        
         // gunner일때의 행동
         if (_myID == _myTank.GunnerID)
         {
