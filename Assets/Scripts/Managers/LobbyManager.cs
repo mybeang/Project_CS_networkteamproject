@@ -13,6 +13,7 @@ using UnityEngine;
 public class LobbyPlayerDataKey
 {
     public const string USER_ID = "UserID";
+    public const string CLIENT_ID = "ClientID";
     public const string TEAM = "Team";
     public const string ROLE = "Role";
     public const string READY = "Ready";
@@ -111,7 +112,7 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
     
     public Task<List<Lobby>> RefreshRoomList() => GetRoomList(0);
 
-    private Dictionary<string, T> GetMyDataFormat<T>() where T : class
+    private Dictionary<string, T> MyDataFormat<T>() where T : class
     {
         Dictionary<string, T> data = new();
         UserInfo userInfo = ServiceLocator.Get<IUserInfoManager>()?.GetUserInfo();
@@ -123,6 +124,7 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         
         data.Add(LobbyPlayerDataKey.USER_ID, CreateDataObject<T>(userInfo.userId));
         data.Add(LobbyPlayerDataKey.TEAM, CreateDataObject<T>("0"));
+        data.Add(LobbyPlayerDataKey.CLIENT_ID, CreateDataObject<T>("0"));
         data.Add(LobbyPlayerDataKey.ROLE, CreateDataObject<T>($"{PlayerRole.None}"));
         data.Add(LobbyPlayerDataKey.READY, CreateDataObject<T>("false"));  // string false/true
         return data;
@@ -144,7 +146,7 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         try
         {
             JoinLobbyByIdOptions options = new JoinLobbyByIdOptions();
-            options.Player = new Player { Data = GetMyDataFormat<PlayerDataObject>() };
+            options.Player = new Player { Data = MyDataFormat<PlayerDataObject>() };
             _lobby = await LobbyService.Instance.JoinLobbyByIdAsync(roomId, options);
             AddListenersForLobbyEventCallbacks();
             ServiceLocator.Get<IUserInfoManager>()?.SetRoomId(_lobby.Id);
@@ -170,7 +172,7 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
     {
         CreateLobbyOptions options = new CreateLobbyOptions();
         options.IsPrivate = false;  // 공개방
-        options.Player = new Player { Data = GetMyDataFormat<PlayerDataObject>() };
+        options.Player = new Player { Data = MyDataFormat<PlayerDataObject>() };
         try
         {
             Debug.Log("[LobbyManager] Try Creating room...");

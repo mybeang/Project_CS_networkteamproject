@@ -110,6 +110,7 @@ public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
         catch (Exception e)
         {
             Debug.LogError($"[RelayHostManager] Client 접속 오류: {e.Message}");
+            return;
         }
     }
 

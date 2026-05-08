@@ -215,7 +215,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _team3Score.Value = 0;
         _team4Score.Value = 0;
 
-        InstantiateVehicleClientRpc();
+        InstantiateVehicle();
 
         _timerCoroutine = StartCoroutine(Timer());
     }
@@ -229,8 +229,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         return obj;
     }
     
-    [ClientRpc]
-    private void InstantiateVehicleClientRpc()
+    // [ClientRpc]
+    private void InstantiateVehicle()
     {
         foreach (var team in _teams)
         {
@@ -265,7 +265,9 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 bodyObj.name = $"{team.GetTeamNum().ToString()}_{team.GetVehicle().ToString()}";
                 bodyObj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)team.GetTeamNum()];
                 bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
-                bodyObj.transform.position = ServiceLocator.Get<IMapManager>().GetStartPoint(team.GetTeamNum());
+                var pos = ServiceLocator.Get<IMapManager>().GetStartPoint(team.GetTeamNum());
+                Debug.Log($"[GameManager] {team.GetTeamNum()} pos is {pos}");
+                bodyObj.transform.position = pos;
                 _managementObject[team.GetTeamNum()].BodyObject = bodyObj;
 
                 if (_OnSpawnLog)

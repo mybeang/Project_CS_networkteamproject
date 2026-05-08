@@ -64,8 +64,10 @@ public class LobbyRoomUIController : MonoBehaviour
         }
         else
         {
-            ServiceLocator.Get<IDatabaseBackend>().GetJoinCodeAsync(
-                ServiceLocator.Get<ILobbyManager>().GetRoomID()).ContinueWithOnMainThread(task =>
+            var db = ServiceLocator.Get<IDatabaseBackend>();
+            var relay = ServiceLocator.Get<IRelayHostManager>();
+            var lobby = ServiceLocator.Get<ILobbyManager>();
+            db.GetJoinCodeAsync(lobby.GetRoomID()).ContinueWithOnMainThread(task =>
             {
                 if (task.IsFaulted)
                 {
@@ -73,7 +75,7 @@ public class LobbyRoomUIController : MonoBehaviour
                     return;
                 }
                 _joinCode = task.Result;
-                ServiceLocator.Get<IRelayHostManager>().StartClient(_joinCode);
+                relay.StartClient(_joinCode);
             });
         }
         UpdateReadyState();
@@ -181,16 +183,15 @@ public class LobbyRoomUIController : MonoBehaviour
                 "먼저 팀 및 역할을 정해주세요.");
             return;
         }
-        
         _ready = !_ready;
         UpdateReadyState();
+        UpdateClientIDToLobbyBackend();
         Debug.Log("[LobbyRoomUIController] Ready ... Done");
     }
 
     private List<TeamInfo> LobbyDataToTeamInfo()
     {
         var lobbyManager = ServiceLocator.Get<ILobbyManager>();
-        var relayManager = ServiceLocator.Get<IRelayHostManager>();
         var players = lobbyManager?.GetPlayerList();
         Dictionary<PlayerTeamEnum, TeamInfo> teams = new();
         if (players == null) return null;
@@ -211,7 +212,7 @@ public class LobbyRoomUIController : MonoBehaviour
             PlayerInfo playerInfo = new PlayerInfo()
             {
                 userId = player.Data[LobbyPlayerDataKey.USER_ID].Value,
-                clientId = relayManager.GetClientId(),
+                clientId = ulong.Parse(player.Data[LobbyPlayerDataKey.CLIENT_ID].Value),
                 role = playerRole
             };
             teams[teamNum].players.Add(playerInfo);
@@ -259,8 +260,9 @@ public class LobbyRoomUIController : MonoBehaviour
         Debug.Log("[LobbyRoomUIController] Create Relay Host ... ");
         var db = ServiceLocator.Get<IDatabaseBackend>();
         var lobby = ServiceLocator.Get<ILobbyManager>();
-        var relayManager = ServiceLocator.Get<IRelayHostManager>();
-        relayManager.StartHost().ContinueWithOnMainThread(task =>
+        var relay = ServiceLocator.Get<IRelayHostManager>();
+        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
+        relay.StartHost().ContinueWithOnMainThread(task =>
         {
             if (task.IsFaulted)
             {
@@ -273,6 +275,7 @@ public class LobbyRoomUIController : MonoBehaviour
             }
             _joinCode = task.Result;
             Debug.Log($"[LobbyRoomUIController] Create Relay Host ... Success ; JoinCode: {_joinCode}");
+            UpdateClientIDToLobbyBackend();
             db.SetJoinCodeAsync(lobby.GetRoomID(), _joinCode);
         });
     }
@@ -402,5 +405,21 @@ public class LobbyRoomUIController : MonoBehaviour
             if (code != RELAY_SYNC) return true;
             await Task.Delay(1000);
         }
+    }
+
+    private void UpdateClientIDToLobbyBackend()
+    {
+        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
+        var relay = ServiceLocator.Get<IRelayHostManager>();
+        var lobby = ServiceLocator.Get<ILobbyManager>();
+        List<(string key, string value)> updateData = new();
+        Debug.Log($"[LobbyRoomUIController] {userInfo.userId} ClientID is {relay.GetClientId()}");
+        updateData.Add((LobbyPlayerDataKey.CLIENT_ID, $"{relay.GetClientId()}"));
+        lobby.UpdatePlayerData(updateData).ContinueWithOnMainThread(task =>
+        {
+            if (!task.IsFaulted) return;
+            Debug.LogWarning($"[LobbyRoomUIController] Update {userInfo.userId} ClientID ... Fail");
+            Debug.LogError(task.Exception);
+        });
     }
 }
