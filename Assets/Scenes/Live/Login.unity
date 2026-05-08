@@ -1524,7 +1524,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   _playerObject: {fileID: 6054779728764974554, guid: 04d763457bc101743866e3c73869a4f7, type: 3}
   _playerablePrefabs:
-  - {fileID: 1904569707985564063, guid: 8f103a9b591e54440aba0d7647946ce0, type: 3}
+  - {fileID: 3601410087486877860, guid: cfe1376f7b0488b4282f0fb106708d4e, type: 3}
   _PlayerableMaterials:
   - {fileID: 2100000, guid: 4577ee2046668dc4faae41439ead563c, type: 2}
   - {fileID: 2100000, guid: 36797ffef13d2934b9df4b1eee1d60ad, type: 2}

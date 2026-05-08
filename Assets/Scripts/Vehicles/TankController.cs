@@ -40,7 +40,7 @@ public class TankController : NetworkBehaviour, IDamageableObject
     }
     
     // 현재 HP
-    private NetworkVariable<int> _hp;
+    private NetworkVariable<int> _hp = new();
     // 공격 쿨다운 (일단 일반변수로 가보자)
     private float _reloadTime;
 

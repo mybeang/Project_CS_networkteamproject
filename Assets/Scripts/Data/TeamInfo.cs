@@ -1,6 +1,6 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+[System.Serializable]
 public class PlayerInfo
 {
     public string userId;
@@ -8,6 +8,7 @@ public class PlayerInfo
     public PlayerRole role;
 }
 
+[System.Serializable]
 public class TeamInfo
 {
     public List<PlayerInfo> players;
@@ -31,4 +32,14 @@ public class TeamInfo
     /// </summary>
     /// <returns></returns>
     public TeamInfo GetTeamInfo() => this;
+
+    public string ToPrettyString()
+    {
+        string text = $"team: {_teamNum}\n";
+        text += $"vehicle: {_vehicle}\n";
+        text += $"score: {_score}\n";
+        for (int i = 0; i < players.Count; i++)
+            text += $"player{i + 1}: id:{players[i].userId} | cid:{players[i].clientId} | role:{players[i].role}\n";
+        return text;
+    }
 }

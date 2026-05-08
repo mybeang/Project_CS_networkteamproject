@@ -5,6 +5,11 @@ using Firebase.Auth;
 using Unity.Netcode;
 using UnityEngine;
 
+[Serializable]
+public class TeamContainer
+{
+    public TeamInfo[] teams;
+}
 
 public class GameObjectMap
 {
@@ -65,10 +70,10 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
     #region Network_Variable
     // 네트워크 변수들
-    private NetworkVariable<int> _firstTeamScore;
-    private NetworkVariable<int> _secondTeamScore;
-    private NetworkVariable<int> _thirdTeamScore;
-    private NetworkVariable<int> _fourTeamScore;
+    private NetworkVariable<int> _team1Score = new (writePerm: NetworkVariableWritePermission.Owner);
+    private NetworkVariable<int> _team2Score = new (writePerm: NetworkVariableWritePermission.Owner);
+    private NetworkVariable<int> _team3Score = new (writePerm: NetworkVariableWritePermission.Owner);
+    private NetworkVariable<int> _team4Score = new (writePerm: NetworkVariableWritePermission.Owner);
     #endregion
 
     #region ActionFuntion
@@ -91,11 +96,6 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
     private void Awake()
     {
-        _firstTeamScore = new NetworkVariable<int>(0);
-        _secondTeamScore = new NetworkVariable<int>(0);
-        _thirdTeamScore = new NetworkVariable<int>(0);
-        _fourTeamScore = new NetworkVariable<int>(0);
-
         _RespawnTimer = new double[4];
         _isEventEndTimer = false;
         _eventCounter = 0;
@@ -160,6 +160,34 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _teams = teams;
         _roomID = roomID;
         _mapNumber = mapNumber;
+        Debug.Log("[GameManager] ---- Data Updated on Server ----");
+        Debug.Log($"[GameManager] roomID: {_roomID}");
+        Debug.Log($"[GameManager] mapNumber: {_mapNumber}");
+        foreach (var team in _teams)
+            Debug.Log($"[GameManager] teams: {team.ToPrettyString()}");
+        Debug.Log("[GameManager] --------------------------------");
+        if (!IsServer) return;
+        var teamContainer = new TeamContainer() {teams = teams};
+        var teamJson = JsonUtility.ToJson(teamContainer);
+        Debug.Log($"[GameManager] teamJson: {teamJson}");
+        SetDataClientRpc(teamJson, roomID, mapNumber);
+    }
+
+    [ClientRpc]
+    private void SetDataClientRpc(string teamsJson, string roomId, int mapNumber)
+    {
+        if (IsServer) return;
+        _roomID = roomId;
+        _mapNumber = mapNumber;
+        Debug.Log($"[GameManager] {teamsJson}");
+        var teamInfo = JsonUtility.FromJson<TeamContainer>(teamsJson);
+        _teams = teamInfo.teams;
+        Debug.Log("[GameManager] ---- Data Updated on Client ----");
+        Debug.Log($"[GameManager] roomID: {_roomID}");
+        Debug.Log($"[GameManager] mapNumber: {_mapNumber}");
+        foreach (var team in _teams)
+            Debug.Log($"[GameManager] teams: {team.ToPrettyString()}");
+        Debug.Log("[GameManager] --------------------------------");
     }
 
     public TeamInfo[] GetTeams() => _teams;
@@ -181,10 +209,11 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
     private void ResetGameData()
     {
-        _firstTeamScore.Value = 0;
-        _secondTeamScore.Value = 0;
-        _thirdTeamScore.Value = 0;
-        _fourTeamScore.Value = 0;
+        if (!IsServer) return;
+        _team1Score.Value = 0;
+        _team2Score.Value = 0;
+        _team3Score.Value = 0;
+        _team4Score.Value = 0;
 
         InstantiateVehicleClientRpc();
 
@@ -229,16 +258,25 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 }
             }
             // Body
-            GameObject bodyObj = Instantiate(_playerablePrefabs[(int)team.GetVehicle()]);
-            bodyObj.SetActive(true);
-            bodyObj.name = $"{team.GetTeamNum().ToString()}_{team.GetVehicle().ToString()}";
-            bodyObj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)team.GetTeamNum()];
-            bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
-            bodyObj.transform.position = ServiceLocator.Get<IMapManager>().GetStartPoint(team.GetTeamNum());
-            _managementObject[team.GetTeamNum()].BodyObject = bodyObj;
+            try
+            {
+                GameObject bodyObj = Instantiate(_playerablePrefabs[(int)team.GetVehicle()]);
+                bodyObj.SetActive(true);
+                bodyObj.name = $"{team.GetTeamNum().ToString()}_{team.GetVehicle().ToString()}";
+                bodyObj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)team.GetTeamNum()];
+                bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
+                bodyObj.transform.position = ServiceLocator.Get<IMapManager>().GetStartPoint(team.GetTeamNum());
+                _managementObject[team.GetTeamNum()].BodyObject = bodyObj;
 
-            if (_OnSpawnLog)
-                Debug.Log($"이동 객체 : {bodyObj.name} 생성 완료");
+                if (_OnSpawnLog)
+                    Debug.Log($"이동 객체 : {bodyObj.name} 생성 완료");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message);
+                throw;
+            }
+            
         }
     }
 
@@ -275,19 +313,19 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         switch(enemy) // TODO : 메모리 변조 같은 간단한 값에 대한 위조 방지 장치가 필요한지 논의 필요
         {
             case PlayerTeamEnum.firstTeam:
-                _firstTeamScore.OnValueChanged(_firstTeamScore.Value,_firstTeamScore.Value += 1);
+                _team1Score.OnValueChanged(_team1Score.Value,_team1Score.Value += 1);
                 break;
             case PlayerTeamEnum.secondTeam:
-                _secondTeamScore.OnValueChanged(_secondTeamScore.Value, _secondTeamScore.Value += 1);
+                _team2Score.OnValueChanged(_team2Score.Value, _team2Score.Value += 1);
                 break;
             case PlayerTeamEnum.thirdTeam:
-                _thirdTeamScore.OnValueChanged(_thirdTeamScore.Value, _thirdTeamScore.Value += 1);
+                _team3Score.OnValueChanged(_team3Score.Value, _team3Score.Value += 1);
                 break;
             case PlayerTeamEnum.fourthTeam:
-                _fourTeamScore.OnValueChanged(_fourTeamScore.Value, _fourTeamScore.Value += 1);
+                _team4Score.OnValueChanged(_team4Score.Value, _team4Score.Value += 1);
                 break;
         }
-        OnChangeScore?.Invoke(new int[4] {_firstTeamScore.Value, _secondTeamScore.Value, _thirdTeamScore.Value, _fourTeamScore.Value});
+        OnChangeScore?.Invoke(new int[4] {_team1Score.Value, _team2Score.Value, _team3Score.Value, _team4Score.Value});
 
         // 킬로그 호출
         OnKillLog?.Invoke(myTeam,enemy);
@@ -356,16 +394,16 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             switch (team.GetTeamNum())
             {
                 case PlayerTeamEnum.firstTeam:
-                    team.SetScore(_firstTeamScore.Value);
+                    team.SetScore(_team1Score.Value);
                     break;
                 case PlayerTeamEnum.secondTeam:
-                    team.SetScore(_secondTeamScore.Value);
+                    team.SetScore(_team2Score.Value);
                     break;
                 case PlayerTeamEnum.thirdTeam:
-                    team.SetScore(_thirdTeamScore.Value);
+                    team.SetScore(_team3Score.Value);
                     break;
                 case PlayerTeamEnum.fourthTeam:
-                    team.SetScore(_fourTeamScore.Value);
+                    team.SetScore(_team4Score.Value);
                     break;
             }
         }
