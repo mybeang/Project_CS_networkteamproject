@@ -30,33 +30,36 @@ public class TankController : NetworkBehaviour, IDamageableObject
     private Material _material;
  
     // 현재 HP
-    private NetworkVariable<int> _hp = new(0, writePerm: NetworkVariableWritePermission.Owner); // 잠깐 권한 줌.
+    private NetworkVariable<int> _hp = new(0, writePerm: NetworkVariableWritePermission.Owner); 
+    private NetworkVariable<bool> _isAlive = new(true, writePerm: NetworkVariableWritePermission.Owner);
+    private NetworkVariable<bool> _isEnd = new(writePerm: NetworkVariableWritePermission.Owner);
     // 공격 쿨다운 (일단 일반변수로 가보자)
     private float _reloadTime;
 
+    private MeshRenderer _meshRenderer;
+    private BoxCollider _collider;
+    
     private Coroutine _coroutine;
-    private RaycastHit _rayHit; 
-
+    private RaycastHit _rayHit;
     private bool _canMove;
     private bool _isDamageable;
 
     private void Awake()
     {
+        _meshRenderer = GetComponent<MeshRenderer>();
+        _collider = GetComponent<BoxCollider>();
         _teamNum = PlayerTeamEnum.neutralObject;
     }
 
     private void OnEnable()
     {
-        //_hp.Value = _stat.VechicleMaximumHP;
-        _reloadTime = 0;
-        _isDamageable = false;
-        _canMove = false;
-        _coroutine = StartCoroutine(SpawnDelay());
+        OnSpawnProcess();
     }
 
     public override void OnNetworkSpawn()
     {
-        
+        _isAlive.OnValueChanged += SpawnControl;
+        _isEnd.OnValueChanged += (_, _) => Destroy(gameObject);
     }
 
     IEnumerator SpawnDelay()
@@ -104,6 +107,21 @@ public class TankController : NetworkBehaviour, IDamageableObject
         }
         _reloadTime = _stat.VechicleReloadtime;
         Debug.Log("[TankController] Init Tank ... Completed");
+    }
+
+    private void SpawnControl(bool oldVal, bool newVal)
+    {
+        _collider.enabled = newVal;
+        _meshRenderer.enabled = newVal;
+        if (newVal) OnSpawnProcess();
+    }
+    
+    private void OnSpawnProcess()
+    {
+        _reloadTime = 0;
+        _isDamageable = false;
+        _canMove = false;
+        _coroutine = StartCoroutine(SpawnDelay());
     }
 
     // tank에서 driver, gunner 초기화가 이루어졌다면 UI를 작동시킴.
@@ -251,7 +269,23 @@ public class TankController : NetworkBehaviour, IDamageableObject
         if (_hp.Value <= 0)
         {
             // ToDo. 스스로 작동하게 해야함.
+            _isAlive.Value = false;
             ServiceLocator.Get<IGameManager>().OnDestoryVehicleServerRpc(_teamNum, enemy);
         }
     }
+    
+    [ClientRpc]
+    public void GameEndProcessClientRpc()
+    {
+        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
+        if (userInfo.role == PlayerRole.Driver)
+            _isEnd.Value = true;
+    }
+    
+    [ClientRpc]
+    public void RespawnClientRpc(Vector3 pos)
+    {
+        transform.position = pos;
+        _isAlive.Value = true;
+    } 
 }

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Firebase.Extensions;
 using TMPro;
@@ -22,6 +23,7 @@ public class LobbyListUIController : MonoBehaviour
     [SerializeField] private GameObject _createRoomUI;
     
     private int offset = 0;
+    private Coroutine _refreshCoroutine;
 
     private void Start()
     {
@@ -52,7 +54,6 @@ public class LobbyListUIController : MonoBehaviour
         _joinLobbyButton.onClick.RemoveListener(OnJoinRoom);
         _quitGameButton.onClick.RemoveListener(GoToLoginPage);
     }
-    
 
     private void DiableAllLobbyListItems()
     {

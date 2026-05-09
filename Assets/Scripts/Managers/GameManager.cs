@@ -334,13 +334,10 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     }
 
     // 소환된 경우 모든 Client 들에게 알려야함.
-    [ClientRpc]
-    private void ReSpawnVehicleClientRpc(PlayerTeamEnum team, Vector3 pos) 
+    private void ReSpawnVehicle(PlayerTeamEnum team, Vector3 pos) 
     {
-        // ToDO. 터진놈이 알아서 리스폰 되게 해야함. 게임 매니저는 딱히 알 필요가 없음.
         var bodyObject = _managementObject[team].BodyObject;
-        bodyObject.SetActive(true);
-        bodyObject.transform.position = pos;
+        bodyObject.GetComponent<TankController>().RespawnClientRpc(pos);
         Debug.Log($"{_managementObject[team].BodyObject.name} 리스폰 완료");
     }
 
@@ -396,7 +393,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             {
                 if (_currentTime <= _RespawnTimer[i])
                 {
-                    ReSpawnVehicleClientRpc((PlayerTeamEnum)i, respawnPos);
+                    ReSpawnVehicle((PlayerTeamEnum)i, respawnPos);
                 }
                 else
                 {
@@ -438,9 +435,14 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         foreach (var team in _teams)
         {
             // ToDO. 각자의 Client 에서 알아서 파괴 되게 해야함.
-            Destroy(_managementObject[team.teamNum].BodyObject);
-            Destroy(_managementObject[team.teamNum].GunnerObject);
-            Destroy(_managementObject[team.teamNum].DriverObject);
+
+            if (IsServer)
+            {
+                _managementObject[team.teamNum].BodyObject.GetComponent<TankController>().GameEndProcessClientRpc();
+                _managementObject[team.teamNum].GunnerObject.GetComponent<PlayerController>().GameEndProcessClientRpc();
+                _managementObject[team.teamNum].DriverObject.GetComponent<PlayerController>().GameEndProcessClientRpc();
+            }
+            
             switch (team.teamNum)
             {
                 case PlayerTeamEnum.firstTeam:
