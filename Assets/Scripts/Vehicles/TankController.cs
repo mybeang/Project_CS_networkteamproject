@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Runtime.CompilerServices;
 using Unity.Netcode;
 using Unity.Netcode.Components;
@@ -22,9 +23,11 @@ public class TankController : NetworkBehaviour, IDamageableObject
 
     [SerializeField] private ProjectileManager _projectileManager;
 
+    [SerializeField] private Material[] _materials;
     //현재 UI
     private GameObject _UI;
     private PlayerTeamEnum _teamNum;
+    private Material _material;
  
     // 현재 HP
     private NetworkVariable<int> _hp = new(0, writePerm: NetworkVariableWritePermission.Owner); // 잠깐 권한 줌.
@@ -36,7 +39,12 @@ public class TankController : NetworkBehaviour, IDamageableObject
 
     private bool _canMove;
     private bool _isDamageable;
-    
+
+    private void Awake()
+    {
+        _teamNum = PlayerTeamEnum.neutralObject;
+    }
+
     private void OnEnable()
     {
         //_hp.Value = _stat.VechicleMaximumHP;
@@ -48,7 +56,7 @@ public class TankController : NetworkBehaviour, IDamageableObject
 
     public override void OnNetworkSpawn()
     {
-        Init();
+        
     }
 
     IEnumerator SpawnDelay()
@@ -66,20 +74,25 @@ public class TankController : NetworkBehaviour, IDamageableObject
         if(_reloadTime < 0 ) _reloadTime = 0;
         _gunnerUI.GetComponent<Tank_Gunner>().UpdateToReloadUI(_reloadTime); // TODO : 나중에 UI cashing 후 사용하기
     }
+
+    [ClientRpc]
+    public void SetDataClientRpc(PlayerTeamEnum teamNum)
+    {
+        Debug.Log($"[TankController] Set Data ... teamNum; {teamNum}");
+        _teamNum = teamNum;
+        _material = _materials[(int)teamNum];
+        Init();
+    }
     
     //탱크 초기화 함수
     private void Init()
     {
         Debug.Log("[TankController] Init Tank ... ");
         var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
-        Debug.Log($"[TankController] Check Name : {gameObject.name} vs {userInfo.teamNum.ToString()} ");
-        if (!gameObject.name.StartsWith(userInfo.teamNum.ToString()))
-        {
-            Debug.Log("[TankController] Init Tank ... Fail ; Name not matched");
-            return;
-        }
-        
-        _teamNum = userInfo.teamNum;
+        if (_teamNum != userInfo.teamNum) return;
+        Debug.Log($"[TankController] Init Tank ... My team is {_teamNum}");
+        Debug.Log($"[TankController] Init Tank ... Change Color {_material.name}");
+        GetComponent<MeshRenderer>().material = _material;
         if (userInfo.role == PlayerRole.Driver)
         {
             _hp.Value = _stat.VechicleMaximumHP;
@@ -236,6 +249,9 @@ public class TankController : NetworkBehaviour, IDamageableObject
         _hp.Value -= dmg;
         _driverUI.GetComponent<Driver_UI_Tank>().ChangeVehicleHealth(_hp.Value / _stat.VechicleMaximumHP); // TODO : 나중에 UI script를 cashing해서 사용하기
         if (_hp.Value <= 0)
+        {
+            // ToDo. 스스로 작동하게 해야함.
             ServiceLocator.Get<IGameManager>().OnDestoryVehicleServerRpc(_teamNum, enemy);
+        }
     }
 }

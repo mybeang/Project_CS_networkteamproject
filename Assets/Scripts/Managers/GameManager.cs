@@ -28,14 +28,9 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     [SerializeField] private GameObject _playerObject;
     [Header("이동 객체 관련")]
     [SerializeField][Tooltip("전차 등의 객체(Prefab)을 직접 넣는 곳")] private GameObject[] _playerablePrefabs;
-    [SerializeField][Tooltip("해당 객체를 팀 단위로 식별하기 위해 넣어야하는 Material들")] private Material[] _PlayerableMaterials;
     [Header("게임 정보들")]
-    // 맵은 고민이 조금 필요해 보임, 생각보다 크면 Instantiate 로 하나만 생성하게 만들고, 맵이 작으면 모두 불로온 뒤 Enable, Disable 정도만
-    [SerializeField] private List<MapInfo> _maps;
     [SerializeField] private double _basicSpawnTime;
     [SerializeField][Range(60, 1800)] private int _gamePlayableTime;
-    [Header("그 외")]
-    [SerializeField] private Canvas _gameResultCanvas;
     #endregion
 
     #region Private_Variable
@@ -315,14 +310,16 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 GameObject bodyObj = Instantiate(_playerablePrefabs[(int)team.vehicle]);
                 bodyObj.SetActive(true);
                 bodyObj.name = $"{team.teamNum.ToString()}_{team.vehicle.ToString()}";
-                // teamColor
-                bodyObj.GetComponent<MeshRenderer>().materials[0] = _PlayerableMaterials[(int)team.teamNum];
                 // tankPos
                 var pos = ServiceLocator.Get<IMapManager>().GetStartPoint(team.teamNum);
-                Debug.Log($"[GameManager] {team.teamNum} pos is {pos}");
+                Debug.Log($"[GameManager] {bodyObj.name}'s pos is {pos}");
                 bodyObj.transform.position = pos;
                 // Spawn on Network
                 bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
+                // set data; team and teamColor
+                var tc = bodyObj.GetComponent<TankController>();
+                Debug.Log($"[GameManager] {bodyObj.name}'s team: {team.teamNum}");
+                tc.SetDataClientRpc(team.teamNum);
                 _managementObject[team.teamNum].BodyObject = bodyObj;
 
                 Debug.Log($"[GameManager] 이동 객체 : {bodyObj.name} 생성 완료");
@@ -340,6 +337,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     [ClientRpc]
     private void ReSpawnVehicleClientRpc(PlayerTeamEnum team, Vector3 pos) 
     {
+        // ToDO. 터진놈이 알아서 리스폰 되게 해야함. 게임 매니저는 딱히 알 필요가 없음.
         var bodyObject = _managementObject[team].BodyObject;
         bodyObject.SetActive(true);
         bodyObject.transform.position = pos;
@@ -356,6 +354,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     public void OnDestoryVehicleServerRpc(PlayerTeamEnum myTeam, PlayerTeamEnum enemy)
     {
         // 이동 수단 비활성화 및 플레그 호출
+        // ToDO. 탱크가 스스로 GameManager 에게 요청을 보내야함.
+        // ToDO. 맞은 놈은 disable 되게, 때린놈은 킬로그 요청 하게.
         _managementObject[myTeam].BodyObject.SetActive(false);
         // TODO : 플레그 관련 호출 정의될 시 여기서 호출
         var respawnPos = ServiceLocator.Get<IMapManager>().GetStartPoint(myTeam);
@@ -419,7 +419,6 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _eventScheduleManager = null;
 
         // 맵 끄기
-        // _maps[_mapNumber].maps.SetActive(false);
         // 음성 채널 탈퇴
         ServiceLocator.Get<IVoiceManager>()?.OnLeaveVoiceChannel(_voiceChannelName);
 
@@ -438,6 +437,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
         foreach (var team in _teams)
         {
+            // ToDO. 각자의 Client 에서 알아서 파괴 되게 해야함.
             Destroy(_managementObject[team.teamNum].BodyObject);
             Destroy(_managementObject[team.teamNum].GunnerObject);
             Destroy(_managementObject[team.teamNum].DriverObject);
