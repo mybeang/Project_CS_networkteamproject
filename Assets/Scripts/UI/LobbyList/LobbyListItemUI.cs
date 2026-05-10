@@ -18,8 +18,12 @@ public class LobbyListItemUI : MonoBehaviour
 
     private void OnEnable() => _clickButton.onClick.AddListener(OnClicked);
     private void OnDisable() => _clickButton.onClick.RemoveListener(OnClicked);
-    private void OnClicked() => _toggle.isOn = !_toggle.isOn;
-    
+    private void OnClicked()
+    {
+        Debug.Log($"[{gameObject.name}] Clicked !!");
+        _toggle.isOn = !_toggle.isOn;
+    }
+
     public void SetData(Lobby lobby)
     {
         _roomId = lobby.Id;

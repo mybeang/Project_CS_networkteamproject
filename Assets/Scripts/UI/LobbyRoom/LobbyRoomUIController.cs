@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Firebase.Extensions;
 using TMPro;
-using Unity.Services.Lobbies.Models;
+using Firebase.Database;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -35,6 +35,16 @@ public class LobbyRoomUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _mapName;
     
     private int _selectedMapNumber;
+    private Action OnSelectedMapNumberChanged; 
+    private int SelectedMapNumber
+    {
+        get => _selectedMapNumber;
+        set
+        {
+            _selectedMapNumber = value;
+            OnSelectedMapNumberChanged?.Invoke();
+        }
+    }
     private bool _ready;
     private bool IsHost => 
         ServiceLocator.Get<ILobbyManager>().GetHostId() == 
@@ -42,17 +52,23 @@ public class LobbyRoomUIController : MonoBehaviour
 
     private string _joinCode = string.Empty;
     private const string RELAY_SYNC = "--Syncing--";
-
+    
     private void Awake() => Init();
 
     private void OnEnable()
     {
         BindCallbackButtons();
+        OnSelectedMapNumberChanged += OnRenderMap;
+        var lobby = ServiceLocator.Get<ILobbyManager>();
+        ServiceLocator.Get<IDatabaseBackend>()?.RegisterMapNumberValueChangedHandler(lobby.GetRoomID(), GetMapNumberFromDB);
         ServiceLocator.Get<IRelayHostManager>()?.OnHostDisconnectedAddListener(HostMigrationProcessHandler);
     }
     private void OnDisable()
     {
         UnbindCallbackButtons();
+        OnSelectedMapNumberChanged -= OnRenderMap;
+        var lobby = ServiceLocator.Get<ILobbyManager>();
+        ServiceLocator.Get<IDatabaseBackend>()?.UnregisterMapNumberValueChangedHandler(lobby.GetRoomID(), GetMapNumberFromDB);
         ServiceLocator.Get<IRelayHostManager>()?.OnHostDisconnectedRemoveListener(HostMigrationProcessHandler);
     }
 
@@ -78,12 +94,35 @@ public class LobbyRoomUIController : MonoBehaviour
                 relay.StartClient(_joinCode);
             });
         }
+        InitMapNumber();
         UpdateReadyState();
         _msgPopUp.Open(
             MessageType.Info, 
             "'Team #', '포수' 혹은 '운전자'를 클릭하여\n팀 및 역할 이동이 가능합니다.", 
             "닫기");
-    }    
+    }
+
+    private void InitMapNumber()
+    {
+        var db =  ServiceLocator.Get<IDatabaseBackend>();
+        string roomId = ServiceLocator.Get<ILobbyManager>().GetRoomID();
+        if (IsHost)
+        {
+            db.SetMapNumberAsync(roomId, SelectedMapNumber);
+            return;
+        }
+
+        db.GetMapNumberAsync(roomId).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted)
+            {
+                Debug.LogError("[LobbyRoomUIController] Get MapNumberAsync task faulted.");
+                return;
+            }
+            SelectedMapNumber = int.Parse(task.Result);
+        });
+    }
+
     private void Init()
     {
         _lobbySubject.text = ServiceLocator.Get<ILobbyManager>()?.GetRoomName();
@@ -119,10 +158,13 @@ public class LobbyRoomUIController : MonoBehaviour
     private void ChangeButtonVisibility()
     {
         _startGameButton.gameObject.SetActive(IsHost);
+        _leftMapButton.gameObject.SetActive(IsHost);
+        _rightMapButton.gameObject.SetActive(IsHost);
     }
 
     private void OnLeaveRoom()
     {
+        if (_msgPopUp.IsOpen) return;
         OnReSelect();  // UI 사운드는 OnReSelect 에서 진행됨.
         ServiceLocator.Get<ILobbyManager>()?.LeaveRoom();
         if (IsHost) ServiceLocator.Get<IRelayHostManager>()?.Disconnect();
@@ -131,6 +173,7 @@ public class LobbyRoomUIController : MonoBehaviour
 
     private void OnReSelect()
     {
+        if (_msgPopUp.IsOpen) return;
         ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         Debug.Log("[LobbyRoomUIController] On ReSelect ... ");
         var lobby = ServiceLocator.Get<ILobbyManager>();
@@ -170,6 +213,7 @@ public class LobbyRoomUIController : MonoBehaviour
 
     private void OnReady()
     {
+        if (_msgPopUp.IsOpen) return;
         ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         Debug.Log("[LobbyRoomUIController] Ready ... ");
         var lobbyManager = ServiceLocator.Get<ILobbyManager>();
@@ -221,6 +265,7 @@ public class LobbyRoomUIController : MonoBehaviour
     
     private void OnStartGame()
     {
+        if (_msgPopUp.IsOpen) return;
         ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         Debug.Log("[LobbyRoomUIController] Start Game ... ");
         if (CheckAllReady())
@@ -260,7 +305,6 @@ public class LobbyRoomUIController : MonoBehaviour
         var db = ServiceLocator.Get<IDatabaseBackend>();
         var lobby = ServiceLocator.Get<ILobbyManager>();
         var relay = ServiceLocator.Get<IRelayHostManager>();
-        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
         relay.StartHost().ContinueWithOnMainThread(task =>
         {
             if (task.IsFaulted)
@@ -278,31 +322,63 @@ public class LobbyRoomUIController : MonoBehaviour
             db.SetJoinCodeAsync(lobby.GetRoomID(), _joinCode);
         });
     }
-
+    
     private void OnRightMap()
-    {
+    {   // 방장만 제어 가능
+        if (_msgPopUp.IsOpen) return;
+        if (!IsHost) return;
         ServiceLocator.Get<IAudioService>().PlayButtonSfx();
+        var db = ServiceLocator.Get<IDatabaseBackend>();
+        var lobby = ServiceLocator.Get<ILobbyManager>();
         if (_mapImages.Count != 0)
         {
-            _selectedMapNumber++;
-            if (_selectedMapNumber > _mapImages.Count - 1) _selectedMapNumber = 0;
-            
-            _selectedMapImage.sprite = _mapImages[_selectedMapNumber].image;
-            _mapName.text = _mapImages[_selectedMapNumber].name;
+            int tempNumber = _selectedMapNumber + 1;
+            if (tempNumber > _mapImages.Count - 1) tempNumber = 0;
+            db.SetMapNumberAsync(lobby.GetRoomID(), tempNumber);
         }
     }
 
     private void OnLeftMap()
-    {
+    {   // 방장만 제어 가능
+        if (_msgPopUp.IsOpen) return;
+        if (!IsHost) return;
         ServiceLocator.Get<IAudioService>().PlayButtonSfx();
+        var db = ServiceLocator.Get<IDatabaseBackend>();
+        var lobby = ServiceLocator.Get<ILobbyManager>();
         if (_mapImages.Count != 0)
         {
-            _selectedMapNumber--;
-            if (_selectedMapNumber < 0) _selectedMapNumber = _mapImages.Count - 1;
-            
-            _selectedMapImage.sprite = _mapImages[_selectedMapNumber].image;
-            _mapName.text = _mapImages[_selectedMapNumber].name;
+            int tempNumber = _selectedMapNumber + 1;
+            if (tempNumber < 0) tempNumber = _mapImages.Count - 1;
+            db.SetMapNumberAsync(lobby.GetRoomID(), tempNumber);
         }
+    }
+
+    private void GetMapNumberFromDB(object sender, ValueChangedEventArgs args)
+    {
+        if (args.DatabaseError != null) {
+            Debug.LogError($"[LobbyRoomUIController] Get MapNumber From DB Error: {args.DatabaseError.Message}");
+            return;
+        }
+
+        if (args.Snapshot.Exists)
+        {
+            if (!int.TryParse(args.Snapshot.Value.ToString(), out int result))
+            {
+                Debug.LogError($"[LobbyRoomUIController] MapNumber Parsing Failed {args.Snapshot.Value}");
+                return;
+            }
+            SelectedMapNumber = result;    
+        }
+        else
+        {
+            Debug.LogWarning("[LobbyRoomUIController] Get MapNumber Result Snapshot is not exist");
+        }
+    }
+    
+    private void OnRenderMap()
+    {
+        _selectedMapImage.sprite = _mapImages[_selectedMapNumber].image;
+        _mapName.text = _mapImages[_selectedMapNumber].name;
     }
     
     private bool CheckAllReady()

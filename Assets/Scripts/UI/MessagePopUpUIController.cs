@@ -19,6 +19,8 @@ public class MessagePopUpUIController : MonoBehaviour
     [SerializeField] private GameObject _panelUI;
     [SerializeField] private List<PopUpPreset> _presets;
 
+    public bool IsOpen => _panelUI.activeSelf;
+    
     private void OnDisable() => _closeButton.onClick.RemoveAllListeners();
     
     public void Open(MessageType msgType, string text, string closedText = "닫 기", UnityAction callback = null)

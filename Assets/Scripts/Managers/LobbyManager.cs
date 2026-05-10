@@ -206,6 +206,7 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
             {
                 var db = ServiceLocator.Get<IDatabaseBackend>();
                 db.RemoveJoinCodeAsync(_lobby.Id);
+                db.RemoveMapNumberAsync(_lobby.Id);
             }
             _lobby = null;
             _lobbyEvent = null;

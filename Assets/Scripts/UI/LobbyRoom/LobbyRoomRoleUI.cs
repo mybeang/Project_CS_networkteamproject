@@ -14,6 +14,7 @@ public class LobbyRoomRoleUI : MonoBehaviour
     
     [SerializeField] private int _teamNumber;
     [SerializeField] private PlayerRole _playerRole;
+    [SerializeField] private MessagePopUpUIController _msgPopUp;
     
     private void OnEnable()
     {
@@ -29,6 +30,7 @@ public class LobbyRoomRoleUI : MonoBehaviour
 
     private void OnMove()
     {
+        if (_msgPopUp.IsOpen) return;
         ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         Debug.Log("[LobbyRoomRoleUI] On Move");
         AssignToRole();

@@ -1188,6 +1188,7 @@ MonoBehaviour:
   _ready: {fileID: 320939353}
   _teamNumber: 4
   _playerRole: 2
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &231762725
 GameObject:
   m_ObjectHideFlags: 0
@@ -2624,6 +2625,7 @@ MonoBehaviour:
   _ready: {fileID: 1361257790}
   _teamNumber: 1
   _playerRole: 2
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &466220911
 GameObject:
   m_ObjectHideFlags: 0
@@ -2673,6 +2675,7 @@ MonoBehaviour:
   _ready: {fileID: 67058078}
   _teamNumber: 2
   _playerRole: 1
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &484792263
 GameObject:
   m_ObjectHideFlags: 0
@@ -4098,6 +4101,7 @@ MonoBehaviour:
   _ready: {fileID: 1691145870}
   _teamNumber: 3
   _playerRole: 2
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &729291959
 GameObject:
   m_ObjectHideFlags: 0
@@ -4827,6 +4831,7 @@ MonoBehaviour:
   _moveButton: {fileID: 1520215353}
   _gunnerUI: {fileID: 197038093}
   _driverUI: {fileID: 1129361736}
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &837389376
 GameObject:
   m_ObjectHideFlags: 0
@@ -6462,6 +6467,7 @@ MonoBehaviour:
   _ready: {fileID: 1538054709}
   _teamNumber: 2
   _playerRole: 2
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &1069718215
 GameObject:
   m_ObjectHideFlags: 0
@@ -6509,6 +6515,7 @@ MonoBehaviour:
   _moveButton: {fileID: 1810685201}
   _gunnerUI: {fileID: 1069338730}
   _driverUI: {fileID: 466220913}
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &1074389839
 GameObject:
   m_ObjectHideFlags: 0
@@ -7083,6 +7090,7 @@ MonoBehaviour:
   _moveButton: {fileID: 642052537}
   _gunnerUI: {fileID: 456565515}
   _driverUI: {fileID: 1326466829}
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &1129361734
 GameObject:
   m_ObjectHideFlags: 0
@@ -7132,6 +7140,7 @@ MonoBehaviour:
   _ready: {fileID: 54678981}
   _teamNumber: 4
   _playerRole: 1
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &1152091757
 GameObject:
   m_ObjectHideFlags: 0
@@ -8215,6 +8224,7 @@ MonoBehaviour:
   _ready: {fileID: 354809220}
   _teamNumber: 1
   _playerRole: 1
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &1335571024
 GameObject:
   m_ObjectHideFlags: 0
@@ -8998,6 +9008,7 @@ MonoBehaviour:
   _moveButton: {fileID: 1283944229}
   _gunnerUI: {fileID: 723872621}
   _driverUI: {fileID: 1832463629}
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &1427798677
 GameObject:
   m_ObjectHideFlags: 0
@@ -12446,6 +12457,7 @@ MonoBehaviour:
   _ready: {fileID: 723453349}
   _teamNumber: 3
   _playerRole: 1
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &1841522390
 GameObject:
   m_ObjectHideFlags: 0

@@ -24,6 +24,7 @@ public class LobbyListUIController : MonoBehaviour
     
     private int offset = 0;
     private Coroutine _refreshCoroutine;
+    private bool _isCreateRoomUIOpened => _createRoomUI.activeSelf;
 
     private void Start()
     {
@@ -87,6 +88,7 @@ public class LobbyListUIController : MonoBehaviour
     
     private void OnRefreshLobbyListItems()
     {
+        if (_isCreateRoomUIOpened) return;
         ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         offset = 0;
         GetLobbyListItems();
@@ -94,6 +96,7 @@ public class LobbyListUIController : MonoBehaviour
 
     private void OnGoRigtList()
     {
+        if (_isCreateRoomUIOpened) return;
         ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         offset += 4;
         GetLobbyListItems();
@@ -101,6 +104,7 @@ public class LobbyListUIController : MonoBehaviour
     
     private void OnGoLeftList()
     {
+        if (_isCreateRoomUIOpened) return;
         ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         if (offset == 0) return;
         offset -= 4;
@@ -109,12 +113,14 @@ public class LobbyListUIController : MonoBehaviour
 
     private void OnCreateRoom()
     {
+        if (_isCreateRoomUIOpened) return;
         ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         _createRoomUI.SetActive(true);
     }
 
     private void OnJoinRoom()
     {
+        if (_isCreateRoomUIOpened) return;
         ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         foreach (LobbyListItemUI item in _lobbyListItems)
         {
@@ -134,6 +140,7 @@ public class LobbyListUIController : MonoBehaviour
 
     private void GoToLoginPage()
     {
+        if (_isCreateRoomUIOpened) return;
         ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         ServiceLocator.Get<ILocalSceneLoader>().LoadScene("Login");
     }
