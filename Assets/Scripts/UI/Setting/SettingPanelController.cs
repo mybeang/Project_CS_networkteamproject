@@ -9,9 +9,11 @@ public class SettingPanelController : MonoBehaviour
     [SerializeField] private GameObject _panel; // UI판넬 갖고오기
     [SerializeField] private Button _continueButton;
     [SerializeField] private Button _returnButton;
+    [SerializeField] private Button _exitButton;
     [SerializeField] private Slider _bgmSlider;
     [SerializeField] private Slider _sfxSlider;
     [SerializeField] private Slider _voiceSlider;
+    
     
 
     private void Awake()
@@ -23,11 +25,29 @@ public class SettingPanelController : MonoBehaviour
     private void OnEnable()
     {
         _input.Enable();
+        // 버튼 이벤트 구독
+        _continueButton.onClick.AddListener(OnContinueButton); // 계속하기 버튼
+        _returnButton.onClick.AddListener(OnReturnToLobbyButton); // 로비로 나가기 버튼
+        _exitButton.onClick.AddListener(OnContinueButton); // X버튼 (계속하기와 동일한 동작)
+
+        // 슬라이더 이벤트 구독
+        _bgmSlider.onValueChanged.AddListener(OnChangeBGMVolume); // BGM 볼륨
+        _sfxSlider.onValueChanged.AddListener(OnChangeSFXVolume); // SFX 볼륨
+        _voiceSlider.onValueChanged.AddListener(OnChangeVoiceVol); // Voice 볼륨
     }
 
     private void OnDisable()
     {
         _input.Disable();
+        // 버튼 이벤트 해제
+        _continueButton.onClick.RemoveListener(OnContinueButton);
+        _returnButton.onClick.RemoveListener(OnReturnToLobbyButton);
+        _exitButton.onClick.RemoveListener(OnContinueButton);
+
+        // 슬라이더 이벤트 해제
+        _bgmSlider.onValueChanged.RemoveListener(OnChangeBGMVolume);
+        _sfxSlider.onValueChanged.RemoveListener(OnChangeSFXVolume);
+        _voiceSlider.onValueChanged.RemoveListener(OnChangeVoiceVol);
     }
 
     // Esc키 눌렀을때 팝업창 열고 닫기
