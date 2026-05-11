@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -21,7 +22,7 @@ public class WarpManager : NetworkBehaviour
     {
         if (_isWarp) // 워프가 가능하다면
         {
-            while(true)
+            while (true)
             {
                 int randomIndex = Random.Range(0, _warps.Count); // 랜덤 번호표
 
@@ -34,13 +35,14 @@ public class WarpManager : NetworkBehaviour
 
                 else // 그외 위치 변경
                 {
-                    transform.position = targetWarp.position;
+                    // 서버에 요청 -> 모든 클라이언트가 동기화 실행
+                    RequestActionServerRpc(targetWarp.position);
                     _isWarp = false; // 또 다시 워프되지 않게 false 반환
                     break;
                 }
 
             }
-            
+
         }
     }
 
@@ -48,8 +50,15 @@ public class WarpManager : NetworkBehaviour
     {
         if (!_isWarp) // 워프를 했다면
         {
-            _isWarp = true; // 다시 워프를 가능하게 true 반환
+            StartCoroutine(WaitCoolTime()); // 2초후에 다시 가능
         }
+    }
+
+    private IEnumerator WaitCoolTime() // 워프의 쿨타임
+    {
+        yield return new WaitForSeconds(2.0f); // 쿨타임 2초
+        _isWarp = true; // 다시 워프를 가능하게 true 반환
+        Debug.Log("CoolTime 활성화");
     }
 
 
@@ -63,6 +72,21 @@ public class WarpManager : NetworkBehaviour
         {
             _warps.Add(obj);// 찾았으면 추가
         }
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    // 클라이언트가 요청, 서버가 실행
+    private void RequestActionServerRpc(Vector3 newPosition)
+    {
+        transform.position = newPosition;
+        RequestActionClientRpc(transform.position);
+    }
+
+    [Rpc(SendTo.ClientsAndHost, InvokePermission = RpcInvokePermission.Everyone)]
+    // 서버가 호출,클라이언트에서 실행
+    private void RequestActionClientRpc(Vector3 newPosition)
+    {
+        transform.position = newPosition;
     }
 
 
