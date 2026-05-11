@@ -1,12 +1,6 @@
-﻿using System;
 using System.Collections;
-using System.Runtime.CompilerServices;
 using Unity.Netcode;
-using Unity.Netcode.Components;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
-using UnityEngine.Windows;
 
 public class TankController : NetworkBehaviour, IDamageableObject
 {
@@ -159,4 +153,9 @@ public class TankController : NetworkBehaviour, IDamageableObject
         transform.position = pos;
         _isAlive.Value = true;
     } 
+
+    public void ExplosionDamaged(System.Numerics.Vector3 expsPos, int dmg, PlayerTeamEnum enemy)
+    {
+        
+    }
 }
