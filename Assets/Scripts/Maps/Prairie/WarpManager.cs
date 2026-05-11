@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -21,24 +22,27 @@ public class WarpManager : NetworkBehaviour
     {
         if (_isWarp) // 워프가 가능하다면
         {
-            while(true)
+            if (IsOwner)
             {
-                int randomIndex = Random.Range(0, _warps.Count); // 랜덤 번호표
-
-                Transform targetWarp = _warps[randomIndex]; // 랜덤값 해당 워프위치에 부여
-
-                if (targetWarp == other.transform) // 만약 랜덤한 위치가 본인자리라면?
+                while (true)
                 {
-                    continue; // 무시하고 다시 번호표 뽑기
-                }
+                    int randomIndex = Random.Range(0, _warps.Count); // 랜덤 번호표
 
-                else // 그외 위치 변경
-                {
-                    transform.position = targetWarp.position;
-                    _isWarp = false; // 또 다시 워프되지 않게 false 반환
-                    break;
-                }
+                    Transform targetWarp = _warps[randomIndex]; // 랜덤값 해당 워프위치에 부여
 
+                    if (targetWarp == other.transform) // 만약 랜덤한 위치가 본인자리라면?
+                    {
+                        continue; // 무시하고 다시 번호표 뽑기
+                    }
+
+                    else // 그외 위치 변경
+                    {
+                        transform.position = targetWarp.position; // 대상의 위치를 워프시킨다.
+                        _isWarp = false; // 또 다시 워프되지 않게 false 반환
+                        break;
+                    }
+
+                }
             }
             
         }
@@ -48,8 +52,15 @@ public class WarpManager : NetworkBehaviour
     {
         if (!_isWarp) // 워프를 했다면
         {
-            _isWarp = true; // 다시 워프를 가능하게 true 반환
+            StartCoroutine(WaitCoolTime()); // 2초후에 다시 가능
         }
+    }
+
+    private IEnumerator WaitCoolTime() // 워프의 쿨타임
+    {
+        yield return new WaitForSeconds(2.0f); // 쿨타임 2초
+        _isWarp = true; // 다시 워프를 가능하게 true 반환
+        Debug.Log("CoolTime 활성화");
     }
 
 
@@ -64,6 +75,5 @@ public class WarpManager : NetworkBehaviour
             _warps.Add(obj);// 찾았으면 추가
         }
     }
-
 
 }
