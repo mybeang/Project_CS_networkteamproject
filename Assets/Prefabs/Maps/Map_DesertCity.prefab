@@ -1303,7 +1303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 507294981
+  GlobalObjectIdHash: 3121409293
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -1331,12 +1331,12 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   eventName: TornadoEvent
   excuteTime:
-  - 15
+  - 120
   - 240
   - 360
   - 480
   stopTriggerTime:
-  - 30
+  - 180
   - 300
   - 420
   - 599
@@ -1362,7 +1362,7 @@ MonoBehaviour:
     - {x: 65, y: 0, z: -40}
     - {x: 65, y: 0, z: 40}
     - {x: -40, y: 0, z: 6}
-  _MaxTornados: 10
+  _maxTornados: 10
   _numOfSpawns: 0300000005000000070000000a000000
   _tornadoMinSpeed: 2
   _tornadoMaxSpeed: 8

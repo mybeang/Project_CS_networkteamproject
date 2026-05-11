@@ -14,8 +14,6 @@ public class TeamContainer
 public class GameManager : NetworkManager<GameManager>, IGameManager
 {
     #region Show_in_Inspector_Variable
-    [Header("플레이어(조종) 객체")]
-    [SerializeField] private GameObject _playerObject;
     [Header("이동 객체 관련")]
     [SerializeField][Tooltip("전차 등의 객체(Prefab)을 직접 넣는 곳")] private GameObject[] _playerPrefabs;
     [Header("게임 정보들")]
@@ -51,7 +49,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
     // 네트워크 변수들
     #region Network_Variable
-    private NetworkVariable<int> _startGameState = new(); // 0
+    private NetworkVariable<GameState> _gameState = new(); // 0
     private NetworkVariable<int> _team1Score = new (writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<int> _team2Score = new (writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<int> _team3Score = new (writePerm: NetworkVariableWritePermission.Owner);
@@ -128,20 +126,20 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 {
                     if (_eventEndTimer != null && _eventCounter < _eventEndTimer.Length)
                         _isEventEndTimer = true;
-                    Debug.Log("[GameManager] Catch Event");
+                    Debug.Log($"[GameManager] Catch Event ec:{_eventCounter} et:{_eventTimer[_eventCounter]} el{_elapsedTime}");
                     _eventScheduleManager.OnEventSpawn();
                     _eventCounter++;
                 }
                 else if (_isEventEndTimer && _eventEndTimer != null && _eventEndTimer[_eventCounter - 1] <= _elapsedTime)
                 {
-                    Debug.Log("[GameManager] Release Event");
+                    Debug.Log($"[GameManager] Release Event ec:{_eventCounter} et:{_eventEndTimer[_eventCounter - 1]} el{_elapsedTime}");
                     _isEventEndTimer = false;
                     _eventScheduleManager.OnEventDespawn();
                 }
             }
             yield return _tick;
         }
-        GameEnd();
+        if (IsServer) _gameState.Value = GameState.GameEnd;
     }
 
     public void SetData(TeamInfo[] teams, in string roomID, int mapNumber)
@@ -185,12 +183,13 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     
     public void StartGame()
     {
-        Debug.Log($"[GameManager] Start Game at {name}");  
+        Debug.Log($"[GameManager] Start Game at {name}"); 
+        
         ServiceLocator.Get<IMapManager>().SelectMap(_mapNumber);
-        if (IsServer) _startGameState.Value = 0;
+        if (IsServer) _gameState.Value = 0;
         try
         {
-            StartCoroutine(StartGameStateMachineCoroutine());
+            StartCoroutine(GameStateMachineCoroutine());
         }
         catch (Exception e)
         {
@@ -208,31 +207,33 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     ///        3 : SetOtherDataForGame
     ///        4 : Finish
     /// </summary>
-    private IEnumerator StartGameStateMachineCoroutine()
+    private IEnumerator GameStateMachineCoroutine()
     {
-        while (_startGameState.Value < 5)
+        while (true)
         {
-            Debug.Log($"[GameManager] Start Game State Machine State : {_startGameState.Value}");
-            switch (_startGameState.Value)
+            yield return new WaitForSecondsRealtime(1f);
+            Debug.Log($"[GameManager] Game State Machine State : {_gameState.Value}");
+            switch (_gameState.Value)
             {
-                case 0:
-                    if (IsServer) _startGameState.Value++;
+                case GameState.Init:
+                    if (IsServer) _gameState.Value = GameState.ResetGameData;
                     break;
-                case 1:
+                case GameState.ResetGameData:
                     ResetGameData();
                     break;
-                case 2:
+                case GameState.InstantiateVehicle:
                     InstantiateVehicle();
                     break;
-                case 3:
+                case GameState.SetOtherDataForGame:
                     SetOtherDataForGame();
                     break;
-                case 4:
+                case GameState.GameEnd:
+                    GameEnd();
                     yield break;
+                case GameState.DoNothing:
+                    break;
             }
-            yield return new WaitForSecondsRealtime(0.5f);
         }
-        Debug.Log($"[GameManager] The 'StartGame' method was working at {name}.");
     }
 
     private void SetOtherDataForGame()
@@ -243,23 +244,20 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel(_voiceChannelName);
         ServiceLocator.Get<IAudioService>().PlayBGM(_mapNumber);
         Debug.Log("[GameManager] Set Other Data For Game ... Done ");
-        if (IsServer) _startGameState.Value++;
+        if (IsServer) _gameState.Value = GameState.DoNothing;
     }
     
     private void ResetGameData()
     {
         Debug.Log("[GameManager] Reset Game Data ... ");
-        if (!IsServer)
-        {
-            Debug.Log("[GameManager] Reset Game Data ... SKIP");
-            return;
-        }
+        _timerCoroutine = StartCoroutine(Timer());
+        if (!IsServer) return;
         _team1Score.Value = 0;
         _team2Score.Value = 0;
         _team3Score.Value = 0;
         _team4Score.Value = 0;
-        _timerCoroutine = StartCoroutine(Timer());
-        _startGameState.Value++;
+        _gameState.Value = GameState.InstantiateVehicle;
+        Debug.Log("[GameManager] Reset Game Data ... Done");
     }
     
     private void InstantiateVehicle()
@@ -294,7 +292,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             _managementObject[team.teamNum] = bodyObj;
             Debug.Log($"[GameManager] {bodyObj.name} 생성 완료");
         }
-        _startGameState.Value++;
+        _gameState.Value = GameState.SetOtherDataForGame;
     }
 
     // 소환된 경우 모든 Client 들에게 알려야함.
@@ -422,6 +420,6 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             }
         }
         Debug.Log("게임 종료 성공적으로 호출됌");
-        if (IsServer) ServiceLocator.Get<INetworkSceneLoader>().LoadScene("Result");
+        ServiceLocator.Get<ILocalSceneLoader>().LoadScene("Result");
     }
 }
