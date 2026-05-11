@@ -60,7 +60,7 @@ public class SettingPanelController : MonoBehaviour
         if (userInfo == null) return; // 유저정보가 없다면 리턴
 
         // 채널명은 유저id와 유저의 팀숫자가 합쳐진 것(VoiceManager 출처)
-        string channelName = userInfo.roomId + userInfo.teamNum;
+        string channelName = $"{userInfo.roomId}_{userInfo.teamNum}";
 
         ServiceLocator.Get<IVoiceManager>()?.SetVolume(channelName,(int)vol);
     }
@@ -75,7 +75,7 @@ public class SettingPanelController : MonoBehaviour
     public void OnReturnToLobbyButton()
     {
         // 로비로 돌아갈 시 연결 먼저 끊어준다.
-        ServiceLocator.Get<IRelayHostManager>()?.Disconnect();
+        ServiceLocator.Get<IRoomManager>()?.LeaveRoom();
         ServiceLocator.Get<ILocalSceneLoader>()?.LoadScene(_sceneId);
     }
 }
