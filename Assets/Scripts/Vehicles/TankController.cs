@@ -59,7 +59,13 @@ public class TankController : NetworkBehaviour, IDamageableObject
     public override void OnNetworkSpawn()
     {
         _isAlive.OnValueChanged += SpawnControl;
-        _isEnd.OnValueChanged += (_, _) => Destroy(gameObject);
+        _isEnd.OnValueChanged += (_, _) => DestoryOnNetwork();
+    }
+
+    private void DestoryOnNetwork()
+    {
+        var ngo = GetComponent<NetworkObject>();
+        ngo.Despawn();
     }
 
     IEnumerator SpawnDelay()
