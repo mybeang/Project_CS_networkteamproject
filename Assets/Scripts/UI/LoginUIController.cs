@@ -8,7 +8,19 @@ using UnityEngine.UI;
 public class MapCameraMapping
 {
     public GameObject mapObject;
-    public Camera camera;
+    public GameObject camera;
+
+    public void SetEnable()
+    {
+        mapObject.SetActive(true);
+        camera.SetActive(true);
+    }
+
+    public void SetDisable()
+    {
+        mapObject.SetActive(false);
+        camera.SetActive(false);
+    }
 } 
 
 public class LoginUIController : MonoBehaviour
@@ -43,7 +55,7 @@ public class LoginUIController : MonoBehaviour
 
     private void Init()
     {
-        _maps[_currentMapIndex].mapObject.SetActive(true);
+        _maps[_currentMapIndex].SetEnable();
         _mapChangeCoroutine = StartCoroutine(mapChangeCoroutine());
         var userInfo = ServiceLocator.Get<IUserInfoManager>();
         Debug.Log($"I am {userInfo.GetUserInfo().userId}");
@@ -132,9 +144,9 @@ public class LoginUIController : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(10f);
-            _maps[_currentMapIndex++].mapObject.SetActive(false);
+            _maps[_currentMapIndex++].SetDisable();
             if (_currentMapIndex > _maps.Length - 1) _currentMapIndex = 0;
-            _maps[_currentMapIndex].mapObject.SetActive(true);
+            _maps[_currentMapIndex].SetEnable();
         }
     }
 
