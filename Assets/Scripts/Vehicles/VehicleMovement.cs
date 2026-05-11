@@ -2,7 +2,6 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEditor.PlayerSettings;
 
 public class VehicleMovement : NetworkBehaviour, IImpactForce
 {
@@ -15,8 +14,12 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     [SerializeField] private Canvas _driverUICanvas;
 
     private InputSystem_Actions _inputActions;
+    private Coroutine _flipCounter;
 
     private bool canMove;
+    private bool _coroutineIsRunning;
+    private bool _canFlip;
+
     private Vector2 lastInput;
 
     public override void OnNetworkSpawn()
@@ -53,6 +56,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         StartCoroutine(Freeze());
         _inputActions.Player.Move.performed += Movement;
         _inputActions.Player.Move.canceled += Movement;
+        _inputActions.Player.Jump.performed += FlipVehicle;
         _inputActions.Enable();
     }
 
@@ -61,7 +65,13 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         canMove = false;
         _inputActions.Player.Move.performed -= Movement;
         _inputActions.Player.Move.canceled -= Movement;
+        _inputActions.Player.Jump.performed -= FlipVehicle;
+
+        _coroutineIsRunning = false;
+        StopCoroutine(_flipCounter);
+        _flipCounter = null;
         _inputActions.Disable();
+
         _driverUICanvas.enabled = false;
     }
 
@@ -91,6 +101,13 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
 
         if (Physics.Raycast(transform.position, transform.up * -1, 1))
         {
+            _canFlip = false;
+            if (_coroutineIsRunning)
+            {
+                StopCoroutine(_flipCounter);
+                _coroutineIsRunning = false;
+            }
+
             if (lastInput.y == 0)
             {
                 _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
@@ -103,6 +120,13 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
                 _rb.angularVelocity = _rb.angularVelocity + (transform.up * lastInput.x) * _vehicleData.VechicleRotationSpeed;
             }
         }
+        else
+        {
+            if (!_coroutineIsRunning && !_canFlip)
+            {
+                _flipCounter = StartCoroutine(stuckChecker());
+            }
+        }
 
         // 입력 부재 시 미끄럼 방지 (Sticky Friction) 필요한지 검증 후 적용
         /*
@@ -111,6 +135,27 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
             Vector3 vel = Vector3.ProjectOnPlane(rb.linearVelocity, Vector3.up);
             rb.AddForce(-vel * 0.5f, ForceMode.VelocityChange);
         }*/
+    }
+
+    IEnumerator stuckChecker()
+    {
+        _coroutineIsRunning = true;
+        yield return new WaitForSeconds(3f);
+        // 3초 이상 뜬 경우에는 높은 확률로 꼈거나 뒤집힌 거라고 판단.
+        // UI 표시 및 키 입력으로 정상화
+        Debug.Log("당신은 이제 일어설 수 있습니다.");
+        _canFlip = true;
+
+        _coroutineIsRunning = false;
+        // 키 입력으로 뒤집기 실행 후 false로 전환
+    }
+
+    private void FlipVehicle(InputAction.CallbackContext ctx)
+    {
+        if (!_canFlip) return;
+        _canFlip = false;
+        transform.localRotation = Quaternion.EulerRotation(0, transform.localRotation.eulerAngles.y, 0);
+        transform.position += Vector3.up * 2;
     }
 
     /// <summary>
