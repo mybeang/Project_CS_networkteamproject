@@ -22,27 +22,29 @@ public class WarpManager : NetworkBehaviour
     {
         if (_isWarp) // 워프가 가능하다면
         {
-            while (true)
+            if (IsOwner)
             {
-                int randomIndex = Random.Range(0, _warps.Count); // 랜덤 번호표
-
-                Transform targetWarp = _warps[randomIndex]; // 랜덤값 해당 워프위치에 부여
-
-                if (targetWarp == other.transform) // 만약 랜덤한 위치가 본인자리라면?
+                while (true)
                 {
-                    continue; // 무시하고 다시 번호표 뽑기
-                }
+                    int randomIndex = Random.Range(0, _warps.Count); // 랜덤 번호표
 
-                else // 그외 위치 변경
-                {
-                    // 서버에 요청 -> 모든 클라이언트가 동기화 실행
-                    RequestActionServerRpc(targetWarp.position);
-                    _isWarp = false; // 또 다시 워프되지 않게 false 반환
-                    break;
-                }
+                    Transform targetWarp = _warps[randomIndex]; // 랜덤값 해당 워프위치에 부여
 
+                    if (targetWarp == other.transform) // 만약 랜덤한 위치가 본인자리라면?
+                    {
+                        continue; // 무시하고 다시 번호표 뽑기
+                    }
+
+                    else // 그외 위치 변경
+                    {
+                        transform.position = targetWarp.position; // 대상의 위치를 워프시킨다.
+                        _isWarp = false; // 또 다시 워프되지 않게 false 반환
+                        break;
+                    }
+
+                }
             }
-
+            
         }
     }
 
@@ -73,21 +75,5 @@ public class WarpManager : NetworkBehaviour
             _warps.Add(obj);// 찾았으면 추가
         }
     }
-
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    // 클라이언트가 요청, 서버가 실행
-    private void RequestActionServerRpc(Vector3 newPosition)
-    {
-        transform.position = newPosition;
-        RequestActionClientRpc(transform.position);
-    }
-
-    [Rpc(SendTo.ClientsAndHost, InvokePermission = RpcInvokePermission.Everyone)]
-    // 서버가 호출,클라이언트에서 실행
-    private void RequestActionClientRpc(Vector3 newPosition)
-    {
-        transform.position = newPosition;
-    }
-
 
 }
