@@ -45,14 +45,12 @@ public class testTankCreate : NetworkBehaviour
         player.SetActive(true);
         player.name = "[Driver]";
         player.GetComponent<NetworkObject>().SpawnAsPlayerObject(0);
-        player.GetComponent<RemoteController>().SetControllerData(true, t.GetComponent<teststCode>());
         Debug.Log($"플레이어 생성 완료: {0}");
 
         player = Instantiate(testPlayer);
         player.SetActive(true);
         player.name = "[Gunner]";
         player.GetComponent<NetworkObject>().SpawnAsPlayerObject(1);
-        player.GetComponent<RemoteController>().SetControllerData(false, t.GetComponent<teststCode>());
         Debug.Log($"플레이어 생성 완료: {1}");
 
         Debug.Log($"탱크생성! {0}, {1}");
