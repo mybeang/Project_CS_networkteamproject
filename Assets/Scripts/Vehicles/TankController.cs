@@ -1,11 +1,6 @@
 ﻿using System.Collections;
-using System.Runtime.CompilerServices;
 using Unity.Netcode;
-using Unity.Netcode.Components;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
-using UnityEngine.Windows;
 
 public class TankController : NetworkBehaviour, IDamageableObject
 {
@@ -262,5 +257,10 @@ public class TankController : NetworkBehaviour, IDamageableObject
         _driverUI.GetComponent<Driver_UI_Tank>().ChangeVehicleHealth(_hp.Value / _stat.VechicleMaximumHP); // TODO : 나중에 UI script를 cashing해서 사용하기
         if (_hp.Value <= 0)
             ServiceLocator.Get<IGameManager>().OnDestoryVehicleServerRpc(_self, enemy);
+    }
+
+    public void ExplosionDamaged(System.Numerics.Vector3 expsPos, int dmg, PlayerTeamEnum enemy)
+    {
+        
     }
 }
