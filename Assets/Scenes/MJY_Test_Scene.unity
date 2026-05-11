@@ -446,11 +446,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 885689288147325094, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 885689288147325094, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2455642622109859123, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
       propertyPath: m_Pivot.x
@@ -538,7 +538,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6698363812054807566, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -548,6 +548,11 @@ PrefabInstance:
 --- !u!224 &287847908 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2455642622109859123, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
+  m_PrefabInstance: {fileID: 287847907}
+  m_PrefabAsset: {fileID: 0}
+--- !u!223 &287847909 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 4349004328924970020, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
   m_PrefabInstance: {fileID: 287847907}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &524812469
@@ -806,7 +811,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 385496679469055113, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1185007450411204267, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
       propertyPath: m_Name
@@ -814,7 +819,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1185007450411204267, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8760981936563763657, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
       propertyPath: m_Pivot.x
@@ -1539,7 +1544,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1949716858}
   - {fileID: 1575766771}
   - {fileID: 110889931}
   m_Father: {fileID: 1943771448}
@@ -2002,7 +2006,7 @@ GameObject:
   - component: {fileID: 1943771438}
   - component: {fileID: 1943771449}
   m_Layer: 7
-  m_Name: Tank_Black (1)
+  m_Name: Tank_basic
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2086,11 +2090,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileManager
   ShowTopMostFoldoutHeaderGroup: 1
-  _mainCam: {fileID: 110889928}
   _vechicleSO: {fileID: 11400000, guid: 7293aaab1e87101499a92eaed4577e34, type: 2}
   _damageableObject:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 128
   _onDebugLog: 1
 --- !u!114 &1943771444
 MonoBehaviour:
@@ -2257,69 +2260,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VehicleMovement
   ShowTopMostFoldoutHeaderGroup: 1
   _vehicleData: {fileID: 0}
-  _rb: {fileID: 0}
-  _currentHP:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  _isInvulnerable:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  _driverUICanvas: {fileID: 0}
---- !u!1 &1949716857
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1949716858}
-  - component: {fileID: 1949716859}
-  m_Layer: 0
-  m_Name: ProjectileManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1949716858
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1949716857}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.57291, y: -5.85, z: 3.0891032}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1268662265}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1949716859
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1949716857}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38d0e16dc64252b4c9f9c32a3393b5cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectileManager
-  ShowTopMostFoldoutHeaderGroup: 1
-  _mainCam: {fileID: 110889928}
-  _vechicleSO: {fileID: 0}
-  _damageableObject:
-    serializedVersion: 2
-    m_Bits: 128
-  _onDebugLog: 0
+  _rb: {fileID: 1943771438}
+  _driverUICanvas: {fileID: 287847909}
 --- !u!1001 &1972005011
 PrefabInstance:
   m_ObjectHideFlags: 0
