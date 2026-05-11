@@ -2,8 +2,9 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEditor.PlayerSettings;
 
-public class VehicleMovement : NetworkBehaviour
+public class VehicleMovement : NetworkBehaviour, IImpactForce
 {
 
     [Header("기본 설정")]
@@ -13,7 +14,6 @@ public class VehicleMovement : NetworkBehaviour
     [Header("UI")]
     [SerializeField] private Canvas _driverUICanvas;
 
-    private Driver_UI_Tank _driverUI; // TODO : 나중에 상위 객체를 받아서 전환하게 바꾸기
     private InputSystem_Actions _inputActions;
 
     private bool canMove;
@@ -40,11 +40,6 @@ public class VehicleMovement : NetworkBehaviour
             // 타인 차량은 물리 연산을 끄고 위치만 동기화받음 (호스트/클라이언트 공통 최적화)
             _rb.isKinematic = true;
         }
-
-        if (!IsOwner)
-            return;
-        _driverUI = _driverUICanvas.GetComponent<Driver_UI_Tank>();
-        _driverUICanvas.enabled = true;
     }
 
     private void Awake()
@@ -54,6 +49,7 @@ public class VehicleMovement : NetworkBehaviour
 
     private void OnEnable()
     {
+        _driverUICanvas.enabled = true;
         StartCoroutine(Freeze());
         _inputActions.Player.Move.performed += Movement;
         _inputActions.Player.Move.canceled += Movement;
@@ -66,6 +62,7 @@ public class VehicleMovement : NetworkBehaviour
         _inputActions.Player.Move.performed -= Movement;
         _inputActions.Player.Move.canceled -= Movement;
         _inputActions.Disable();
+        _driverUICanvas.enabled = false;
     }
 
     IEnumerator Freeze()
@@ -86,23 +83,25 @@ public class VehicleMovement : NetworkBehaviour
         if (!IsOwner || !canMove) return;
         Vector2 input = ctx.ReadValue<Vector2>();
         lastInput = input;
-
-        // 여기서 나중에 ServerRpc 혹은 ClientRpc로 전달하면 될듯...?
     }
 
     private void FixedUpdate()
     {
         if (!IsOwner || !canMove) return;
 
-        // TODO : 경사로에서 회전시 일정 회전이 후 회전 불가 현상 해결 필요.
-
-        Vector3 tempVector = transform.forward * lastInput.y * _vehicleData.VechicleMoveSpeed;
-        _rb.linearVelocity = new Vector3(tempVector.x, _rb.linearVelocity.y, tempVector.z);
-        _rb.angularVelocity = _rb.angularVelocity + (transform.up * lastInput.x) * _vehicleData.VechicleRotationSpeed;
-
-        if (lastInput.y == 0 && Physics.Raycast(transform.position, transform.up * -1, 1))
+        if (Physics.Raycast(transform.position, transform.up * -1, 1))
         {
-            _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
+            if (lastInput.y == 0)
+            {
+                _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
+            }
+            else
+            {
+                // TODO : 경사로에서 회전시 일정 회전이 후 회전 불가 현상 해결 필요.
+                Vector3 tempVector = transform.forward * lastInput.y * _vehicleData.VechicleMoveSpeed;
+                _rb.linearVelocity = new Vector3(tempVector.x, _rb.linearVelocity.y, tempVector.z);
+                _rb.angularVelocity = _rb.angularVelocity + (transform.up * lastInput.x) * _vehicleData.VechicleRotationSpeed;
+            }
         }
 
         // 입력 부재 시 미끄럼 방지 (Sticky Friction) 필요한지 검증 후 적용
@@ -117,8 +116,9 @@ public class VehicleMovement : NetworkBehaviour
     /// <summary>
     /// 여기에 물리 충격에 대한 설정
     /// </summary>
-    public void ImpactPhysic(Vector3 pos, Vector3 dir, float power)
+    public void ImpactPhysic(float explosionForce, Vector3 explosionPosition, float explosionRadius, float upwardsModifier)
     {
-        
+        // TODO : 반드시 ProjectileManager에서 호출 하는 부분 추가할 것.
+        _rb.AddExplosionForce(explosionForce, explosionPosition, explosionRadius, upwardsModifier, ForceMode.Impulse);
     }
 }

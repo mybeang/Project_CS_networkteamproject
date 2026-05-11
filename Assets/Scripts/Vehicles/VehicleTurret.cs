@@ -32,14 +32,11 @@ public class VehicleTurret : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
         _inputActions = new InputSystem_Actions();
-
-        
-
-        _gunnerUICanvas.enabled = true;
     }
 
     private void OnEnable()
     {
+        _gunnerUICanvas.enabled = true;
         _inputActions.Player.Move.performed += TurretMovement;
         _inputActions.Player.Move.canceled += TurretMovement;
         _inputActions.Player.Attack.performed += Shot;
@@ -52,6 +49,7 @@ public class VehicleTurret : NetworkBehaviour
         StopCoroutine(RotatoinUpdater());
         _inputActions.Player.Move.performed -= TurretMovement;
         _inputActions.Player.Move.canceled -= TurretMovement;
+        _gunnerUICanvas.enabled = false;
     }
 
     public void SetGunnerData(PlayerableStatisticsSO so, TeamInfo team)
