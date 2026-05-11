@@ -6,8 +6,6 @@ public class SettingPanelController : MonoBehaviour
 {
     private InputSystem_Actions _input; // 인풋시스템
 
-    [SerializeField] private int _sceneId; // 로비로 전환될 씬Id
-
     [SerializeField] private GameObject _panel; // UI판넬 갖고오기
     [SerializeField] private Button _continueButton;
     [SerializeField] private Button _returnButton;
@@ -75,7 +73,8 @@ public class SettingPanelController : MonoBehaviour
     public void OnReturnToLobbyButton()
     {
         // 로비로 돌아갈 시 연결 먼저 끊어준다.
-        ServiceLocator.Get<IRoomManager>()?.LeaveRoom();
-        ServiceLocator.Get<ILocalSceneLoader>()?.LoadScene(_sceneId);
+        ServiceLocator.Get<ILobbyManager>()?.LeaveRoom();
+        ServiceLocator.Get<IRelayHostManager>()?.Disconnect();
+        ServiceLocator.Get<ILocalSceneLoader>()?.LoadScene("LobbyList");
     }
 }
