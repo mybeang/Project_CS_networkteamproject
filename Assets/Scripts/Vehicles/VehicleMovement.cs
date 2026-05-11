@@ -1,4 +1,5 @@
-﻿using Unity.Netcode;
+﻿using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -40,26 +41,38 @@ public class VehicleMovement : NetworkBehaviour
             _rb.isKinematic = true;
         }
 
-        canMove = true;
-
         if (!IsOwner)
             return;
         _driverUI = _driverUICanvas.GetComponent<Driver_UI_Tank>();
         _driverUICanvas.enabled = true;
-
-        _inputActions = new InputSystem_Actions();
-
-        _inputActions.Player.Move.performed += Movement;
-        _inputActions.Player.Move.canceled += Movement;
     }
 
-    private void OnDestroy()
+    private void Awake()
     {
-        if (_driverUICanvas.enabled)
-        {
-            _inputActions.Player.Move.performed -= Movement;
-            _inputActions.Player.Move.canceled -= Movement;
-        }
+        _inputActions = new InputSystem_Actions(); // TODO : 메니저 할당 후 재 편성
+    }
+
+    private void OnEnable()
+    {
+        StartCoroutine(Freeze());
+        _inputActions.Player.Move.performed += Movement;
+        _inputActions.Player.Move.canceled += Movement;
+        _inputActions.Enable();
+    }
+
+    private void OnDisable()
+    {
+        canMove = false;
+        _inputActions.Player.Move.performed -= Movement;
+        _inputActions.Player.Move.canceled -= Movement;
+        _inputActions.Disable();
+    }
+
+    IEnumerator Freeze()
+    {
+        canMove = false;
+        yield return new WaitForSeconds(1f);
+        canMove = true;
     }
 
     // 상위 객체에서 관리 되는
@@ -68,7 +81,7 @@ public class VehicleMovement : NetworkBehaviour
         _vehicleData = so;
     }
 
-    public void Movement(InputAction.CallbackContext ctx)
+    public void Movement(InputAction.CallbackContext ctx) // TODO : TankController에서 사망 상태 
     {
         if (!IsOwner || !canMove) return;
         Vector2 input = ctx.ReadValue<Vector2>();
@@ -99,16 +112,6 @@ public class VehicleMovement : NetworkBehaviour
             Vector3 vel = Vector3.ProjectOnPlane(rb.linearVelocity, Vector3.up);
             rb.AddForce(-vel * 0.5f, ForceMode.VelocityChange);
         }*/
-    }
-
-    private void KillLog()
-    {
-        // 게임 매니저에 킬로그 Action에 등록
-    }
-
-    public void ShowScoreUI()
-    {
-
     }
 
     /// <summary>
