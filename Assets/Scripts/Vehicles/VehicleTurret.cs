@@ -23,6 +23,8 @@ public class VehicleTurret : NetworkBehaviour
 
     private TeamInfo _teamInfo;
 
+    private WaitForSeconds _tick;
+
     private bool isReloading;
     private float _canonAngle;
 
@@ -32,6 +34,11 @@ public class VehicleTurret : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
         _inputActions = new InputSystem_Actions();
+    }
+
+    private void Awake()
+    {
+        _tick = new WaitForSeconds(0.2f);
     }
 
     private void OnEnable()
@@ -66,7 +73,8 @@ public class VehicleTurret : NetworkBehaviour
         while(_vehicleData.VechicleReloadtime <= _currentTime)
         {
             _currentTime += Time.time - _startTime;
-            yield return null;
+            _gunnerUI.UpdateToReloadUI( (float)_currentTime / _vehicleData.VechicleReloadtime);
+            yield return _tick; // TODO : 나중에 Tick으로 전환 및 
         }
         isReloading = false;
     }
@@ -98,6 +106,7 @@ public class VehicleTurret : NetworkBehaviour
     {
         if (!IsLocalPlayer && !isReloading) return;
         _projectile.Shot(_gunnerCam.transform, _teamInfo.GetTeamNum());
+        _gunnerUI.Fire();
         StartCoroutine(ReLoad());
     }
 }

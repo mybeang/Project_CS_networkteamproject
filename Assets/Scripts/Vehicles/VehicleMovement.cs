@@ -88,7 +88,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         _vehicleData = so;
     }
 
-    public void Movement(InputAction.CallbackContext ctx) // TODO : TankController에서 사망 상태 
+    public void Movement(InputAction.CallbackContext ctx)
     {
         if (!IsOwner || !canMove) return;
         Vector2 input = ctx.ReadValue<Vector2>();
