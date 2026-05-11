@@ -11,21 +11,13 @@ public class TeamContainer
     public TeamInfo[] teams;
 }
 
-[Serializable]
-public class GameObjectMap
-{
-    public GameObject GunnerObject;
-    public GameObject DriverObject;
-    public GameObject BodyObject;
-}
-
 public class GameManager : NetworkManager<GameManager>, IGameManager
 {
     #region Show_in_Inspector_Variable
     [Header("플레이어(조종) 객체")]
     [SerializeField] private GameObject _playerObject;
     [Header("이동 객체 관련")]
-    [SerializeField][Tooltip("전차 등의 객체(Prefab)을 직접 넣는 곳")] private GameObject[] _playerablePrefabs;
+    [SerializeField][Tooltip("전차 등의 객체(Prefab)을 직접 넣는 곳")] private GameObject[] _playerPrefabs;
     [Header("게임 정보들")]
     [SerializeField] private double _basicSpawnTime;
     [SerializeField][Range(60, 1800)] private int _gamePlayableTime;
@@ -53,7 +45,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private Coroutine _timerCoroutine;
     private Coroutine _triggerTimerCoroutine;
 
-    private Dictionary<PlayerTeamEnum, GameObjectMap> _managementObject = new();
+    private Dictionary<PlayerTeamEnum, GameObject> _managementObject = new();
     private EventScheduleManager _eventScheduleManager;
     #endregion
 
@@ -284,28 +276,11 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             Debug.Log($"[GameManager] Setting {team.teamNum}");
             ulong driverId = 0L;
             ulong gunnerId = 0L;
-            foreach (var player in team.players)
-            {
-                if (player.role == PlayerRole.Driver)
-                {
-                    // Driver
-                    driverId = player.clientId;
-                    var driverObj= CreatePlayerObject(team, player);
-                    _managementObject[team.teamNum].DriverObject = driverObj;
-                    Debug.Log($"[GameManager] 조종수 객체 : {driverObj.name} 생성 완료");
-                }
-                else
-                {
-                    // Gunner
-                    var gunnerObj = CreatePlayerObject(team, player);
-                    _managementObject[team.teamNum].GunnerObject = gunnerObj;
-                    Debug.Log($"[GameManager] 사수 객체 : {gunnerObj.name} 생성 완료");
-                }
-            }
+            
             // Body
             try
             {
-                GameObject bodyObj = Instantiate(_playerablePrefabs[(int)team.vehicle]);
+                GameObject bodyObj = Instantiate(_playerPrefabs[(int)team.vehicle]);
                 bodyObj.SetActive(true);
                 bodyObj.name = $"{team.teamNum.ToString()}_{team.vehicle.ToString()}";
                 // tankPos
@@ -318,7 +293,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 var tc = bodyObj.GetComponent<TankController>();
                 Debug.Log($"[GameManager] {bodyObj.name}'s team: {team.teamNum}");
                 tc.SetDataClientRpc(team.teamNum);
-                _managementObject[team.teamNum].BodyObject = bodyObj;
+                _managementObject[team.teamNum] = bodyObj;
 
                 Debug.Log($"[GameManager] 이동 객체 : {bodyObj.name} 생성 완료");
             }
@@ -334,9 +309,9 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     // 소환된 경우 모든 Client 들에게 알려야함.
     private void ReSpawnVehicle(PlayerTeamEnum team, Vector3 pos) 
     {
-        var bodyObject = _managementObject[team].BodyObject;
+        var bodyObject = _managementObject[team];
         bodyObject.GetComponent<TankController>().RespawnClientRpc(pos);
-        Debug.Log($"{_managementObject[team].BodyObject.name} 리스폰 완료");
+        Debug.Log($"{_managementObject[team].name} 리스폰 완료");
     }
 
     /// <summary>
@@ -351,7 +326,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         // 이동 수단 비활성화 및 플레그 호출
         // ToDO. 탱크가 스스로 GameManager 에게 요청을 보내야함.
         // ToDO. 맞은 놈은 disable 되게, 때린놈은 킬로그 요청 하게.
-        _managementObject[myTeam].BodyObject.SetActive(false);
+        _managementObject[myTeam].SetActive(false);
         // TODO : 플레그 관련 호출 정의될 시 여기서 호출
         var respawnPos = ServiceLocator.Get<IMapManager>().GetStartPoint(myTeam);
         _RespawnTimer[(int)myTeam] = _currentTime + _basicSpawnTime;
@@ -436,9 +411,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
             if (IsServer)
             {
-                _managementObject[team.teamNum].BodyObject.GetComponent<TankController>().GameEndProcessClientRpc();
-                _managementObject[team.teamNum].GunnerObject.GetComponent<PlayerController>().GameEndProcessClientRpc();
-                _managementObject[team.teamNum].DriverObject.GetComponent<PlayerController>().GameEndProcessClientRpc();
+                _managementObject[team.teamNum].GetComponent<TankController>().GameEndProcessClientRpc();
             }
             
             switch (team.teamNum)

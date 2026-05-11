@@ -105,12 +105,8 @@ public class TankController : NetworkBehaviour, IDamageableObject
         if (userInfo.role == PlayerRole.Driver)
         {
             _hp.Value = _stat.VechicleMaximumHP;
-            TurnOnDriverUI();
         }
-        else
-        {
-            TurnOnGunnerUI();
-        }
+        
         _reloadTime = _stat.VechicleReloadtime;
         Debug.Log("[TankController] Init Tank ... Completed");
     }
@@ -128,137 +124,6 @@ public class TankController : NetworkBehaviour, IDamageableObject
         _isDamageable = false;
         _canMove = false;
         _coroutine = StartCoroutine(SpawnDelay());
-    }
-
-    // tank에서 driver, gunner 초기화가 이루어졌다면 UI를 작동시킴.
-    void TurnOnDriverUI()
-    {
-        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
-        if (userInfo.role != PlayerRole.Driver) return;
-
-        //탱크 player에게 할당해주기
-        var localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject;
-        if (localPlayer != null && localPlayer.TryGetComponent(out PlayerController pc))
-        {
-            pc._myTank = this;
-        }
-
-        if (_UI == null) _UI = Instantiate(_driverUI);
-
-        //테스트용 mainCam 끄기
-        Camera mainCam = Camera.main;
-        if (mainCam != null) mainCam.gameObject.SetActive(false);
-        _camBody.gameObject.SetActive(true);
-    }
-    void TurnOnGunnerUI()
-    {
-        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
-        if (userInfo.role != PlayerRole.Gunner) return;
-
-        //탱크 player에게 할당해주기
-        var localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject;
-        if (localPlayer != null && localPlayer.TryGetComponent(out PlayerController pc))
-        {
-            pc._myTank = this;
-        }
-
-        if (_UI == null) _UI = Instantiate(_gunnerUI);
-
-        //테스트용 mainCam 끄기
-        Camera mainCam = Camera.main;
-        if (mainCam != null) mainCam.gameObject.SetActive(false);
-        _camTurret.gameObject.SetActive(true);
-    }
-
-    //Body 자체를 회전하고 움직이는 함수
-    // serverRpc로 안하니까 owner가 아닌 클라이언트에서 transform을 동기화 할 수가 없음.
-    [ServerRpc]
-    public void MoveBodyServerRpc(Vector2 input)
-    {
-        transform.Rotate(0, input.x * _stat.VechicleRotationSpeed * Time.deltaTime, 0);
-
-        Vector3 moveDir = transform.forward * (input.y * _stat.VechicleMoveSpeed);
-
-        if (Physics.Raycast(transform.position, Vector3.down, out _rayHit, 0.1f))
-        {
-            moveDir = Vector3.ProjectOnPlane(moveDir, _rayHit.normal).normalized;
-            Quaternion rotation = Quaternion.FromToRotation(transform.up, _rayHit.normal) * transform.rotation;
-
-            transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * _stat.VechicleRotationSpeed);
-        }
-
-        if (input.y == 0)
-            _rigidbody.linearVelocity = new Vector3(0, _rigidbody.linearVelocity.y, 0);
-        else
-            _rigidbody.linearVelocity = new Vector3(moveDir.x, _rigidbody.linearVelocity.y, moveDir.z);
-    }
-
-    //Turret을 회전하는 함수
-    private Vector2 _lastInput; // 마지막에 어떻게 움직였는지 기록해놓고
-    private bool _isHorizontalMode; // 수평, 수직방향중 한번에 하나의 방향으로만 움직일 수 있음.
-
-    [ServerRpc]
-    public void MoveTurretServerRpc(Vector2 input)
-    {
-        // 마지막에 입력된 축을 우선판정 
-        if (input.x != 0 && _lastInput.x == 0)
-        {
-            _isHorizontalMode = true;
-        }
-        else if (input.y != 0 && _lastInput.y == 0)
-        {
-            _isHorizontalMode = false;
-        }
-
-        _lastInput = input;
-
-
-        // 수평 회전
-        if (_isHorizontalMode && input.x != 0)
-        {
-            _turret.Rotate(
-                0,
-                input.x * _stat.TurretHorizontalRotationSpeed * Time.deltaTime,
-                0,
-                Space.Self
-            );
-        }
-
-        // 수직 회전
-        if (!_isHorizontalMode && input.y != 0)
-        {
-            Vector3 localRot = _turret.localEulerAngles;
-
-            // 현재 각도 변환
-            float pitch = localRot.x;
-            if (pitch > 180f)
-                pitch -= 360f;
-
-            // 목표 각도 계산
-            float targetPitch = pitch - (input.y * _stat.TurretVerticalRotationSpeed * Time.deltaTime);
-
-            // 예시) MaxElevationAngle = 60 ,MaxDepressionAngle = 30
-            // ->   -30 ~ +60 제한
-            targetPitch = Mathf.Clamp(
-                targetPitch,
-                -_stat.TurretMaximumDepressionAngle,
-                _stat.TurretMaximumElevationAngle
-            );
-
-            localRot.x = targetPitch;
-            _turret.localEulerAngles = localRot;
-        }
-    }
-
-    public void Shoot()
-    {
-        Debug.Log("_projectileManager.Shot()");
-
-        //재장전시간 체크
-        if (_reloadTime > 0) return;
-        _reloadTime = _stat.VechicleReloadtime;
-
-        _projectileManager.Shot(_teamNum);
     }
 
     public void KillLog(PlayerTeamEnum enemy)
