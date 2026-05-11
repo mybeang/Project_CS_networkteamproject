@@ -1020,6 +1020,52 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1341502078419221943
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2987728656733584610}
+  - component: {fileID: 5257062957654284228}
+  m_Layer: 0
+  m_Name: EventScheduleManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2987728656733584610
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1341502078419221943}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 20.53485, y: 0, z: -47.54097}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 282807880066366722}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5257062957654284228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1341502078419221943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db447072f04a15b4ea8e6b009abad07e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EventScheduleManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  _events: {fileID: 5838874639591613978}
 --- !u!1 &1570039852970314935
 GameObject:
   m_ObjectHideFlags: 0
@@ -1191,9 +1237,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4358484932642354776}
+  - component: {fileID: 3776887454876216280}
   - component: {fileID: 5838874639591613978}
   m_Layer: 0
-  m_Name: TornadoGimmicManager
+  m_Name: TornadoGimmicEventTask
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1214,6 +1261,31 @@ Transform:
   m_Children: []
   m_Father: {fileID: 282807880066366722}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3776887454876216280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1877523275612695164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 507294981
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!114 &5838874639591613978
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1226,6 +1298,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf3f9ecb851fcf24fa277736fc8910df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TornadoGimmicManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  eventName: TornadoEvent
+  excuteTime:
+  - 120
+  - 240
+  - 360
+  - 480
+  stopTriggerTime:
+  - 180
+  - 300
+  - 420
+  - 599
   _tornadoPrefab: {fileID: 7107903219437260788, guid: 5924a2b73029d0a4fb579c0dd1870073, type: 3}
   _wayPoints:
   - wayPoint:
@@ -1255,8 +1339,8 @@ MonoBehaviour:
     - {x: 40, y: 0, z: -40}
     - {x: -40, y: 0, z: -40}
     - {x: -40, y: 0, z: 40}
-  _MaxTornados: 3
-  _numOfSpawns: 3
+  _MaxTornados: 10
+  _numOfSpawns: 0300000005000000070000000a000000
 --- !u!1 &2113871449686004683
 GameObject:
   m_ObjectHideFlags: 0
@@ -2711,6 +2795,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2987728656733584610}
   - {fileID: 4358484932642354776}
   m_Father: {fileID: 275404582645079290}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

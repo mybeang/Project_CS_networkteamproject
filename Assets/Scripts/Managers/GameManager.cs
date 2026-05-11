@@ -36,7 +36,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private bool _hasEventEndtimer;
 
     private double _startTime;
-    private double _currentTime;
+    private double _elapsedTime;
     private double[] _RespawnTimer;
     private double[] _eventTimer;
     private double[] _eventEndTimer;
@@ -116,22 +116,22 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     IEnumerator Timer()
     {
         _startTime = NetworkManager.Singleton.ServerTime.Time;
-        _currentTime = 0;
-        Debug.Log("타이머 시작됌");
-        while (_currentTime <= _gamePlayableTime)
+        _elapsedTime = 0;
+        Debug.Log("[GameManager] Game Start ... Starting Timer");
+        while (_elapsedTime <= _gamePlayableTime)
         {
-            _currentTime = NetworkManager.Singleton.ServerTime.Time - _startTime;
-            OnChangeTime?.Invoke((int)(_gamePlayableTime - _currentTime));
+            _elapsedTime = NetworkManager.Singleton.ServerTime.Time - _startTime;
+            OnChangeTime?.Invoke((int)(_gamePlayableTime - _elapsedTime));
             if (IsServer && _eventScheduleManager != null)
             {
-                if (_eventCounter < _eventTimer.Length &&_eventTimer[_eventCounter] <= _currentTime)
+                if (_eventCounter < _eventTimer.Length &&_eventTimer[_eventCounter] <= _elapsedTime)
                 {
                     if (_eventEndTimer != null && _eventCounter < _eventEndTimer.Length)
                         _isEventEndTimer = true;
                     _eventScheduleManager.OnEventSpawnServerRpc();
                     _eventCounter++;
                 }
-                else if (_isEventEndTimer && _eventEndTimer != null && _eventEndTimer[_eventCounter - 1] <= _currentTime)
+                else if (_isEventEndTimer && _eventEndTimer != null && _eventEndTimer[_eventCounter - 1] <= _elapsedTime)
                 {
                     _isEventEndTimer = false;
                     _eventScheduleManager.OnEventDespawnServerRpc();
@@ -333,7 +333,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         // 이동 수단 비활성화 및 플레그 호출
         if (!IsServer) return;
         var respawnPos = ServiceLocator.Get<IMapManager>().GetStartPoint(myTeam);
-        _RespawnTimer[(int)myTeam] = _currentTime + _basicSpawnTime;
+        _RespawnTimer[(int)myTeam] = _elapsedTime + _basicSpawnTime;
         if (_triggerTimerCoroutine == null)
             _triggerTimerCoroutine = StartCoroutine(RespawnCoroutine(respawnPos));
 
@@ -368,7 +368,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             counter = 0;
             for (i = 0; i < _RespawnTimer.Length; i++)
             {
-                if (_currentTime <= _RespawnTimer[i])
+                if (_elapsedTime <= _RespawnTimer[i])
                 {
                     ReSpawnVehicle((PlayerTeamEnum)i, respawnPos);
                 }
