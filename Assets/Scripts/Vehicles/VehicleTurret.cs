@@ -14,41 +14,38 @@ public class VehicleTurret : NetworkBehaviour
 
     private InputSystem_Actions _inputActions;
 
-    private TeamInfo _myTeamInfo;
-
-
     public override void OnNetworkSpawn()
     {
-
-        // 조건 검사로 내가 탑승한 차량이 내가 조종 권한이 있는 지 확인
-
-        //if (!)
         _inputActions = new InputSystem_Actions();
 
         _inputActions.Player.Move.performed += TurretMovement;
         _inputActions.Player.Move.canceled += TurretMovement;
+        _inputActions.Enable();
     }
 
     private void OnDestroy()
     {
-        _inputActions.Player.Move.performed -= TurretMovement;
-        _inputActions.Player.Move.canceled -= TurretMovement;
+        if (_gunnerUICanvas.enabled)
+        {
+            _inputActions.Player.Move.performed -= TurretMovement;
+            _inputActions.Player.Move.canceled -= TurretMovement;
+        }
     }
 
-    public void SetData(TeamInfo info, PlayerableStatisticsSO so)
+    public void SetGunnerData(PlayerableStatisticsSO so)
     {
-        _myTeamInfo = info;
         _vehicleData = so;
+        _gunnerUICanvas.enabled = true;
     }
 
     public void TurretMovement(InputAction.CallbackContext ctx)
     {
-        // 터렛 움직임을 확정 지을 곳
+        
     }
 
     private void Shot()
     {
-        //_projectile.Shot();
+        
     }
 
 }

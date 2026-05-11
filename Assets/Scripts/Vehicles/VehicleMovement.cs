@@ -6,23 +6,17 @@ public class VehicleMovement : NetworkBehaviour, IDamageableObject
 {
 
     [Header("기본 설정")]
-    [SerializeField] private PlayerableStatisticsSO _vehicleData;
+    [SerializeField] private PlayerableStatisticsSO _vehicleData; 
     [SerializeField] private Rigidbody _rb;
-
-    [Header("HP")]
-    [SerializeField] private NetworkVariable<int> _currentHP = new NetworkVariable<int>();
-    [SerializeField] protected NetworkVariable<bool> _isInvulnerable = new NetworkVariable<bool>(false);
 
     [Header("UI")]
     [SerializeField] private Canvas _driverUICanvas;
 
     private Driver_UI_Tank _driverUI; // TODO : 나중에 상위 객체를 받아서 전환하게 바꾸기
-
     private InputSystem_Actions _inputActions;
 
     private bool canMove;
     private Vector2 lastInput;
-    private TeamInfo _myTeamInfo;
 
     public override void OnNetworkSpawn()
     {
@@ -50,7 +44,6 @@ public class VehicleMovement : NetworkBehaviour, IDamageableObject
 
         if (!IsOwner)
             return;
-        _driverUICanvas.enabled = false;
         _driverUI = _driverUICanvas.GetComponent<Driver_UI_Tank>();
 
         _inputActions = new InputSystem_Actions();
@@ -61,14 +54,18 @@ public class VehicleMovement : NetworkBehaviour, IDamageableObject
 
     private void OnDestroy()
     {
-        _inputActions.Player.Move.performed -= Movement;
-        _inputActions.Player.Move.canceled -= Movement;
+        if (_driverUICanvas.enabled)
+        {
+            _inputActions.Player.Move.performed -= Movement;
+            _inputActions.Player.Move.canceled -= Movement;
+        }
     }
 
-    public void SetTeamData(TeamInfo info, PlayerableStatisticsSO so)
+    // 상위 객체에서 관리 되는
+    public void SetDriverData(PlayerableStatisticsSO so)
     {
-        _myTeamInfo = info;
         _vehicleData = so;
+        _driverUICanvas.enabled = true;
     }
 
     public void Movement(InputAction.CallbackContext ctx)
