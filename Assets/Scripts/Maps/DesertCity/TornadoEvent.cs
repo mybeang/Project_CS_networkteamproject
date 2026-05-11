@@ -44,6 +44,7 @@ public class TornadoEvent : EventTask
     private void SpawnTornado()
     {
         if (!IsServer) return;
+        Debug.Log("[TornadoEvent] Spawning Tornado");
         for (int i = 0; i < _numOfSpawns[index++]; i++)
         {
             if (i > _MaxTornados) break;
@@ -63,10 +64,11 @@ public class TornadoEvent : EventTask
     private void DespawnAllTornado()
     {
         if (!IsServer) return;
+        Debug.Log("[TornadoEvent] Despawning Tornado");
         foreach (GameObject tornado in _activeTorndos)
         {
-            tornado.SetActive(false);
             tornado.GetComponent<NetworkObject>().Despawn();
+            tornado.SetActive(false);
             _pool.Enqueue(tornado);
         }
         _activeTorndos.Clear();

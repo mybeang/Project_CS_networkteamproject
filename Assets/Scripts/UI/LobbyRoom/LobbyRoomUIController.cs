@@ -347,7 +347,7 @@ public class LobbyRoomUIController : MonoBehaviour
         var lobby = ServiceLocator.Get<ILobbyManager>();
         if (_mapImages.Count != 0)
         {
-            int tempNumber = _selectedMapNumber + 1;
+            int tempNumber = _selectedMapNumber - 1;
             if (tempNumber < 0) tempNumber = _mapImages.Count - 1;
             db.SetMapNumberAsync(lobby.GetRoomID(), tempNumber);
         }

@@ -64,12 +64,12 @@ public class TankController : NetworkBehaviour, IDamageableObject
     {
         Debug.Log("[TankController] Init Tank ... ");
         var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
-        if (_teamNum != userInfo.teamNum) return;
         Debug.Log($"[TankController] Init Tank ... My team is {_teamNum}");
         Debug.Log($"[TankController] Init Tank ... Change Color {_material.name}");
         GetComponent<MeshRenderer>().material = _material;
         if (userInfo.role == PlayerRole.Driver)
             _hp.Value = _stat.VechicleMaximumHP;
+        _movement.SetDriverData(_stat);
         _turret.SetGunnerData(_stat, ServiceLocator.Get<IGameManager>().GetMyTeamInfo(_teamNum));
         Debug.Log("[TankController] Init Tank ... Completed");
     }

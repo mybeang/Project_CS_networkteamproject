@@ -33,8 +33,8 @@ public class ResultUIController : MonoBehaviour
 
     private void UpdateUI()
     {
-        if (_teams == null) return;
         GetTeams();
+        if (_teams == null) return;
         SetData();
         CandidateWinner();
     }

@@ -104,7 +104,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     
     public void AddEventSchedule(EventScheduleManager eventSchedulemanager)
     {
-        Debug.Log($"[{name}] {eventSchedulemanager.name} 등록됌");
+        Debug.Log($"[GameManager] Add Event Schedule; {eventSchedulemanager.name} ");
         _eventScheduleManager = eventSchedulemanager;
         _eventTimer = _eventScheduleManager.GetTimer();
         _eventEndTimer = eventSchedulemanager.GetStopTimer();
@@ -128,13 +128,15 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 {
                     if (_eventEndTimer != null && _eventCounter < _eventEndTimer.Length)
                         _isEventEndTimer = true;
-                    _eventScheduleManager.OnEventSpawnServerRpc();
+                    Debug.Log("[GameManager] Catch Event");
+                    _eventScheduleManager.OnEventSpawn();
                     _eventCounter++;
                 }
                 else if (_isEventEndTimer && _eventEndTimer != null && _eventEndTimer[_eventCounter - 1] <= _elapsedTime)
                 {
+                    Debug.Log("[GameManager] Release Event");
                     _isEventEndTimer = false;
-                    _eventScheduleManager.OnEventDespawnServerRpc();
+                    _eventScheduleManager.OnEventDespawn();
                 }
             }
             yield return _tick;
@@ -259,15 +261,6 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _timerCoroutine = StartCoroutine(Timer());
         _startGameState.Value++;
     }
-
-    private GameObject CreatePlayerObject(TeamInfo team, PlayerInfo player)
-    {
-        GameObject obj = Instantiate(_playerObject, transform);
-        obj.SetActive(true);
-        obj.name = $"{team.teamNum.ToString()}_{player.role}";
-        obj.GetComponent<NetworkObject>().SpawnAsPlayerObject(player.clientId,true);
-        return obj;
-    }
     
     private void InstantiateVehicle()
     {
@@ -282,33 +275,24 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             _managementObject[team.teamNum] = new();
             Debug.Log($"[GameManager] Setting {team.teamNum}");
             ulong driverId = 0L;
-            ulong gunnerId = 0L;
-            
+            foreach (var player in team.players)
+                if (player.role == PlayerRole.Driver) driverId = player.clientId;
             // Body
-            try
-            {
-                GameObject bodyObj = Instantiate(_playerPrefabs[(int)team.vehicle]);
-                bodyObj.SetActive(true);
-                bodyObj.name = $"{team.teamNum.ToString()}_{team.vehicle.ToString()}";
-                // tankPos
-                var pos = ServiceLocator.Get<IMapManager>().GetStartPoint(team.teamNum);
-                Debug.Log($"[GameManager] {bodyObj.name}'s pos is {pos}");
-                bodyObj.transform.position = pos;
-                // Spawn on Network
-                bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
-                // set data; team and teamColor
-                var tc = bodyObj.GetComponent<TankController>();
-                Debug.Log($"[GameManager] {bodyObj.name}'s team: {team.teamNum}");
-                tc.SetDataClientRpc(team.teamNum);
-                _managementObject[team.teamNum] = bodyObj;
-
-                Debug.Log($"[GameManager] 이동 객체 : {bodyObj.name} 생성 완료");
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e.Message);
-                throw;
-            }
+            GameObject bodyObj = Instantiate(_playerPrefabs[(int)team.vehicle]);
+            bodyObj.SetActive(true);
+            bodyObj.name = $"{team.teamNum.ToString()}_{team.vehicle.ToString()}";
+            // tankPos
+            var pos = ServiceLocator.Get<IMapManager>().GetStartPoint(team.teamNum);
+            Debug.Log($"[GameManager] {bodyObj.name}'s pos is {pos}");
+            bodyObj.transform.position = pos;
+            // Spawn on Network
+            bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
+            // set data; team and teamColor
+            var tc = bodyObj.GetComponent<TankController>();
+            Debug.Log($"[GameManager] {bodyObj.name}'s team: {team.teamNum}");
+            tc.SetDataClientRpc(team.teamNum);
+            _managementObject[team.teamNum] = bodyObj;
+            Debug.Log($"[GameManager] {bodyObj.name} 생성 완료");
         }
         _startGameState.Value++;
     }
@@ -391,7 +375,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         Debug.Log("[GameManager] GameEnd ... ");
         // 이벤트 스케줄러 해제
         _eventScheduleManager = null;
-
+        _eventCounter = 0;
         // 맵 끄기
         // 음성 채널 탈퇴
         Debug.Log("[GameManager] GameEnd ... Leave VoiceChannel");

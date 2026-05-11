@@ -1301,46 +1301,25 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   eventName: TornadoEvent
   excuteTime:
-  - 120
+  - 15
   - 240
   - 360
   - 480
   stopTriggerTime:
-  - 180
+  - 30
   - 300
   - 420
   - 599
   _tornadoPrefab: {fileID: 7107903219437260788, guid: 5924a2b73029d0a4fb579c0dd1870073, type: 3}
   _wayPoints:
-  - wayPoint:
-    - {x: -35, y: 0, z: -65}
-    - {x: 65, y: 0, z: -35}
-    - {x: 65, y: 0, z: 35}
-    - {x: 35, y: 0, z: 65}
-    - {x: -35, y: 0, z: 65}
-    - {x: -65, y: 0, z: 35}
-    - {x: -65, y: 0, z: -35}
-  - wayPoint:
-    - {x: -15, y: 0, z: -40}
-    - {x: 15, y: 0, z: -40}
-    - {x: 40, y: 0, z: -15}
-    - {x: 40, y: 0, z: 15}
-    - {x: 15, y: 0, z: 40}
-    - {x: -15, y: 0, z: 40}
-    - {x: -40, y: 0, z: 15}
-    - {x: -40, y: 0, z: -15}
-  - wayPoint:
-    - {x: 65, y: 0, z: 0}
-    - {x: 0, y: 0, z: -65}
-    - {x: -65, y: 0, z: 0}
-    - {x: 0, y: 0, z: 65}
-  - wayPoint:
-    - {x: 40, y: 0, z: 40}
-    - {x: 40, y: 0, z: -40}
-    - {x: -40, y: 0, z: -40}
-    - {x: -40, y: 0, z: 40}
+  - positions: []
+  - positions: []
+  - positions: []
+  - positions: []
   _MaxTornados: 10
   _numOfSpawns: 0300000005000000070000000a000000
+  _tornadoMinSpeed: 0
+  _tornadoMaxSpeed: 0
 --- !u!1 &2113871449686004683
 GameObject:
   m_ObjectHideFlags: 0

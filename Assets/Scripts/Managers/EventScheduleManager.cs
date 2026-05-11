@@ -39,9 +39,17 @@ public class EventScheduleManager : NetworkBehaviour
 
     }
 
-    [ServerRpc]
-    public void OnEventSpawnServerRpc() => _events.OnEventSpawn();
+    public void OnEventSpawn()
+    {
+        Debug.Log($"[EventScheduleManager] Event {_events.name} ... Start ");
+        if (!IsServer) return;
+        _events.OnEventSpawn();
+    }
 
-    [ServerRpc]
-    public void OnEventDespawnServerRpc() => _events.OnEventDespawn();
+    public void OnEventDespawn()
+    {
+        Debug.Log($"[EventScheduleManager] Event {_events.name} ... Stop ");
+        if (!IsServer) return;
+        _events.OnEventDespawn();
+    }
 }

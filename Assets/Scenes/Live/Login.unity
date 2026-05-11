@@ -1647,10 +1647,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   ShowTopMostFoldoutHeaderGroup: 1
   _playerObject: {fileID: 6054779728764974554, guid: 04d763457bc101743866e3c73869a4f7, type: 3}
-  _playerablePrefabs:
+  _playerPrefabs:
   - {fileID: 3601410087486877860, guid: cfe1376f7b0488b4282f0fb106708d4e, type: 3}
   _basicSpawnTime: 10
-  _gamePlayableTime: 600
+  _gamePlayableTime: 60
 --- !u!114 &984736388
 MonoBehaviour:
   m_ObjectHideFlags: 0
