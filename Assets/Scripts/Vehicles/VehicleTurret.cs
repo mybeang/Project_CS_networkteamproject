@@ -74,7 +74,7 @@ public class VehicleTurret : NetworkBehaviour
         {
             _currentTime += Time.time - _startTime;
             _gunnerUI.UpdateToReloadUI( (float)_currentTime / _vehicleData.VechicleReloadtime);
-            yield return _tick; // TODO : 나중에 Tick으로 전환 및 
+            yield return _tick;
         }
         isReloading = false;
     }

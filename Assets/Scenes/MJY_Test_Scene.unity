@@ -222,6 +222,7 @@ GameObject:
   - component: {fileID: 38075288}
   - component: {fileID: 38075283}
   - component: {fileID: 38075282}
+  - component: {fileID: 38075291}
   m_Layer: 7
   m_Name: Tank_basic test
   m_TagString: Untagged
@@ -342,8 +343,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 38075280}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 5.35, z: 0}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -0.067, y: 5.35, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -356,7 +357,25 @@ Transform:
   - {fileID: 10695771}
   - {fileID: 485353133}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+--- !u!114 &38075291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 38075280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a4e9dc1433fbf34998ced4af6b4aa85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::teststCode
+  speed: 0
+  _canon: {fileID: 0}
+  _rb: {fileID: 38075282}
+  explosionForce: 0
+  explosionRadius: 0
+  upwardModifier: 0
 --- !u!1 &42412087
 GameObject:
   m_ObjectHideFlags: 0
@@ -2373,7 +2392,6 @@ GameObject:
   - component: {fileID: 1525835679}
   - component: {fileID: 1525835683}
   - component: {fileID: 1525835682}
-  - component: {fileID: 1525835685}
   m_Layer: 0
   m_Name: Tank_Turret
   m_TagString: Untagged
@@ -2455,20 +2473,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1525835678}
   m_Mesh: {fileID: 2212350337115244503, guid: 3d210b2be9d4b9144b53828dfc2e73e3, type: 3}
---- !u!114 &1525835685
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1525835678}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a4e9dc1433fbf34998ced4af6b4aa85, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::teststCode
-  speed: 1
-  _canon: {fileID: 317874765}
 --- !u!1 &1575766770
 GameObject:
   m_ObjectHideFlags: 0
