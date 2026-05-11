@@ -57,6 +57,11 @@ public abstract class Driver_UI : MonoBehaviour
 
         Debug.Log($"캔버스 설정 완료됌.");
     }
+    
+    public void ShowScore()
+    {
+        // 스코어 판 등록 후 여기에서 호출
+    }
 
     public abstract void UpdateKillLog(PlayerTeamEnum self, PlayerTeamEnum enemy);
 

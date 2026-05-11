@@ -19,6 +19,11 @@ public class Tank_Gunner : MonoBehaviour
         }
     }
 
+    public void ShowScore()
+    {
+        // 스코어 판 등록 후 여기에서 호출
+    }
+
     private void ReadyToFire()
     {
         _readyToFireText.SetActive(true);

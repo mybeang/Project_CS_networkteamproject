@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class VehicleMovement : NetworkBehaviour, IDamageableObject
+public class VehicleMovement : NetworkBehaviour
 {
 
     [Header("기본 설정")]
@@ -45,6 +45,7 @@ public class VehicleMovement : NetworkBehaviour, IDamageableObject
         if (!IsOwner)
             return;
         _driverUI = _driverUICanvas.GetComponent<Driver_UI_Tank>();
+        _driverUICanvas.enabled = true;
 
         _inputActions = new InputSystem_Actions();
 
@@ -65,7 +66,6 @@ public class VehicleMovement : NetworkBehaviour, IDamageableObject
     public void SetDriverData(PlayerableStatisticsSO so)
     {
         _vehicleData = so;
-        _driverUICanvas.enabled = true;
     }
 
     public void Movement(InputAction.CallbackContext ctx)
@@ -93,22 +93,29 @@ public class VehicleMovement : NetworkBehaviour, IDamageableObject
         }
 
         // 입력 부재 시 미끄럼 방지 (Sticky Friction) 필요한지 검증 후 적용
-        /*if (lastInput.magnitude < 0.05f)
+        /*
+         if (lastInput.magnitude < 0.05f)
         {
             Vector3 vel = Vector3.ProjectOnPlane(rb.linearVelocity, Vector3.up);
             rb.AddForce(-vel * 0.5f, ForceMode.VelocityChange);
         }*/
     }
 
-    public void TakeDamaged(int dmg, PlayerTeamEnum enemy)
+    private void KillLog()
     {
-        // 파괴시 GameManager OnDestoryVehcile
-        throw new System.NotImplementedException();
+        // 게임 매니저에 킬로그 Action에 등록
     }
 
-    public void ExplosionDamaged(System.Numerics.Vector3 expsPos, int dmg, PlayerTeamEnum enemy)
+    public void ShowScoreUI()
     {
-        // 폭발에 의한 밀림 지정할 곳
-        throw new System.NotImplementedException();
+
+    }
+
+    /// <summary>
+    /// 여기에 물리 충격에 대한 설정
+    /// </summary>
+    public void ImpactPhysic(Vector3 pos, Vector3 dir, float power)
+    {
+        
     }
 }

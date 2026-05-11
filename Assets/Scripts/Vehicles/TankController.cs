@@ -240,8 +240,6 @@ public class TankController : NetworkBehaviour, IDamageableObject
         //재장전시간 체크
         if (_reloadTime > 0) return;
         _reloadTime = _stat.VechicleReloadtime;
-
-        _projectileManager.Shot(_self);
     }
 
     public void KillLog(PlayerTeamEnum enemy)
