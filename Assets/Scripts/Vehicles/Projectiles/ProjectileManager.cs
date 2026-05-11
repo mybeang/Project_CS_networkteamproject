@@ -5,7 +5,6 @@ using UnityEngine;
 public class ProjectileManager : NetworkBehaviour
 {
     // raycast, 투사체 속도, 피해량, 범위, 범위별 피해 계수, 투사체 최대 비행 거리(사거리)
-    [SerializeField] Camera _mainCam;
     [SerializeField] PlayerableStatisticsSO _vechicleSO;
     [SerializeField] LayerMask _damageableObject;
 
@@ -26,13 +25,12 @@ public class ProjectileManager : NetworkBehaviour
     void Start()
     {
         _hitedTargets = new RaycastHit[5]; // 현재 게임 내에서 5개가 검출될 일은 없을 거라고 생각하지만, 설계 실수를 검출하기 위해 5개로 설정
-        _ray = new Ray(_mainCam.transform.position, _mainCam.transform.forward);
     }
 
     public void Init(PlayerableStatisticsSO so) => _vechicleSO = so;
 
     // 외부에서 호출될 코드로 호출 시 Raycast 기반으로 사격 지점과 거리를 받아온 후 해당 지점에 거리 비례 시간 후에 피해를 입히는 방식으로 작동하면 될 거 같다는 생각.
-    public void Shot(PlayerTeamEnum self)
+    public void Shot(Transform shotPos, PlayerTeamEnum self)
     {
         Debug.Log("Shot!");
 
@@ -41,7 +39,7 @@ public class ProjectileManager : NetworkBehaviour
             Debug.LogError("PlayerableStatisticsSO가 존재하지 않습니다.");
             return;
         }
-        _ray = new Ray(_mainCam.transform.position, _mainCam.transform.forward);
+        _ray = new Ray(shotPos.position, shotPos.forward);
         // raycast로 메인 카메라(사수의 카메라)의 중심(사격점)을 기준으로 가장 처음 닿은 위치(물체의 위치로 받으면 아마 물체의 중심을 받게 될거임.)를 받아온 후 DeignatDamageableGround 호출
         if (Physics.Raycast(_ray, out _targetPoint, _vechicleSO.ProjectileMaximumDinstance, _damageableObject))
         {
@@ -54,8 +52,8 @@ public class ProjectileManager : NetworkBehaviour
     {
         if (_vechicleSO == null)
             return;
-        Gizmos.color = Color.aquamarine;
-        Gizmos.DrawLine(_mainCam.transform.position, _mainCam.transform.forward * _vechicleSO.ProjectileMaximumDinstance + _mainCam.transform.position);
+        //Gizmos.color = Color.aquamarine;
+        //Gizmos.DrawLine(_mainCam.transform.position, _mainCam.transform.forward * _vechicleSO.ProjectileMaximumDinstance + _mainCam.transform.position);
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(_targetPoint.point, _vechicleSO.ProjectileMaximumDamageableRange);
