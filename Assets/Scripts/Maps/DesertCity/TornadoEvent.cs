@@ -15,7 +15,7 @@ public class TornadoEvent : EventTask
     [SerializeField] private List<WayPoint> _wayPoints;
     [SerializeField][Range(3, 20)] private int _MaxTornados;
     [SerializeField][Range(3, 20)] private int[] _numOfSpawns;
-    [SerializeField][Range(0.5f, 2f)] private float _tornadoMinSpeed;
+    [SerializeField][Range(1f, 2f)] private float _tornadoMinSpeed;
     [SerializeField][Range(5f, 20f)] private float _tornadoMaxSpeed;
     private Queue<GameObject> _pool = new();
     private List<GameObject> _activeTorndos = new();
@@ -43,8 +43,8 @@ public class TornadoEvent : EventTask
     
     private void SpawnTornado()
     {
-        if (!IsServer) return;
         Debug.Log("[TornadoEvent] Spawning Tornado");
+        if (!IsServer) return;
         for (int i = 0; i < _numOfSpawns[index++]; i++)
         {
             if (i > _MaxTornados) break;
@@ -54,6 +54,8 @@ public class TornadoEvent : EventTask
             var wayPoint = new WayPoint() { positions = SelectWayPoint() };
             string wayPointJson =  JsonUtility.ToJson(wayPoint);
             int startIndex = UnityEngine.Random.Range(0, wayPoint.positions.Count - 1);
+            Debug.Log($"[TornadoEvent] Spawning Tornado ... Start Index: {startIndex}");
+            Debug.Log($"[TornadoEvent] Spawning Tornado ... Speed : {speed}");
             tornado.SetActive(true);
             tornado.GetComponent<NetworkObject>().Spawn();
             tm.InitClientRpc(wayPointJson, startIndex, speed);
@@ -63,8 +65,8 @@ public class TornadoEvent : EventTask
 
     private void DespawnAllTornado()
     {
-        if (!IsServer) return;
         Debug.Log("[TornadoEvent] Despawning Tornado");
+        if (!IsServer) return;
         foreach (GameObject tornado in _activeTorndos)
         {
             tornado.GetComponent<NetworkObject>().Despawn();

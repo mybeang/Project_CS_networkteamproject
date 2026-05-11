@@ -27,11 +27,14 @@ public class TornadoMovement : NetworkBehaviour
     public void InitClientRpc(string wayPointsJson, int startIndex, float speed)
     {
         var wayPoint = JsonUtility.FromJson<WayPoint>(wayPointsJson);
+        Debug.Log($"[TornadoMovement] way points = ${wayPoint}");
         _selectedWayPoint = wayPoint.positions;
         if (UnityEngine.Random.value > 0.5f) _selectedWayPoint.Reverse();
         index = startIndex;
-        transform.position = _selectedWayPoint[index];
-        _nxWayPoint = _selectedWayPoint[++index];
+        Debug.Log($"[TornadoMovement] start index = ${index}");
+        transform.position = _selectedWayPoint[index++];
+        if (index > _selectedWayPoint.Count - 1) index = 0;
+        _nxWayPoint = _selectedWayPoint[index];
         _speed = speed;
         _moveable = true;
     }

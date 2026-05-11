@@ -696,9 +696,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3776887454876216280, guid: e493f11fd366b1c4fa3b5e97b2d5cf87, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1438282262
+      objectReference: {fileID: 0}
     - target: {fileID: 5366169733142515600, guid: e493f11fd366b1c4fa3b5e97b2d5cf87, type: 3}
       propertyPath: m_Name
       value: Map_DesertCity
+      objectReference: {fileID: 0}
+    - target: {fileID: 5366169733142515600, guid: e493f11fd366b1c4fa3b5e97b2d5cf87, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

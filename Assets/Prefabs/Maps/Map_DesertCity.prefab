@@ -278,6 +278,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7045091045537765632}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &803527590586245027
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 711041648196374807}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &711041648196374807
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 803527590586245027}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -39.3, y: 0, z: 63.8}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 275404582645079290}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &845113170679707690
 GameObject:
   m_ObjectHideFlags: 0
@@ -1064,7 +1095,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db447072f04a15b4ea8e6b009abad07e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EventScheduleManager
-  ShowTopMostFoldoutHeaderGroup: 1
   _events: {fileID: 5838874639591613978}
 --- !u!1 &1570039852970314935
 GameObject:
@@ -1312,14 +1342,30 @@ MonoBehaviour:
   - 599
   _tornadoPrefab: {fileID: 7107903219437260788, guid: 5924a2b73029d0a4fb579c0dd1870073, type: 3}
   _wayPoints:
-  - positions: []
-  - positions: []
-  - positions: []
-  - positions: []
+  - positions:
+    - {x: 0, y: 0, z: -65}
+    - {x: 65, y: 0, z: 0}
+    - {x: 0, y: 0, z: 65}
+    - {x: -65, y: 0, z: 0}
+  - positions:
+    - {x: 40, y: 0, z: -40}
+    - {x: 40, y: 0, z: 40}
+    - {x: -40, y: 0, z: 40}
+    - {x: -40, y: 0, z: -40}
+  - positions:
+    - {x: 40, y: 0, z: -65}
+    - {x: 40, y: 0, z: 65}
+    - {x: -65, y: 0, z: 40}
+    - {x: -65, y: 0, z: -40}
+  - positions:
+    - {x: -40, y: 0, z: -65}
+    - {x: 65, y: 0, z: -40}
+    - {x: 65, y: 0, z: 40}
+    - {x: -40, y: 0, z: 6}
   _MaxTornados: 10
   _numOfSpawns: 0300000005000000070000000a000000
-  _tornadoMinSpeed: 0
-  _tornadoMaxSpeed: 0
+  _tornadoMinSpeed: 2
+  _tornadoMaxSpeed: 8
 --- !u!1 &2113871449686004683
 GameObject:
   m_ObjectHideFlags: 0
@@ -3786,6 +3832,7 @@ Transform:
   - {fileID: 1866032692825025221}
   - {fileID: 282807880066366722}
   - {fileID: 4298549453776907661}
+  - {fileID: 711041648196374807}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5415255243348325232

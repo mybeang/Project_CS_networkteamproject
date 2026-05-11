@@ -2,14 +2,9 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class EventScheduleManager : NetworkBehaviour
+public class EventScheduleManager : MonoBehaviour
 {
     [SerializeField] private EventTask _events;
-
-    public override void OnNetworkSpawn()
-    {
-        
-    }
 
     private void Start()
     {
@@ -41,15 +36,13 @@ public class EventScheduleManager : NetworkBehaviour
 
     public void OnEventSpawn()
     {
-        Debug.Log($"[EventScheduleManager] Event {_events.name} ... Start ");
-        if (!IsServer) return;
+        Debug.Log($"[EventScheduleManager] Event {_events.name} ... Start");
         _events.OnEventSpawn();
     }
 
     public void OnEventDespawn()
     {
-        Debug.Log($"[EventScheduleManager] Event {_events.name} ... Stop ");
-        if (!IsServer) return;
+        Debug.Log($"[EventScheduleManager] Event {_events.name} ... Stop");
         _events.OnEventDespawn();
     }
 }
