@@ -9,9 +9,11 @@ public class SettingPanelController : MonoBehaviour
     [SerializeField] private GameObject _panel; // UI판넬 갖고오기
     [SerializeField] private Button _continueButton;
     [SerializeField] private Button _returnButton;
+    [SerializeField] private Button _exitButton;
     [SerializeField] private Slider _bgmSlider;
     [SerializeField] private Slider _sfxSlider;
     [SerializeField] private Slider _voiceSlider;
+    
     
 
     private void Awake()
