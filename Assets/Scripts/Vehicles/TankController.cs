@@ -5,37 +5,23 @@ using UnityEngine;
 public class TankController : NetworkBehaviour, IDamageableObject
 {
     [SerializeField] private PlayerableStatisticsSO _stat;
-
-    [SerializeField] private Rigidbody _rigidbody;
-    [SerializeField] private Transform _turret;
-
-    [SerializeField] private Camera _camBody;
-    [SerializeField] private Camera _camTurret;
-
-    [SerializeField] private GameObject _driverUI;
-    [SerializeField] private GameObject _gunnerUI;
-
     [SerializeField] private ProjectileManager _projectileManager;
-
     [SerializeField] private Material[] _materials;
+    [SerializeField] private VehicleMovement _movement;
+    [SerializeField] private VehicleTurret _turret;
     //현재 UI
-    private GameObject _UI;
     private PlayerTeamEnum _teamNum;
-    private Material _material;
- 
+    
     // 현재 HP
     private NetworkVariable<int> _hp = new(0, writePerm: NetworkVariableWritePermission.Owner); 
     private NetworkVariable<bool> _isAlive = new(true, writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<bool> _isEnd = new(writePerm: NetworkVariableWritePermission.Owner);
     // 공격 쿨다운 (일단 일반변수로 가보자)
-    private float _reloadTime;
 
+    private Material _material;
     private MeshRenderer _meshRenderer;
     private BoxCollider _collider;
     
-    private Coroutine _coroutine;
-    private RaycastHit _rayHit;
-    private bool _canMove;
     private bool _isDamageable;
 
     private void Awake()
@@ -58,30 +44,16 @@ public class TankController : NetworkBehaviour, IDamageableObject
 
     private void DestoryOnNetwork()
     {
+        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
+        if (_teamNum != userInfo.teamNum && userInfo.role != PlayerRole.Driver) return;
         var ngo = GetComponent<NetworkObject>();
         ngo.Despawn();
-    }
-
-    IEnumerator SpawnDelay()
-    {
-        yield return new WaitForSeconds(1f);
-        _canMove = true;
-        yield return new WaitForSeconds(2f);
-        _isDamageable = true;
-    }
-
-    private void Update()
-    {
-        //쿨타임 줄여주기 / TODO : Update -> Coroutine 교체 필요...
-        _reloadTime -= Time.deltaTime;
-        if(_reloadTime < 0 ) _reloadTime = 0;
-        _gunnerUI.GetComponent<Tank_Gunner>().UpdateToReloadUI(_reloadTime); // TODO : 나중에 UI cashing 후 사용하기
     }
 
     [ClientRpc]
     public void SetDataClientRpc(PlayerTeamEnum teamNum)
     {
-        Debug.Log($"[TankController] Set Data ... teamNum; {teamNum}");
+        Debug.Log($"[TankController] Set Data ...");
         _teamNum = teamNum;
         _material = _materials[(int)teamNum];
         Init();
@@ -97,11 +69,8 @@ public class TankController : NetworkBehaviour, IDamageableObject
         Debug.Log($"[TankController] Init Tank ... Change Color {_material.name}");
         GetComponent<MeshRenderer>().material = _material;
         if (userInfo.role == PlayerRole.Driver)
-        {
             _hp.Value = _stat.VechicleMaximumHP;
-        }
-        
-        _reloadTime = _stat.VechicleReloadtime;
+        _turret.SetGunnerData(_stat, ServiceLocator.Get<IGameManager>().GetMyTeamInfo(_teamNum));
         Debug.Log("[TankController] Init Tank ... Completed");
     }
 
@@ -114,15 +83,14 @@ public class TankController : NetworkBehaviour, IDamageableObject
     
     private void OnSpawnProcess()
     {
-        _reloadTime = 0;
-        _isDamageable = false;
-        _canMove = false;
-        _coroutine = StartCoroutine(SpawnDelay());
+        StartCoroutine(ChangeDamagableCoroutine());
     }
 
-    public void KillLog(PlayerTeamEnum enemy)
+    private IEnumerator ChangeDamagableCoroutine()
     {
-        _driverUI.GetComponent<Driver_UI>().UpdateKillLog(_teamNum, enemy); // TODO : 상위 객체를 호출하다 보니 문제가 생길 수도...?
+        _isDamageable = false;
+        yield return new WaitForSeconds(3f);
+        _isDamageable = true;
     }
 
     public void TakeDamaged(int dmg, PlayerTeamEnum enemy)
@@ -130,10 +98,8 @@ public class TankController : NetworkBehaviour, IDamageableObject
         if (!_isDamageable) return;
         Debug.Log($"_hp : {_hp} , dmg : {dmg}");
         _hp.Value -= dmg;
-        _driverUI.GetComponent<Driver_UI_Tank>().ChangeVehicleHealth(_hp.Value / _stat.VechicleMaximumHP); // TODO : 나중에 UI script를 cashing해서 사용하기
         if (_hp.Value <= 0)
         {
-            // ToDo. 스스로 작동하게 해야함.
             _isAlive.Value = false;
             ServiceLocator.Get<IGameManager>().OnDestoryVehicleServerRpc(_teamNum, enemy);
         }
@@ -143,15 +109,19 @@ public class TankController : NetworkBehaviour, IDamageableObject
     public void GameEndProcessClientRpc()
     {
         var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
-        if (userInfo.role == PlayerRole.Driver)
+        if (_teamNum == userInfo.teamNum && userInfo.role == PlayerRole.Driver)
             _isEnd.Value = true;
     }
     
     [ClientRpc]
     public void RespawnClientRpc(Vector3 pos)
     {
-        transform.position = pos;
-        _isAlive.Value = true;
+        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
+        if (_teamNum == userInfo.teamNum && userInfo.role == PlayerRole.Driver)
+        {
+            transform.position = pos;
+            _isAlive.Value = true;
+        }
     } 
 
     public void ExplosionDamaged(System.Numerics.Vector3 expsPos, int dmg, PlayerTeamEnum enemy)

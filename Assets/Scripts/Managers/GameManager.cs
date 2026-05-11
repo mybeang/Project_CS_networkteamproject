@@ -84,10 +84,17 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _tick = new WaitForSecondsRealtime(0.1f);
     }
 
-    public override void OnNetworkSpawn()
+    public TeamInfo GetMyTeamInfo(PlayerTeamEnum myTeamNum)
     {
-        
+        foreach (var team in _teams)
+        {
+            if (team.teamNum == myTeamNum) return team;
+        }
+
+        return null;
     }
+    
+    public override void OnNetworkSpawn() { }
 
     protected override void Register()
     {
@@ -324,20 +331,17 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     public void OnDestoryVehicleServerRpc(PlayerTeamEnum myTeam, PlayerTeamEnum enemy)
     {
         // 이동 수단 비활성화 및 플레그 호출
-        // ToDO. 탱크가 스스로 GameManager 에게 요청을 보내야함.
-        // ToDO. 맞은 놈은 disable 되게, 때린놈은 킬로그 요청 하게.
-        _managementObject[myTeam].SetActive(false);
-        // TODO : 플레그 관련 호출 정의될 시 여기서 호출
+        if (!IsServer) return;
         var respawnPos = ServiceLocator.Get<IMapManager>().GetStartPoint(myTeam);
         _RespawnTimer[(int)myTeam] = _currentTime + _basicSpawnTime;
         if (_triggerTimerCoroutine == null)
             _triggerTimerCoroutine = StartCoroutine(RespawnCoroutine(respawnPos));
 
         // 점수
-        switch(enemy) // TODO : 메모리 변조 같은 간단한 값에 대한 위조 방지 장치가 필요한지 논의 필요
-        {
+        switch(enemy) 
+        {   // ToDo. Playable 유닛에 따라 점수 판정이 달라 짐. 추후 구현.
             case PlayerTeamEnum.firstTeam:
-                _team1Score.OnValueChanged(_team1Score.Value,_team1Score.Value += 1);
+                _team1Score.OnValueChanged(_team1Score.Value, _team1Score.Value += 1);
                 break;
             case PlayerTeamEnum.secondTeam:
                 _team2Score.OnValueChanged(_team2Score.Value, _team2Score.Value += 1);
@@ -384,23 +388,26 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private void GameEnd()
     {
         // 게임 종료 시 호출 될 것들
-
+        Debug.Log("[GameManager] GameEnd ... ");
         // 이벤트 스케줄러 해제
         _eventScheduleManager = null;
 
         // 맵 끄기
         // 음성 채널 탈퇴
+        Debug.Log("[GameManager] GameEnd ... Leave VoiceChannel");
         ServiceLocator.Get<IVoiceManager>()?.OnLeaveVoiceChannel(_voiceChannelName);
 
         // 타이머 정지
         if (_timerCoroutine != null)
         {
+            Debug.Log("[GameManager] GameEnd ... Stop Timer");
             StopCoroutine(_timerCoroutine);
             _timerCoroutine = null;
         }
 
         if (_triggerTimerCoroutine != null)
         {
+            Debug.Log("[GameManager] GameEnd ... Stop Trigger Timer");
             StopCoroutine(_triggerTimerCoroutine);
             _triggerTimerCoroutine = null;
         }
@@ -408,7 +415,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         foreach (var team in _teams)
         {
             // ToDO. 각자의 Client 에서 알아서 파괴 되게 해야함.
-
+            Debug.Log($"[GameManager] GameEnd ... {team.teamNum} end process");
             if (IsServer)
             {
                 _managementObject[team.teamNum].GetComponent<TankController>().GameEndProcessClientRpc();

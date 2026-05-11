@@ -50,8 +50,10 @@ public class ResultUIController : MonoBehaviour
     
     private void SetData()
     {
+        Debug.Log("[ResultUIController] SetData ... ");
         foreach (var team in _teams)
         {
+            Debug.Log($"[ResultUIController] SetData ... {team.teamNum} ");
             switch (team.teamNum)
             {
                 case PlayerTeamEnum.firstTeam:
