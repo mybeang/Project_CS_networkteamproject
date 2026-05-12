@@ -2,7 +2,7 @@ using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-public class TankController : NetworkBehaviour, IDamageableObject
+public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
 {
     [SerializeField] private PlayerableStatisticsSO _stat;
     [SerializeField] private ProjectileManager _projectileManager;
@@ -127,5 +127,10 @@ public class TankController : NetworkBehaviour, IDamageableObject
     public void ExplosionDamaged(System.Numerics.Vector3 expsPos, int dmg, PlayerTeamEnum enemy)
     {
         
+    }
+
+    public void ViewEffectControl(bool enable)
+    {
+        Debug.Log($"[TankController] View Effect Control ... {enable}");
     }
 }
