@@ -8,7 +8,9 @@ using Action = System.Action;
 public class VoiceManager : Manager<VoiceManager>, IVoiceManager
 {
     private event Action OnLoginEndEvent;
-    
+    private int _volume;
+    private IVoiceManager _voiceManagerImplementation;
+
     protected override async void Init()
     {
         await UnityServiceInitialize.Processing();
@@ -35,7 +37,10 @@ public class VoiceManager : Manager<VoiceManager>, IVoiceManager
 
     // channelName = roomId + teamNum
     public async void OnJoinVoiceChannel(string channelName)
-        => await VivoxService.Instance.JoinGroupChannelAsync(channelName, ChatCapability.AudioOnly);
+    {
+        await VivoxService.Instance.JoinGroupChannelAsync(channelName, ChatCapability.AudioOnly);
+        await VivoxService.Instance.SetChannelVolumeAsync(channelName, _volume);
+    } 
     
     // channelName = roomId + teamNum
     public async void OnLeaveVoiceChannel(string channelName)
@@ -43,5 +48,10 @@ public class VoiceManager : Manager<VoiceManager>, IVoiceManager
     
     // channelName = roomId + teamNum, volume ; -50 ~ 50 (-50 is mute. default 0)
     public async void SetVolume(string channelName, int volume)
-        => await VivoxService.Instance.SetChannelVolumeAsync(channelName, volume);
+    {
+        _volume = volume;
+        if (channelName != null) await VivoxService.Instance.SetChannelVolumeAsync(channelName, _volume);
+    }
+
+    public int GetVolume() => _volume;
 }
