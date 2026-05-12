@@ -18,8 +18,8 @@ public class VehicleTurret : NetworkBehaviour
     [SerializeField] private VehicleMovement _vehicleMovement;
 
     private Gunner_UI _gunnerUI; // TODO : 나중에 상위 객체를 받아서 전환하게 바꾸기
-    private ulong _gunnerId;
     private TeamInfo _teamInfo;
+    private ulong _gunnerId;
 
     private WaitForSeconds _tick;
     private bool isReloading;
@@ -109,10 +109,10 @@ public class VehicleTurret : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SendInputDataToServerRpc(Vector2 input)
+    private void SendInputDataToServerRpc(Vector2 input, ulong gunnerId)
     {
-        Debug.Log("[VehicleTurrent] SendInputDataToServer");
-        _vehicleMovement.UpdateTurretPosition(input, _gunnerId);
+        Debug.Log($"[VehicleTurrent] SendInputDataToServer {gunnerId}");
+        _vehicleMovement.UpdateTurretPosition(input, gunnerId);
     }
 
     private void TurretMovement(InputAction.CallbackContext ctx)
@@ -120,8 +120,8 @@ public class VehicleTurret : NetworkBehaviour
         Vector2 input = ctx.ReadValue<Vector2>(); // 회전 축 0.601
         Debug.Log("[VehicleTurrent] TurrnetMovement");
         // 들어온 입력이 0, 1, 0.707 / 3개 중 0 과 1에 대해서만 반응
-        if (input.x * input.y != 0) return;
-        SendInputDataToServerRpc(input);
+        // if (input.x * input.y != 0) return;
+        SendInputDataToServerRpc(input, _gunnerId);
     }
 
     private void Shot(InputAction.CallbackContext ctx)

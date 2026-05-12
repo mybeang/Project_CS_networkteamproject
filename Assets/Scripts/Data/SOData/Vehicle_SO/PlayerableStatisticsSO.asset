@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerableStatisticsSO
   _vechicleMaximumHP: 1000
   _vechicleMoveSpeed: 5
-  _vechicleRotationSpeed: 2
+  _vechicleRotationSpeed: 1
   _vechicleReloadtime: 0
-  _turretVerticalRotationSpeed: 50
-  _turretHorizontalRotationSpeed: 50
-  _turretMaximumDepressionAngle: 50
+  _turretVerticalRotationSpeed: 2
+  _turretHorizontalRotationSpeed: 2
+  _turretMaximumDepressionAngle: -50
   _turretMaximumElevationAngle: 50
   _projectileDamage: 1000
   _projectileFlightSpeed: 1

@@ -9,6 +9,8 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     [SerializeField] private Material[] _materials;
     [SerializeField] private VehicleMovement _movement;
     [SerializeField] private VehicleTurret _turret;
+    [SerializeField] private MeshRenderer _turretRenderer;
+    [SerializeField] private MeshRenderer _canonRenderer;
     //현재 UI
     private PlayerTeamEnum _teamNum;
     
@@ -55,24 +57,29 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     {
         Debug.Log($"[TankController] Set Data ...");
         _teamNum = teamNum;
+        Debug.Log($"[TankController] Set Data ... {_teamNum}");
         _material = _materials[(int)teamNum];
-        transform.position = pos;
-        Init();
+        Debug.Log($"[TankController] Set Data ... {_material.name}");
+        Init(pos);
     }
     
     //탱크 초기화 함수
-    private void Init()
+    private void Init(Vector3 pos)
     {
         Debug.Log("[TankController] Init Tank ... ");
         var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
         Debug.Log($"[TankController] Init Tank ... My team is {_teamNum}");
         Debug.Log($"[TankController] Init Tank ... Change Color {_material.name}");
         GetComponent<MeshRenderer>().material = _material;
+        _turretRenderer.material = _material;
+        _canonRenderer.material = _material;
         if (_teamNum == userInfo.teamNum && userInfo.role == PlayerRole.Driver)
             _hp.Value = _stat.VechicleMaximumHP;
         var teamInfo = ServiceLocator.Get<IGameManager>().GetMyTeamInfo(_teamNum);
         _movement.SetDriverData(_stat, teamInfo);
         _turret.SetGunnerData(_stat, teamInfo);
+        transform.position = pos;
+        Debug.Log($"[TankController] Init Tank ... position ; {pos} => {transform.position}");
         Debug.Log("[TankController] Init Tank ... Completed");
     }
 
