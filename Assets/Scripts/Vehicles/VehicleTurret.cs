@@ -15,7 +15,6 @@ public class VehicleTurret : NetworkBehaviour
     [SerializeField] private ProjectileManager _projectile;
     [SerializeField] private Camera _gunnerCam;
 
-    [SerializeField] private GameObject _turret;
     [SerializeField] private Transform _canon;
 
     private Tank_Gunner _gunnerUI; // TODO : 나중에 상위 객체를 받아서 전환하게 바꾸기
@@ -41,6 +40,7 @@ public class VehicleTurret : NetworkBehaviour
 
     private void OnEnable()
     {
+        _gunnerCam.enabled = true;
         _gunnerUICanvas.enabled = true;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
@@ -51,6 +51,7 @@ public class VehicleTurret : NetworkBehaviour
 
     private void OnDisable()
     {
+        _gunnerCam.enabled = false;
         StopCoroutine(RotatoinUpdater());
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= TurretMovement;

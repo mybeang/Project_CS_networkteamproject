@@ -229,7 +229,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!54 &38075282
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -343,7 +343,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 38075280}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.067, y: 5.35, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -357,7 +357,7 @@ Transform:
   - {fileID: 10695771}
   - {fileID: 485353133}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &38075291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1393,7 +1393,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!81 &622582150
 AudioListener:
   m_ObjectHideFlags: 0
@@ -1836,7 +1836,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &980475767
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2375,12 +2375,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VehicleTurret
   ShowTopMostFoldoutHeaderGroup: 1
-  _vehicleData: {fileID: 0}
+  _vehicleData: {fileID: 11400000, guid: 7293aaab1e87101499a92eaed4577e34, type: 2}
   _gunnerUICanvas: {fileID: 645352694}
-  _projectile: {fileID: 0}
-  _gunnerCam: {fileID: 0}
-  _turret: {fileID: 0}
-  _canon: {fileID: 0}
+  _projectile: {fileID: 1943771442}
+  _gunnerCam: {fileID: 110889928}
+  _canon: {fileID: 1575766771}
 --- !u!1 &1525835678
 GameObject:
   m_ObjectHideFlags: 0
@@ -3356,7 +3355,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VehicleMovement
   ShowTopMostFoldoutHeaderGroup: 1
-  _vehicleData: {fileID: 0}
+  _vehicleData: {fileID: 11400000, guid: 7293aaab1e87101499a92eaed4577e34, type: 2}
+  _driverCam: {fileID: 1688454488}
   _rb: {fileID: 1943771438}
   _driverUICanvas: {fileID: 287847909}
 --- !u!1001 &1972005011
