@@ -33,7 +33,7 @@ public class LoginUIController : MonoBehaviour
     [SerializeField] private Button _exitGameButton;
     [SerializeField] private Button _closeWarningPanel;
     
-    [SerializeField] private MapCameraMapping[] _maps = new MapCameraMapping[4]; 
+    [SerializeField] private MapCameraMapping[] _maps = new MapCameraMapping[4];
     
     private bool _openedWarningPanel;
     private string _warningTextFormat = " 은(는) 이미 사용중인 닉네임 입니다.";

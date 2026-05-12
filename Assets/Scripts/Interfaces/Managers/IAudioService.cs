@@ -5,14 +5,14 @@ public interface IAudioService
     // BGM
     public void PlayMainBGM();
     public void PlayBGM(int mapNum);
-    public void GetBGMVolume(out float volume);
+    public float GetBGMVolume();
     public void SetBGMVolume(float volume);
     
     // SFX 
     public void PlayOneShotSfx(AudioClip clip);
     public void PlaySfx(AudioClip clip);
     public void PlayStopSfx();
-    public void GetSfxVolume(out float volume);
+    public float GetSfxVolume();
     public void SetSfxVolume(float volume);
     public void PlayButtonSfx();
 }

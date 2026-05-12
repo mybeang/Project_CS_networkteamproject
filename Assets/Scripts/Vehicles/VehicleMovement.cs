@@ -8,19 +8,28 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
 
     [Header("기본 설정")]
     [SerializeField] private PlayerableStatisticsSO _vehicleData;
-    [SerializeField] private Camera _driverCam;
+    [SerializeField] private GameObject _driverCam;
     [SerializeField] private Rigidbody _rb;
-
+    
     [Header("UI")]
-    [SerializeField] private Canvas _driverUICanvas;
+    [SerializeField] private GameObject _driverUICanvas;
 
     private Coroutine _flipCounter;
+    private Driver_UI _driverUI;
 
     private bool canMove;
     private bool _coroutineIsRunning;
     private bool _canFlip;
+    private bool _isActiveScript;
 
-    private Vector2 lastInput;
+    private Vector2 _mvlastInput;
+    
+    [Header("터렛 오브젝트")] 
+    [SerializeField] private Transform _turretTf;
+    [SerializeField] private Transform _canonTf;
+    private Vector3 _trlastInput;
+    private float _canonAngle;
+    private ulong _gunnerId;
 
     public override void OnNetworkSpawn()
     {
@@ -47,29 +56,36 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
 
     private void OnEnable()
     {
-        _driverUICanvas.enabled = true;
-        _driverCam.enabled = true;
+        if (!_isActiveScript && !IsClient) return;
         StartCoroutine(Freeze());
+        Debug.Log("[VehicleMovement] OnEnable");
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
+        StartCoroutine(RotationUpdater());
+
+        _driverUICanvas.SetActive(true);
     }
 
     private void OnDisable()
     {
+        if (!_isActiveScript && !IsClient) return;
         canMove = false;
-        _driverCam.enabled = false;
+        StopCoroutine(RotationUpdater());
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed -= FlipVehicle;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed -= OnScoreBoard;
 
         _coroutineIsRunning = false;
-        StopCoroutine(_flipCounter);
+        if (_flipCounter != null)
+            StopCoroutine(_flipCounter);
         _flipCounter = null;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Disable();
 
-        _driverUICanvas.enabled = false;
+        _driverUICanvas.SetActive(false);
     }
 
     IEnumerator Freeze()
@@ -80,16 +96,47 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     }
 
     // 상위 객체에서 관리 되는
-    public void SetDriverData(PlayerableStatisticsSO so)
+    public void SetDriverData(PlayerableStatisticsSO so, TeamInfo teamInfo)
     {
         _vehicleData = so;
+        foreach (var player in teamInfo.players)
+        {
+            if (player.role == PlayerRole.Driver && player.clientId == NetworkManager.Singleton.LocalClientId)
+            {
+                _isActiveScript = true;
+                ActiveScript();
+                break;
+            }
+
+            if (player.role == PlayerRole.Gunner) _gunnerId = player.clientId;
+        }
+    }
+
+    private void ActiveScript()
+    {
+        _driverUICanvas.SetActive(true);
+        _driverCam.SetActive(true);
+        StartCoroutine(Freeze());
+        Debug.Log("[VehicleMovement] ActiveScript");
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += Movement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
+        StartCoroutine(RotationUpdater());
+        
+        Camera.main.gameObject.SetActive(false);
+    }
+    private void OnScoreBoard(InputAction.CallbackContext ctx)
+    {
+        _driverUI.ShowScore();
     }
 
     public void Movement(InputAction.CallbackContext ctx)
     {
         if (!IsOwner || !canMove) return;
         Vector2 input = ctx.ReadValue<Vector2>();
-        lastInput = input;
+        _mvlastInput = input;
     }
 
     private void FixedUpdate()
@@ -105,16 +152,16 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
                 _coroutineIsRunning = false;
             }
 
-            if (lastInput.y == 0)
+            if (_mvlastInput.y == 0 && _mvlastInput.x == 0)
             {
                 _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
             }
             else
             {
                 // TODO : 경사로에서 회전시 일정 회전이 후 회전 불가 현상 해결 필요.
-                Vector3 tempVector = transform.forward * lastInput.y * _vehicleData.VechicleMoveSpeed;
+                Vector3 tempVector = transform.forward * (_mvlastInput.y * _vehicleData.VechicleMoveSpeed);
                 _rb.linearVelocity = new Vector3(tempVector.x, _rb.linearVelocity.y, tempVector.z);
-                _rb.angularVelocity = _rb.angularVelocity + (transform.up * lastInput.x) * _vehicleData.VechicleRotationSpeed;
+                _rb.angularVelocity += transform.up * (_mvlastInput.x * _vehicleData.VechicleRotationSpeed);
             }
         }
         else
@@ -163,4 +210,30 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         // TODO : 반드시 ProjectileManager에서 호출 하는 부분 추가할 것.
         _rb.AddExplosionForce(explosionForce, explosionPosition, explosionRadius, upwardsModifier, ForceMode.Impulse);
     }
+    
+    // ----------------- turret --------------------
+    public void UpdateTurretPosition(Vector2 input, ulong gunnerId)
+    {
+        Debug.Log($"[VehicleMovement] UpdateTurretPosition gunner id; field:{_gunnerId} vs param:{gunnerId}");
+        if (gunnerId == _gunnerId)
+        {
+            _trlastInput = input;
+        }
+    }
+    
+    IEnumerator RotationUpdater()
+    {
+        Debug.Log("[VehicleMovement] RotationUpdater");
+        while (true)
+        {
+            _turretTf.localRotation *= Quaternion.Euler(0, _trlastInput.x * _vehicleData.TurretHorizontalRotationSpeed, 0);
+
+            _canonAngle += _trlastInput.y * _vehicleData.TurretVerticalRotationSpeed;
+            _canonAngle  = System.Math.Clamp(_canonAngle, _vehicleData.TurretMaximumDepressionAngle, _vehicleData.TurretMaximumElevationAngle); // 나중에 데이터 기반으로 재구성
+            _canonTf.localRotation = Quaternion.Euler(_canonAngle, 0, 0);
+
+            yield return null;
+        }
+    }
+    
 }

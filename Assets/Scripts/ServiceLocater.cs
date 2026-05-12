@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public static class ServiceLocator 
 {
@@ -31,5 +32,15 @@ public static class ServiceLocator
             return (T)service;
         }
         return default;
+    }
+
+    public static void PrintServices()
+    {
+        Debug.Log("------- `Service Locator` Service List ------");
+        foreach (var (key, value) in _services)
+        {
+            Debug.Log($"{key} : {value}");
+        }
+        Debug.Log("----------------------------------------------");
     }
 }

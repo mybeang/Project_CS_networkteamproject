@@ -53,7 +53,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private NetworkVariable<int> _team2Score = new (writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<int> _team3Score = new (writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<int> _team4Score = new (writePerm: NetworkVariableWritePermission.Owner);
-    private NetworkVariable<double> _remainingTime;
+    private NetworkVariable<double> _remainingTime = new();
     #endregion
 
     #region ActionFuntion
@@ -91,6 +91,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
         return null;
     }
+
+    public Dictionary<PlayerTeamEnum, GameObject> GetPlayableObjects() => _managementObject;
     
     public override void OnNetworkSpawn() { }
 
@@ -272,6 +274,12 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             Debug.Log("[GameManager] ---- InstantiateVehicle ---- SKIP");
             return;
         }
+
+        StartCoroutine(InstantiateVehicleCoroutine());
+    }
+
+    IEnumerator InstantiateVehicleCoroutine()
+    {
         foreach (var team in _teams)
         {
             _managementObject[team.teamNum] = new();
@@ -286,17 +294,21 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             // tankPos
             var pos = ServiceLocator.Get<IMapManager>().GetStartPoint(team.teamNum);
             Debug.Log($"[GameManager] {bodyObj.name}'s pos is {pos}");
-            bodyObj.transform.position = pos;
+            // bodyObj.transform.position = pos;
+
+            yield return new WaitForSeconds(0.1f);
             // Spawn on Network
             bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
             // set data; team and teamColor
             var tc = bodyObj.GetComponent<TankController>();
             Debug.Log($"[GameManager] {bodyObj.name}'s team: {team.teamNum}");
-            tc.SetDataClientRpc(team.teamNum);
+            tc.SetDataClientRpc(team.teamNum, pos);
             _managementObject[team.teamNum] = bodyObj;
             Debug.Log($"[GameManager] {bodyObj.name} 생성 완료");
         }
+
         _gameState.Value = GameState.SetOtherDataForGame;
+
     }
 
     // 소환된 경우 모든 Client 들에게 알려야함.

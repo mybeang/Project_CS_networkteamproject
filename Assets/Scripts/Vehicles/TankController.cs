@@ -1,8 +1,8 @@
-using System.Collections;
+﻿using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-public class TankController : NetworkBehaviour, IDamageableObject
+public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
 {
     [SerializeField] private PlayerableStatisticsSO _stat;
     [SerializeField] private ProjectileManager _projectileManager;
@@ -51,11 +51,12 @@ public class TankController : NetworkBehaviour, IDamageableObject
     }
 
     [ClientRpc]
-    public void SetDataClientRpc(PlayerTeamEnum teamNum)
+    public void SetDataClientRpc(PlayerTeamEnum teamNum, Vector3 pos)
     {
         Debug.Log($"[TankController] Set Data ...");
         _teamNum = teamNum;
         _material = _materials[(int)teamNum];
+        transform.position = pos;
         Init();
     }
     
@@ -67,10 +68,11 @@ public class TankController : NetworkBehaviour, IDamageableObject
         Debug.Log($"[TankController] Init Tank ... My team is {_teamNum}");
         Debug.Log($"[TankController] Init Tank ... Change Color {_material.name}");
         GetComponent<MeshRenderer>().material = _material;
-        if (userInfo.role == PlayerRole.Driver)
+        if (_teamNum == userInfo.teamNum && userInfo.role == PlayerRole.Driver)
             _hp.Value = _stat.VechicleMaximumHP;
-        _movement.SetDriverData(_stat);
-        _turret.SetGunnerData(_stat, ServiceLocator.Get<IGameManager>().GetMyTeamInfo(_teamNum));
+        var teamInfo = ServiceLocator.Get<IGameManager>().GetMyTeamInfo(_teamNum);
+        _movement.SetDriverData(_stat, teamInfo);
+        _turret.SetGunnerData(_stat, teamInfo);
         Debug.Log("[TankController] Init Tank ... Completed");
     }
 
@@ -97,7 +99,9 @@ public class TankController : NetworkBehaviour, IDamageableObject
     {
         if (!_isDamageable) return;
         Debug.Log($"_hp : {_hp} , dmg : {dmg}");
-        _hp.Value -= dmg;
+        var user = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
+        if (_teamNum == user.teamNum && user.role == PlayerRole.Driver)
+            _hp.Value -= dmg;
         if (_hp.Value <= 0)
         {
             _isAlive.Value = false;
@@ -127,5 +131,10 @@ public class TankController : NetworkBehaviour, IDamageableObject
     public void ExplosionDamaged(System.Numerics.Vector3 expsPos, int dmg, PlayerTeamEnum enemy)
     {
         
+    }
+
+    public void ViewEffectControl(bool enable)
+    {
+        Debug.Log($"[TankController] View Effect Control ... {enable}");
     }
 }

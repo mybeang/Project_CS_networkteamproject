@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEngine;
 
 public interface IGameManager
 {
@@ -30,4 +32,5 @@ public interface IGameManager
     
     public TeamInfo[] GetTeams();
     public TeamInfo GetMyTeamInfo(PlayerTeamEnum myTeamNum);
+    public Dictionary<PlayerTeamEnum, GameObject> GetPlayableObjects();
 }
