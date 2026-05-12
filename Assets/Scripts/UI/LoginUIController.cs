@@ -1,7 +1,27 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+
+[Serializable]
+public class MapCameraMapping
+{
+    public GameObject mapObject;
+    public GameObject camera;
+
+    public void SetEnable()
+    {
+        mapObject.SetActive(true);
+        camera.SetActive(true);
+    }
+
+    public void SetDisable()
+    {
+        mapObject.SetActive(false);
+        camera.SetActive(false);
+    }
+} 
 
 public class LoginUIController : MonoBehaviour
 {
@@ -13,9 +33,13 @@ public class LoginUIController : MonoBehaviour
     [SerializeField] private Button _exitGameButton;
     [SerializeField] private Button _closeWarningPanel;
     
+    [SerializeField] private MapCameraMapping[] _maps = new MapCameraMapping[4];
+    
     private bool _openedWarningPanel;
     private string _warningTextFormat = " 은(는) 이미 사용중인 닉네임 입니다.";
     private string _nextSceneName = "LobbyList";
+    private int _currentMapIndex;
+    private Coroutine _mapChangeCoroutine;
 
     private void OnEnable()
     {
@@ -23,10 +47,16 @@ public class LoginUIController : MonoBehaviour
         ServiceLocator.Get<IAudioService>().PlayMainBGM();
         SubscribButtons();
     }
-    private void OnDisable() => UnsubscribButtons();
+    private void OnDisable()
+    {
+        if (_mapChangeCoroutine != null) StopCoroutine(_mapChangeCoroutine);
+        UnsubscribButtons();
+    }
 
     private void Init()
     {
+        _maps[_currentMapIndex].SetEnable();
+        _mapChangeCoroutine = StartCoroutine(mapChangeCoroutine());
         var userInfo = ServiceLocator.Get<IUserInfoManager>();
         Debug.Log($"I am {userInfo.GetUserInfo().userId}");
         if (userInfo.GetUserInfo().userId != "")
@@ -89,7 +119,7 @@ public class LoginUIController : MonoBehaviour
 
     private void OnCloseWarningMessage()
     {
-        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
+        ServiceLocator.Get<IAudioService>()?.PlayButtonSfx();
         _openedWarningPanel = false;
         _warningPanel.SetActive(false);
     }
@@ -97,10 +127,27 @@ public class LoginUIController : MonoBehaviour
     private void OnExitGame()
     {
         if (_openedWarningPanel) return;
-        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
+        ServiceLocator.Get<IAudioService>()?.PlayButtonSfx();
+        CleanUp();
+        Application.Quit();
+    }
+
+    private void CleanUp()
+    {
+        Debug.Log("[LoginUIController] CleanUp");
         string userId = ServiceLocator.Get<IUserInfoManager>()?.GetUserInfo().userId;
         if (userId != "") ServiceLocator.Get<IDatabaseBackend>()?.RemoveUserAsync(userId);
-        Application.Quit();
+    }
+
+    private IEnumerator mapChangeCoroutine()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(10f);
+            _maps[_currentMapIndex++].SetDisable();
+            if (_currentMapIndex > _maps.Length - 1) _currentMapIndex = 0;
+            _maps[_currentMapIndex].SetEnable();
+        }
     }
 
 # if UNITY_EDITOR

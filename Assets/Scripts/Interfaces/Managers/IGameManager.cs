@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEngine;
 
 public interface IGameManager
 {
@@ -29,4 +31,6 @@ public interface IGameManager
     public void SetData(TeamInfo[] teams, in string roomID, int mapNumber);
     
     public TeamInfo[] GetTeams();
+    public TeamInfo GetMyTeamInfo(PlayerTeamEnum myTeamNum);
+    public Dictionary<PlayerTeamEnum, GameObject> GetPlayableObjects();
 }

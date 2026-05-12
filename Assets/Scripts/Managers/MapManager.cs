@@ -66,15 +66,15 @@ public class MapManager : NetworkManager<MapManager>, IMapManager
                 break;
             case PlayerTeamEnum.secondTeam:
                 pos = CandidateStartPos(1);
-                _team1Pos.Value = pos;
+                _team2Pos.Value = pos;
                 break;
             case PlayerTeamEnum.thirdTeam:
                 pos = CandidateStartPos(2);
-                _team1Pos.Value = pos;
+                _team3Pos.Value = pos;
                 break;
             case PlayerTeamEnum.fourthTeam:
                 pos = CandidateStartPos(3);
-                _team1Pos.Value = pos;
+                _team4Pos.Value = pos;
                 break;
         }
         return pos;
