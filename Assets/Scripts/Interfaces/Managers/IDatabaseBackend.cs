@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Threading.Tasks;
+using Firebase.Database;
 
 public interface IDatabaseBackend
 {
@@ -12,5 +13,11 @@ public interface IDatabaseBackend
     public void SetJoinCodeAsync(string roomId, string joinCode);
     public Task<string> GetJoinCodeAsync(string roomId);
     public void RemoveJoinCodeAsync(string roomId);
+    // MapNumber
+    public void SetMapNumberAsync(string roomId, int mapNumber);
+    public Task<string> GetMapNumberAsync(string roomId);
+    public void RemoveMapNumberAsync(string roomId);
     public void RegisterRemoveRoomHandler(string roomId);
+    public void RegisterMapNumberValueChangedHandler(string roomId, EventHandler<ValueChangedEventArgs> callback);
+    public void UnregisterMapNumberValueChangedHandler(string roomId, EventHandler<ValueChangedEventArgs> callback);
 }

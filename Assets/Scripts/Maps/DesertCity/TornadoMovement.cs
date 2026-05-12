@@ -8,8 +8,6 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NetworkObject))]
 public class TornadoMovement : NetworkBehaviour
 {
-    [SerializeField][Range(0.5f, 2f)] private float _minSpeed;
-    [SerializeField][Range(5f, 20f)] private float _maxSpeed;
     [SerializeField] private float _speed;
     [SerializeField] private List<WayPoint> _wayPoints;
     private List<Vector3> _selectedWayPoint;
@@ -17,7 +15,6 @@ public class TornadoMovement : NetworkBehaviour
     private int index;
     private bool _moveable;
 
-    private void OnEnable() => _moveable = true;
     private void OnDisable() => _moveable = false;
     
     private void Update()
@@ -26,19 +23,20 @@ public class TornadoMovement : NetworkBehaviour
         if (_moveable) Move();
     }
     
-    public void Init(List<Vector3> wayPoints)
+    [ClientRpc]
+    public void InitClientRpc(string wayPointsJson, int startIndex, float speed)
     {
-        SetSpeed();
-        _selectedWayPoint = wayPoints;
+        var wayPoint = JsonUtility.FromJson<WayPoint>(wayPointsJson);
+        Debug.Log($"[TornadoMovement] way points = ${wayPoint}");
+        _selectedWayPoint = wayPoint.positions;
         if (UnityEngine.Random.value > 0.5f) _selectedWayPoint.Reverse();
-        index = UnityEngine.Random.Range(0, _selectedWayPoint.Count - 1);
-        transform.position = _selectedWayPoint[index];
-        _nxWayPoint = _selectedWayPoint[++index];
-    }
-
-    private void SetSpeed()
-    {
-        _speed = UnityEngine.Random.Range(_minSpeed, _maxSpeed);
+        index = startIndex;
+        Debug.Log($"[TornadoMovement] start index = ${index}");
+        transform.position = _selectedWayPoint[index++];
+        if (index > _selectedWayPoint.Count - 1) index = 0;
+        _nxWayPoint = _selectedWayPoint[index];
+        _speed = speed;
+        _moveable = true;
     }
     
     private void ChangeNxWayPoint()

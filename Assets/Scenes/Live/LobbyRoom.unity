@@ -154,8 +154,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -214, y: 91}
-  m_SizeDelta: {x: 216.5, y: 65.2354}
+  m_AnchoredPosition: {x: -4.1353, y: 47.5598}
+  m_SizeDelta: {x: 636.23, y: 152.1158}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &29235203
 MonoBehaviour:
@@ -1188,6 +1188,7 @@ MonoBehaviour:
   _ready: {fileID: 320939353}
   _teamNumber: 4
   _playerRole: 2
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &231762725
 GameObject:
   m_ObjectHideFlags: 0
@@ -2624,6 +2625,7 @@ MonoBehaviour:
   _ready: {fileID: 1361257790}
   _teamNumber: 1
   _playerRole: 2
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &466220911
 GameObject:
   m_ObjectHideFlags: 0
@@ -2673,6 +2675,7 @@ MonoBehaviour:
   _ready: {fileID: 67058078}
   _teamNumber: 2
   _playerRole: 1
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &484792263
 GameObject:
   m_ObjectHideFlags: 0
@@ -2708,8 +2711,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -214, y: -79}
-  m_SizeDelta: {x: 219.941, y: 65.2354}
+  m_AnchoredPosition: {x: -4.9955, y: -118.342}
+  m_SizeDelta: {x: 637.9503, y: 143.9196}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &484792265
 MonoBehaviour:
@@ -2828,8 +2831,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -213.31, y: 91}
-  m_SizeDelta: {x: 216.5, y: 65.2354}
+  m_AnchoredPosition: {x: -1.7202, y: 47.5598}
+  m_SizeDelta: {x: 639.68, y: 152.1158}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &497050234
 MonoBehaviour:
@@ -4098,6 +4101,7 @@ MonoBehaviour:
   _ready: {fileID: 1691145870}
   _teamNumber: 3
   _playerRole: 2
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &729291959
 GameObject:
   m_ObjectHideFlags: 0
@@ -4174,8 +4178,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -215.02998, y: -82}
-  m_SizeDelta: {x: 219.941, y: 65.2354}
+  m_AnchoredPosition: {x: -3.4404, y: -117.2439}
+  m_SizeDelta: {x: 643.12, y: 135.7233}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &734877030
 MonoBehaviour:
@@ -4827,6 +4831,7 @@ MonoBehaviour:
   _moveButton: {fileID: 1520215353}
   _gunnerUI: {fileID: 197038093}
   _driverUI: {fileID: 1129361736}
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &837389376
 GameObject:
   m_ObjectHideFlags: 0
@@ -5324,8 +5329,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -212, y: 91}
-  m_SizeDelta: {x: 216.5, y: 65.2354}
+  m_AnchoredPosition: {x: -0.34521, y: 44.2813}
+  m_SizeDelta: {x: 639.81, y: 158.6727}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &892054762
 MonoBehaviour:
@@ -5599,8 +5604,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -215.31, y: 89}
-  m_SizeDelta: {x: 216.5, y: 65.2354}
+  m_AnchoredPosition: {x: -2.0002, y: 43.9205}
+  m_SizeDelta: {x: 643.12, y: 155.3943}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &951029666
 MonoBehaviour:
@@ -5840,8 +5845,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -213, y: -80}
-  m_SizeDelta: {x: 219.941, y: 65.2354}
+  m_AnchoredPosition: {x: -1.7053, y: -117.7028}
+  m_SizeDelta: {x: 642.53, y: 140.641}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1005457639
 MonoBehaviour:
@@ -6462,6 +6467,7 @@ MonoBehaviour:
   _ready: {fileID: 1538054709}
   _teamNumber: 2
   _playerRole: 2
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &1069718215
 GameObject:
   m_ObjectHideFlags: 0
@@ -6509,6 +6515,7 @@ MonoBehaviour:
   _moveButton: {fileID: 1810685201}
   _gunnerUI: {fileID: 1069338730}
   _driverUI: {fileID: 466220913}
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &1074389839
 GameObject:
   m_ObjectHideFlags: 0
@@ -7083,6 +7090,7 @@ MonoBehaviour:
   _moveButton: {fileID: 642052537}
   _gunnerUI: {fileID: 456565515}
   _driverUI: {fileID: 1326466829}
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &1129361734
 GameObject:
   m_ObjectHideFlags: 0
@@ -7132,6 +7140,7 @@ MonoBehaviour:
   _ready: {fileID: 54678981}
   _teamNumber: 4
   _playerRole: 1
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &1152091757
 GameObject:
   m_ObjectHideFlags: 0
@@ -8215,6 +8224,7 @@ MonoBehaviour:
   _ready: {fileID: 354809220}
   _teamNumber: 1
   _playerRole: 1
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &1335571024
 GameObject:
   m_ObjectHideFlags: 0
@@ -8998,6 +9008,7 @@ MonoBehaviour:
   _moveButton: {fileID: 1283944229}
   _gunnerUI: {fileID: 723872621}
   _driverUI: {fileID: 1832463629}
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &1427798677
 GameObject:
   m_ObjectHideFlags: 0
@@ -12446,6 +12457,7 @@ MonoBehaviour:
   _ready: {fileID: 723453349}
   _teamNumber: 3
   _playerRole: 1
+  _msgPopUp: {fileID: 673375019}
 --- !u!1 &1841522390
 GameObject:
   m_ObjectHideFlags: 0
@@ -12967,8 +12979,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -214, y: -80}
-  m_SizeDelta: {x: 219.941, y: 65.2354}
+  m_AnchoredPosition: {x: -2.2053, y: -119.342}
+  m_SizeDelta: {x: 643.53, y: 143.9195}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1930287466
 MonoBehaviour:

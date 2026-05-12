@@ -10,10 +10,19 @@ public class LobbyListItemUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _creator;
     [SerializeField] private TextMeshProUGUI _subject;
     [SerializeField] private TextMeshProUGUI _currentUser;
+    [SerializeField] private Button _clickButton;
 
     private string _roomId;
     public string RoomId => _roomId;
     public bool IsSelected => _toggle.isOn;
+
+    private void OnEnable() => _clickButton.onClick.AddListener(OnClicked);
+    private void OnDisable() => _clickButton.onClick.RemoveListener(OnClicked);
+    private void OnClicked()
+    {
+        Debug.Log($"[{gameObject.name}] Clicked !!");
+        _toggle.isOn = !_toggle.isOn;
+    }
 
     public void SetData(Lobby lobby)
     {

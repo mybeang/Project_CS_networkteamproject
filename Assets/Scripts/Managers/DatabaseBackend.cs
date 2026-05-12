@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Firebase;
 using Firebase.Extensions;
 using System.Threading.Tasks;
@@ -9,7 +10,9 @@ using UnityEngine;
 public class ChildKey
 {
     public const string USERS = "users";
-    public const string JOIN_CODES = "joinCodes";
+    public const string ROOMS = "rooms";
+    public const string JOINCODES = "joinCodes";
+    public const string MAPNUM = "mapNumber";
 }
 
 
@@ -84,6 +87,8 @@ public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend
         }
     }
     
+    
+    
     public void RegisterUserDisconnectHandler(string userId)
     {
         _db.RootReference.Child($"{ChildKey.USERS}/{userId}").OnDisconnect().RemoveValue().ContinueWithOnMainThread(task => {
@@ -92,10 +97,11 @@ public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend
             }
         });
     }
-    
+
     public void RegisterRemoveRoomHandler(string roomId)
     {
-        _db.RootReference.Child($"{ChildKey.JOIN_CODES}/{roomId}").OnDisconnect().RemoveValue().ContinueWithOnMainThread(task => {
+        string path = $"{ChildKey.ROOMS}/{roomId}"; 
+        _db.RootReference.Child(path).OnDisconnect().RemoveValue().ContinueWithOnMainThread(task => {
             if (task.IsCompleted) {
                 Debug.Log($"[DB] Disconnect handler registered for: {roomId}");
             }
@@ -104,7 +110,8 @@ public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend
 
     public void SetJoinCodeAsync(string roomId, string joinCode)
     {
-        _db.RootReference.Child($"{ChildKey.JOIN_CODES}/{roomId}").SetValueAsync(joinCode).ContinueWithOnMainThread(task =>
+        string path = $"{ChildKey.ROOMS}/{roomId}/{ChildKey.JOINCODES}";
+        _db.RootReference.Child(path).SetValueAsync(joinCode).ContinueWithOnMainThread(task =>
         {
             if (task.IsCompleted) Debug.Log($"[DB] JoinCode data saved successfully: {joinCode}");
             else if (task.IsCanceled) Debug.LogError("[DB] SetJoinCodeAsync was canceled.");
@@ -114,7 +121,8 @@ public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend
 
     public async Task<string> GetJoinCodeAsync(string roomId)
     {
-        DataSnapshot dataSnapshot = await _db.RootReference.Child($"{ChildKey.JOIN_CODES}/{roomId}").GetValueAsync();
+        string path = $"{ChildKey.ROOMS}/{roomId}/{ChildKey.JOINCODES}";
+        DataSnapshot dataSnapshot = await _db.RootReference.Child(path).GetValueAsync();
         if (dataSnapshot.Exists)
         {
             Debug.Log($"[DB] GetJoinCodeAsync successful: {dataSnapshot.Value} ");
@@ -125,11 +133,70 @@ public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend
 
     public void RemoveJoinCodeAsync(string roomId)
     {
-        _db.RootReference.Child($"{ChildKey.JOIN_CODES}/{roomId}").RemoveValueAsync().ContinueWithOnMainThread(task =>
+        string path = $"{ChildKey.ROOMS}/{roomId}/{ChildKey.JOINCODES}";
+        _db.RootReference.Child(path).RemoveValueAsync().ContinueWithOnMainThread(task =>
         {
             if (task.IsCompleted) Debug.Log($"[DB] JoinCode data removed successfully: {roomId}");
             else if (task.IsCanceled) Debug.LogError("[DB] RemoveJoinCodeAsync was canceled.");
             else Debug.LogError("[DB] RemoveJoinCodeAsync encountered an error: " + task.Exception);
         });
     }
+
+    public void SetMapNumberAsync(string roomId, int mapNumber)
+    {
+        string path = $"{ChildKey.ROOMS}/{roomId}/{ChildKey.MAPNUM}";
+        _db.RootReference.Child(path).SetValueAsync(mapNumber).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCompleted) Debug.Log($"[DB] MapNumber data saved successfully: {mapNumber}");
+            else if (task.IsCanceled) Debug.LogError("[DB] SetMapNumberAsync was canceled.");
+            else Debug.LogError("[DB] SetMapNumberAsync encountered an error: " + task.Exception);
+        });
+    }
+    
+    public void UpdateMapNumberAsync(string roomId, int mapNumber)
+    {
+        string path = $"{ChildKey.ROOMS}/{roomId}/{ChildKey.MAPNUM}";
+        _db.RootReference.Child(path).SetValueAsync(mapNumber).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCompleted) Debug.Log($"[DB] MapNumber data saved successfully: {mapNumber}");
+            else if (task.IsCanceled) Debug.LogError("[DB] SetMapNumberAsync was canceled.");
+            else Debug.LogError("[DB] SetMapNumberAsync encountered an error: " + task.Exception);
+        });
+    }
+
+    public async Task<string> GetMapNumberAsync(string roomId)
+    {
+        string path = $"{ChildKey.ROOMS}/{roomId}/{ChildKey.MAPNUM}";
+        DataSnapshot dataSnapshot = await _db.RootReference.Child(path).GetValueAsync();
+        if (dataSnapshot.Exists)
+        {
+            Debug.Log($"[DB] GetMapNumberAsync successful: {dataSnapshot.Value} ");
+            return dataSnapshot.Value as string;
+        }
+        return null;  // fail number
+    }
+    
+    public void RemoveMapNumberAsync(string roomId)
+    {
+        string path = $"{ChildKey.ROOMS}/{roomId}/{ChildKey.MAPNUM}";
+        _db.RootReference.Child(path).RemoveValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCompleted) Debug.Log($"[DB] MapNumber data removed successfully: {roomId}");
+            else if (task.IsCanceled) Debug.LogError("[DB] MapNumber was canceled.");
+            else Debug.LogError("[DB] MapNumber encountered an error: " + task.Exception);
+        });
+    }
+    
+    public void RegisterMapNumberValueChangedHandler(string roomId, EventHandler<ValueChangedEventArgs> callback)
+    {
+        string path = $"{ChildKey.ROOMS}/{roomId}/{ChildKey.MAPNUM}";
+        _db.RootReference.Child(path).ValueChanged += callback;
+    }
+    
+    public void UnregisterMapNumberValueChangedHandler(string roomId, EventHandler<ValueChangedEventArgs> callback)
+    {
+        string path = $"{ChildKey.ROOMS}/{roomId}/{ChildKey.MAPNUM}";
+        _db.RootReference.Child(path).ValueChanged -= callback;
+    }
 }
+
