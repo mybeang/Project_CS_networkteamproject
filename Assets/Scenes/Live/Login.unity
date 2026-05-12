@@ -1501,6 +1501,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Map_snowMap
       objectReference: {fileID: 0}
+    - target: {fileID: 5096544189871557087, guid: 3142431a9d543224481a9e31b3226a8d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6561413030469874495, guid: 3142431a9d543224481a9e31b3226a8d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
