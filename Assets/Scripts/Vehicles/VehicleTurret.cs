@@ -35,7 +35,6 @@ public class VehicleTurret : NetworkBehaviour
     private void Awake()
     {
         _tick = new WaitForSeconds(0.2f);
-        gameObject.SetActive(false);
     }
 
     private void OnEnable()
