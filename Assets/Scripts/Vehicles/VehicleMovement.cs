@@ -95,6 +95,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
             {
                 _isActiveScript = true;
                 ActiveScript();
+                break;
             }
         }
     }
@@ -107,6 +108,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
     }
     private void OnScoreBoard(InputAction.CallbackContext ctx)
