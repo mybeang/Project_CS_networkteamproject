@@ -275,11 +275,6 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             return;
         }
 
-        StartCoroutine(InstantiateVehicleCoroutine());
-    }
-
-    IEnumerator InstantiateVehicleCoroutine()
-    {
         foreach (var team in _teams)
         {
             _managementObject[team.teamNum] = new();
@@ -294,9 +289,6 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             // tankPos
             var pos = ServiceLocator.Get<IMapManager>().GetStartPoint(team.teamNum);
             Debug.Log($"[GameManager] {bodyObj.name}'s pos is {pos}");
-            // bodyObj.transform.position = pos;
-
-            yield return new WaitForSeconds(0.1f);
             // Spawn on Network
             bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
             // set data; team and teamColor
@@ -306,9 +298,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             _managementObject[team.teamNum] = bodyObj;
             Debug.Log($"[GameManager] {bodyObj.name} 생성 완료");
         }
-
         _gameState.Value = GameState.SetOtherDataForGame;
-
     }
 
     // 소환된 경우 모든 Client 들에게 알려야함.

@@ -55,8 +55,11 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     {
         Debug.Log($"[TankController] Set Data ...");
         _teamNum = teamNum;
+        Debug.Log($"[TankController] Set Data ... {_teamNum}");
         _material = _materials[(int)teamNum];
+        Debug.Log($"[TankController] Set Data ... {_material.name}");
         transform.position = pos;
+        Debug.Log($"[TankController] Set Data ... {pos}");
         Init();
     }
     
