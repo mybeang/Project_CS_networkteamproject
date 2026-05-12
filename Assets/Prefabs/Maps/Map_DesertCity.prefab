@@ -1255,7 +1255,8 @@ MonoBehaviour:
     - {x: 40, y: 0, z: -40}
     - {x: -40, y: 0, z: -40}
     - {x: -40, y: 0, z: 40}
-  _numberOfTornados: 10
+  _MaxTornados: 3
+  _numOfSpawns: 3
 --- !u!1 &2113871449686004683
 GameObject:
   m_ObjectHideFlags: 0
