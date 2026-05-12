@@ -294,7 +294,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             Debug.Log($"[GameManager] {bodyObj.name}'s pos is {pos}");
             bodyObj.transform.position = pos;
 
-            yield return new WaitForEndOfFrame();
+            yield return new WaitForSeconds(0.1f);
             // Spawn on Network
             bodyObj.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
             // set data; team and teamColor
