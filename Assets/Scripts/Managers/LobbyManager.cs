@@ -199,6 +199,9 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         try
         {
             string playerId = AuthenticationService.Instance.PlayerId;
+            // clean up
+            var data = new List<(string key, string value)> {(LobbyPlayerDataKey.READY, "false")};
+            await UpdatePlayerData(data);
             RemoveListenersForLobbyEventCallbacks();
             await LobbyService.Instance.RemovePlayerAsync(_lobby.Id, playerId);
             bool isExistLobby = await CheckLobbyExist(_lobby.Id);
