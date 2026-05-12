@@ -165,7 +165,7 @@ public class LobbyRoomUIController : MonoBehaviour
     private void OnLeaveRoom()
     {
         if (_msgPopUp.IsOpen) return;
-        OnReSelect();  // UI 사운드는 OnReSelect 에서 진행됨.
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         ServiceLocator.Get<ILobbyManager>()?.LeaveRoom();
         if (IsHost) ServiceLocator.Get<IRelayHostManager>()?.Disconnect();
         ServiceLocator.Get<ILocalSceneLoader>()?.LoadScene("LobbyList");
