@@ -12,7 +12,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     [SerializeField] private Rigidbody _rb;
 
     [Header("UI")]
-    [SerializeField] private Canvas _driverUICanvas;
+    [SerializeField] private GameObject _driverUICanvas;
 
     private Coroutine _flipCounter;
     private Driver_UI _driverUI;
@@ -56,6 +56,8 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
+
+        _driverUICanvas.SetActive(true);
     }
 
     private void OnDisable()
@@ -73,7 +75,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         _flipCounter = null;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Disable();
 
-        _driverUICanvas.enabled = false;
+        _driverUICanvas.SetActive(false);
     }
 
     IEnumerator Freeze()
@@ -87,9 +89,12 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     public void SetDriverData(PlayerableStatisticsSO so, TeamInfo teamInfo)
     {
         _vehicleData = so;
+        ulong t = NetworkManager.Singleton.LocalClientId;
         foreach (var player in teamInfo.players)
         {
-            if (player.clientId == NetworkManager.Singleton.LocalClientId)
+            Debug.Log($"[{name}] {teamInfo.teamNum}로 받은 ID : {player.userId}");
+            Debug.Log($" 나의 Client ID : {t}");
+            if (player.clientId == t)
             {
                 _isActiveScript = true;
                 ActiveScript();
@@ -99,7 +104,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
 
     private void ActiveScript()
     {
-        _driverUICanvas.enabled = true;
+        _driverUICanvas.SetActive(true);
         _driverCam.SetActive(true);
         StartCoroutine(Freeze());
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;

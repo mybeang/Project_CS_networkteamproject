@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Globalization;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -8,7 +9,7 @@ using UnityEngine.Rendering;
 public class VehicleTurret : NetworkBehaviour
 {
     [SerializeField] private PlayerableStatisticsSO _vehicleData;
-    [SerializeField] private Canvas _gunnerUICanvas;
+    [SerializeField] private GameObject _gunnerUICanvas;
     //[SerializeField] private VehicleMovement ;
     [SerializeField] private ProjectileManager _projectile;
     [SerializeField] private GameObject _gunnerCam;
@@ -44,7 +45,7 @@ public class VehicleTurret : NetworkBehaviour
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
-
+        _gunnerUICanvas.SetActive(true);
 
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
         StartCoroutine(RotatoinUpdater());
@@ -59,7 +60,7 @@ public class VehicleTurret : NetworkBehaviour
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed -= Shot;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed -= OnScoreBoard;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Disable();
-        _gunnerUICanvas.enabled = false;
+        _gunnerUICanvas.SetActive(false);
     }
 
     private void OnScoreBoard(InputAction.CallbackContext ctx)
@@ -72,9 +73,13 @@ public class VehicleTurret : NetworkBehaviour
         _vehicleData = so;
         _teamInfo = team;
 
-        foreach(var player in _teamInfo.players)
+        ulong t = NetworkManager.Singleton.LocalClientId;
+
+        foreach (var player in _teamInfo.players)
         {
-            if (player.clientId == NetworkManager.Singleton.LocalClientId)
+            Debug.Log($"[{name}] {team.teamNum}로 받은 ID : {player.userId}");
+            Debug.Log($" 나의 Client ID : {t}");
+            if (player.clientId == t)
             {
                 _activeScript = true;
                 ActiveScript();
@@ -85,7 +90,7 @@ public class VehicleTurret : NetworkBehaviour
     private void ActiveScript()
     {
         _gunnerCam.SetActive(true);
-        _gunnerUICanvas.enabled = true;
+        _gunnerUICanvas.SetActive(true);
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
