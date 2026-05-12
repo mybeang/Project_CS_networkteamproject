@@ -11,7 +11,7 @@ public class VehicleTurret : NetworkBehaviour
     [SerializeField] private Canvas _gunnerUICanvas;
     //[SerializeField] private VehicleMovement ;
     [SerializeField] private ProjectileManager _projectile;
-    [SerializeField] private Camera _gunnerCam;
+    [SerializeField] private GameObject _gunnerCam;
 
     [SerializeField] private Transform _canon;
 
@@ -40,9 +40,6 @@ public class VehicleTurret : NetworkBehaviour
     private void OnEnable()
     {
         if (!_activeScript || !IsClient) return;
-
-        _gunnerCam.enabled = true;
-        _gunnerUICanvas.enabled = true;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
@@ -56,7 +53,6 @@ public class VehicleTurret : NetworkBehaviour
     private void OnDisable()
     {
         if (!_activeScript || !IsClient) return;
-        _gunnerCam.enabled = false;
         StopCoroutine(RotatoinUpdater());
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= TurretMovement;
@@ -88,7 +84,7 @@ public class VehicleTurret : NetworkBehaviour
 
     private void ActiveScript()
     {
-        _gunnerCam.enabled = true;
+        _gunnerCam.SetActive(true);
         _gunnerUICanvas.enabled = true;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;

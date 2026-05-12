@@ -335,7 +335,7 @@ MonoBehaviour:
   _vehicleData: {fileID: 0}
   _gunnerUICanvas: {fileID: 4758971423307739136}
   _projectile: {fileID: 9186020340153132002}
-  _gunnerCam: {fileID: 1601591005782882794}
+  _gunnerCam: {fileID: 5991413381178377174}
   _canon: {fileID: 859449544468412838}
 --- !u!1 &3601410087486877860
 GameObject:
@@ -456,7 +456,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 784402775
+  GlobalObjectIdHash: 2750736029
   InScenePlacedSourceGlobalObjectIdHash: 2750736029
   DeferredDespawnTick: 0
   Ownership: 1
@@ -634,7 +634,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VehicleMovement
   ShowTopMostFoldoutHeaderGroup: 1
   _vehicleData: {fileID: 0}
-  _driverCam: {fileID: 8836151964667975613}
+  _driverCam: {fileID: 7337951242835670947}
   _rb: {fileID: 3416943275154448508}
   _driverUICanvas: {fileID: 6992767008090897497}
 --- !u!1 &5991413381178377174

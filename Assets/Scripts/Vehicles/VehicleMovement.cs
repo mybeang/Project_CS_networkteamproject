@@ -8,7 +8,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
 
     [Header("기본 설정")]
     [SerializeField] private PlayerableStatisticsSO _vehicleData;
-    [SerializeField] private Camera _driverCam;
+    [SerializeField] private GameObject _driverCam;
     [SerializeField] private Rigidbody _rb;
 
     [Header("UI")]
@@ -50,8 +50,6 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     private void OnEnable()
     {
         if (!_isActiveScript || !IsClient) return;
-        _driverUICanvas.enabled = true;
-        _driverCam.enabled = true;
         StartCoroutine(Freeze());
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += Movement;
@@ -64,7 +62,6 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     {
         if (!_isActiveScript || !IsClient) return;
         canMove = false;
-        _driverCam.enabled = false;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed -= FlipVehicle;
@@ -103,7 +100,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     private void ActiveScript()
     {
         _driverUICanvas.enabled = true;
-        _driverCam.enabled = true;
+        _driverCam.SetActive(true);
         StartCoroutine(Freeze());
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += Movement;
