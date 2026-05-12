@@ -13,7 +13,6 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     [Header("UI")]
     [SerializeField] private Canvas _driverUICanvas;
 
-    private InputSystem_Actions _inputActions;
     private Coroutine _flipCounter;
 
     private bool canMove;
@@ -45,32 +44,27 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         }
     }
 
-    private void Awake()
-    {
-        _inputActions = new InputSystem_Actions(); // TODO : 메니저 할당 후 재 편성
-    }
-
     private void OnEnable()
     {
         _driverUICanvas.enabled = true;
         StartCoroutine(Freeze());
-        _inputActions.Player.Move.performed += Movement;
-        _inputActions.Player.Move.canceled += Movement;
-        _inputActions.Player.Jump.performed += FlipVehicle;
-        _inputActions.Enable();
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += Movement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
     }
 
     private void OnDisable()
     {
         canMove = false;
-        _inputActions.Player.Move.performed -= Movement;
-        _inputActions.Player.Move.canceled -= Movement;
-        _inputActions.Player.Jump.performed -= FlipVehicle;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= Movement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= Movement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed -= FlipVehicle;
 
         _coroutineIsRunning = false;
         StopCoroutine(_flipCounter);
         _flipCounter = null;
-        _inputActions.Disable();
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Disable();
 
         _driverUICanvas.enabled = false;
     }

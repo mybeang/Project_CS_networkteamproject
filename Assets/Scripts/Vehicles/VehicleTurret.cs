@@ -19,7 +19,6 @@ public class VehicleTurret : NetworkBehaviour
     [SerializeField] private Transform _canon;
 
     private Tank_Gunner _gunnerUI; // TODO : 나중에 상위 객체를 받아서 전환하게 바꾸기
-    private InputSystem_Actions _inputActions;
 
     private TeamInfo _teamInfo;
 
@@ -32,8 +31,7 @@ public class VehicleTurret : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (!IsLocalPlayer) return;
-        _inputActions = new InputSystem_Actions();
+
     }
 
     private void Awake()
@@ -44,18 +42,20 @@ public class VehicleTurret : NetworkBehaviour
     private void OnEnable()
     {
         _gunnerUICanvas.enabled = true;
-        _inputActions.Player.Move.performed += TurretMovement;
-        _inputActions.Player.Move.canceled += TurretMovement;
-        _inputActions.Player.Attack.performed += Shot;
-        _inputActions.Enable();
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
         StartCoroutine(RotatoinUpdater());
     }
 
     private void OnDisable()
     {
         StopCoroutine(RotatoinUpdater());
-        _inputActions.Player.Move.performed -= TurretMovement;
-        _inputActions.Player.Move.canceled -= TurretMovement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= TurretMovement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= TurretMovement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed -= Shot;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Disable();
         _gunnerUICanvas.enabled = false;
     }
 
