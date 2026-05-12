@@ -46,19 +46,26 @@ public class BlizzardEvent : EventTask
 
     public override void OnNetworkSpawn() // 이벤트 동기화(EventManager 문서참고)
     {
-
+        
     }
 
     [ClientRpc]
     private void ShowBlizzardEffectClientRpc()
     {
-        
+        foreach (var tank in _tanks)
+        {
+            Debug.Log($"{_tanks}가 탐색되었습니다.");
+            tank.ViewEffectControl(true);
+        }
     }
 
     [ClientRpc]
     private void HideBlizzardEffectClientRpc()
     {
-        
+        foreach (var tank in _tanks)
+        {
+            tank.ViewEffectControl(false);
+        }
     }
 
     // 틱 데미지를 반복적으로 주는 코루틴

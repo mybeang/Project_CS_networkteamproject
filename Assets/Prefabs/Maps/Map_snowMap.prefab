@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6437680619379487424}
   - component: {fileID: 8763632060421557181}
+  - component: {fileID: 1901458624717858149}
   m_Layer: 6
   m_Name: fire7
   m_TagString: Untagged
@@ -56,6 +57,18 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 10
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1901458624717858149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 624275056904560149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74d18a0023bb6064099cc268d0759781, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BonfireArea
 --- !u!1 &702041231865167004
 GameObject:
   m_ObjectHideFlags: 0
@@ -609,6 +622,104 @@ Transform:
   - {fileID: 1877508435768438512}
   m_Father: {fileID: 3831701397467820751}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!1 &2608085951963951923
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3271876159902415277}
+  - component: {fileID: 7986037103063403116}
+  - component: {fileID: 8867334566336349286}
+  - component: {fileID: 1043097387143909635}
+  m_Layer: 0
+  m_Name: EventScheduleManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3271876159902415277
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2608085951963951923}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 78.87385, y: 4.73575, z: -60.24747}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6561413030469874495}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7986037103063403116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2608085951963951923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db447072f04a15b4ea8e6b009abad07e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EventScheduleManager
+  _events: {fileID: 1043097387143909635}
+--- !u!114 &8867334566336349286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2608085951963951923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &1043097387143909635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2608085951963951923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8468021c48db9948bd9e5fda3b38a18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlizzardEvent
+  ShowTopMostFoldoutHeaderGroup: 1
+  eventName: BlizzardEvent
+  excuteTime:
+  - 120
+  - 240
+  - 360
+  - 480
+  stopTriggerTime:
+  - 150
+  - 270
+  - 390
+  - 510
+  _tickDamage: 10
+  _tickInterval: 2
 --- !u!1 &3106665246778701969
 GameObject:
   m_ObjectHideFlags: 0
@@ -619,6 +730,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1418735166315427893}
   - component: {fileID: 3600619438482866642}
+  - component: {fileID: 7643550153364994300}
   m_Layer: 6
   m_Name: fire5
   m_TagString: Untagged
@@ -665,6 +777,18 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 10
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7643550153364994300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3106665246778701969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74d18a0023bb6064099cc268d0759781, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BonfireArea
 --- !u!1 &3687809342679538476
 GameObject:
   m_ObjectHideFlags: 0
@@ -675,6 +799,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5289466119100981812}
   - component: {fileID: 5102965399815516851}
+  - component: {fileID: 2957744856026574336}
   m_Layer: 6
   m_Name: fire8
   m_TagString: Untagged
@@ -721,6 +846,18 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 10
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2957744856026574336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3687809342679538476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74d18a0023bb6064099cc268d0759781, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BonfireArea
 --- !u!1 &3785057949506276304
 GameObject:
   m_ObjectHideFlags: 0
@@ -890,6 +1027,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7847372127602759242}
   - component: {fileID: 8688360130411048110}
+  - component: {fileID: 7057360085130490312}
   m_Layer: 6
   m_Name: fire6
   m_TagString: Untagged
@@ -936,6 +1074,18 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 10
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7057360085130490312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5001665875731262736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74d18a0023bb6064099cc268d0759781, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BonfireArea
 --- !u!1 &5023061494719652334
 GameObject:
   m_ObjectHideFlags: 0
@@ -1010,6 +1160,7 @@ Transform:
   - {fileID: 7321409502605885274}
   - {fileID: 982865234081881977}
   - {fileID: 4946856250197506553}
+  - {fileID: 3271876159902415277}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5284491378625655108
@@ -1056,6 +1207,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2179592049342309003}
   - component: {fileID: 6211307111929107680}
+  - component: {fileID: 5333335547592753773}
   m_Layer: 6
   m_Name: fire1
   m_TagString: Untagged
@@ -1102,6 +1254,18 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 10
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5333335547592753773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5497306178726297504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74d18a0023bb6064099cc268d0759781, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BonfireArea
 --- !u!1 &5602681814849473724
 GameObject:
   m_ObjectHideFlags: 0
@@ -1396,6 +1560,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3148441966174280605}
   - component: {fileID: 3770100365312653079}
+  - component: {fileID: 8909458560036646266}
   m_Layer: 6
   m_Name: fire2
   m_TagString: Untagged
@@ -1442,6 +1607,18 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 10
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8909458560036646266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6850759202029182071}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74d18a0023bb6064099cc268d0759781, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BonfireArea
 --- !u!1 &7195463766039579794
 GameObject:
   m_ObjectHideFlags: 0
@@ -1828,6 +2005,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6539887365286886934}
   - component: {fileID: 5881720813975627719}
+  - component: {fileID: 8745239159037292348}
   m_Layer: 6
   m_Name: fire4
   m_TagString: Untagged
@@ -1874,6 +2052,18 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 10
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8745239159037292348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8296053258296384868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74d18a0023bb6064099cc268d0759781, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BonfireArea
 --- !u!1 &8429766288979252994
 GameObject:
   m_ObjectHideFlags: 0
@@ -1918,6 +2108,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2560039751326170898}
   - component: {fileID: 1939596846383544243}
+  - component: {fileID: 3336890694563279476}
   m_Layer: 6
   m_Name: fire3
   m_TagString: Untagged
@@ -1964,6 +2155,18 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 10
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3336890694563279476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8579120799831506293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74d18a0023bb6064099cc268d0759781, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BonfireArea
 --- !u!1 &8598390978687279254
 GameObject:
   m_ObjectHideFlags: 0
