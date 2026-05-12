@@ -49,7 +49,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
 
     private void OnEnable()
     {
-        if (!_isActiveScript || !IsClient) return;
+        if (!_isActiveScript && !IsClient) return;
         StartCoroutine(Freeze());
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += Movement;
@@ -62,7 +62,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
 
     private void OnDisable()
     {
-        if (!_isActiveScript || !IsClient) return;
+        if (!_isActiveScript && !IsClient) return;
         canMove = false;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= Movement;
@@ -136,7 +136,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
                 _coroutineIsRunning = false;
             }
 
-            if (lastInput.y == 0)
+            if (lastInput.y == 0 && lastInput.x == 0)
             {
                 _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
             }

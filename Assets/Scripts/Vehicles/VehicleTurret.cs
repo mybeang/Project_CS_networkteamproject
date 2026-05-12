@@ -40,7 +40,7 @@ public class VehicleTurret : NetworkBehaviour
 
     private void OnEnable()
     {
-        if (!_activeScript || !IsClient) return;
+        if (!_activeScript && !IsClient) return;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
@@ -53,7 +53,7 @@ public class VehicleTurret : NetworkBehaviour
 
     private void OnDisable()
     {
-        if (!_activeScript || !IsClient) return;
+        if (!_activeScript && !IsClient) return;
         StopCoroutine(RotatoinUpdater());
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= TurretMovement;
@@ -93,6 +93,7 @@ public class VehicleTurret : NetworkBehaviour
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
+
         StartCoroutine(RotatoinUpdater());
     }
 
