@@ -5,26 +5,43 @@ using Unity.Netcode;
 
 public class BlizzardEvent : EventTask
 {
-    // 탱크별 모닥불 범위 진입 여부를 관리하는 딕셔너리
-    Dictionary<TankController, bool> _isWarm = new Dictionary<TankController, bool>();
+    [Header("틱 데미지 설정")]
+    [SerializeField] private int _tickDamage = 10; // 틱당 데미지량
+    [SerializeField] private float _tickInterval = 2f; // 데미지 쿨타임
 
-    TankController[] _tanks; // 런타임 중 탱크를 갖고와야 하는 변수
-    private bool _isSearchDic; // 키값을 갖고왔는지 판별하는 변수
+    List<TankController> _tanks = new List<TankController>();
+    BonfireArea[] _bonfires; // 씬에 있는 모든 모닥불
+    private Coroutine _tickCoroutine; // 코루틴을 중단하기 위한 변수
 
     public override void OnEventSpawn() // 이벤트 발생
     {
-        if (!_isSearchDic)
+        if (!IsServer) return; // 서버에서만 실행
+
+        if (_tanks.Count == 0)
         {
-            SearchBlizzardTargets();
-            _isSearchDic = true;
+            GetTankController();
+            _bonfires = FindObjectsByType<BonfireArea>(FindObjectsSortMode.None);
         }
 
-        // TODO: 틱 데미지 반복 시작
+        if (_tickCoroutine == null)
+        {
+            _tickCoroutine = StartCoroutine(TickDamageCoroutine());
+            ShowBlizzardEffectClientRpc();
+        }
+
     }
 
     public override void OnEventDespawn() // 이벤트 종료
     {
-        // TODO: 틱 데미지 반복 중단
+        if (!IsServer) return; // 서버에서만 실행
+
+        // 틱 데미지 코루틴 중단
+        if (_tickCoroutine != null)
+        {
+            StopCoroutine(_tickCoroutine);
+            _tickCoroutine = null;
+            HideBlizzardEffectClientRpc();
+        }
     }
 
     public override void OnNetworkSpawn() // 이벤트 동기화(EventManager 문서참고)
@@ -32,13 +49,56 @@ public class BlizzardEvent : EventTask
 
     }
 
-    // 씬에 존재하는 탱크를 탐색하여 딕셔너리에 등록
-    private void SearchBlizzardTargets()
+    [ClientRpc]
+    private void ShowBlizzardEffectClientRpc()
     {
-        _tanks = FindObjectsByType<TankController>(FindObjectsSortMode.None);
-        foreach (TankController obj in _tanks)
+        
+    }
+
+    [ClientRpc]
+    private void HideBlizzardEffectClientRpc()
+    {
+        
+    }
+
+    // 틱 데미지를 반복적으로 주는 코루틴
+    private IEnumerator TickDamageCoroutine()
+    {
+        while (true) // 이벤트 종료 시 StopCoroutine으로 중단됨
         {
-            _isWarm.Add(obj, false); // 초기값: 모닥불 밖
+            yield return new WaitForSeconds(_tickInterval); // 쿨타임만큼 대기
+
+            foreach (TankController tank in _tanks)
+            {
+                // 모닥불 안에 있는지 확인
+                if (!IsTankInBonfire(tank))
+                {
+                    // 모닥불 바깥이면 틱데미지 (TankController의 데미지를 참조하여 데이터를 넘긴다)
+                    tank.TakeDamaged(_tickDamage, PlayerTeamEnum.neutralObject);
+                }
+            }
+        }
+    }
+
+    // 특정 탱크가 모닥불 범위 안에 있는지 확인
+    private bool IsTankInBonfire(TankController tank)
+    {
+        foreach (BonfireArea bonfire in _bonfires)
+        {
+            if (bonfire.IsTankInArea(tank))
+            {
+                return true; // 하나라도 범위 안이면 true
+            }
+        }
+        return false; // 어떤 모닥불에도 안 들어가 있으면 false
+    }
+
+    private void GetTankController()
+    {
+        var tanks = ServiceLocator.Get<IGameManager>().GetPlayableObjects();
+        foreach (var tank in tanks.Values)
+        {
+            _tanks.Add(tank.GetComponent<TankController>());
         }
     }
 }
