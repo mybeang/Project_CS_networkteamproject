@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 153aaa5434de4197b38f4e5ec19bdf1a, type: 3}
+  m_Name: PopUpPresetInfo
+  m_EditorClassIdentifier: Assembly-CSharp::PopUpPreset
+  msgType: 0
+  titleText: Info
+  bgSprite: {fileID: -4225872754628213605, guid: 8aa1cfc1771272c47a62cdbfe5fe7f01, type: 3}
+  btSprite: {fileID: -1027629714855741296, guid: 39e677f5e32c8cb45bf562e8820a70bc, type: 3}

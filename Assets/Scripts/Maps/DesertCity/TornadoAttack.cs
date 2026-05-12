@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using UnityEngine;
 
@@ -24,7 +24,7 @@ public class TornadoAttack : MonoBehaviour
         {
             var colliders = Physics.OverlapSphere(transform.position, _effectArea, _playerLayer);
             foreach (var col in colliders)
-                col.GetComponent<IDamageableObject>()?.TakeDamaged(_attackPointPerSeconds);
+                col.GetComponent<IDamageableObject>()?.TakeDamaged(_attackPointPerSeconds, PlayerTeamEnum.neutralObject);
             yield return _wait;
         }
     }

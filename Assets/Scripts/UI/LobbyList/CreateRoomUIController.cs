@@ -27,8 +27,10 @@ public class CreateRoomUIController : MonoBehaviour
         // ToDo. 최소 5글자 이상의 문자열 입력 받도록 수정.
         // ToDo. 5글자 미만일 경우 PopupMessage 보일 수 있게 하기.
         if (_roomSubjectInputField.text.Length == 0) return;
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         Debug.Log("[CreateRoomUIController] Processing Create the room.");
-        ServiceLocator.Get<ILobbyManager>().CreateRoom(_roomSubjectInputField.text)
+        var lobby = ServiceLocator.Get<ILobbyManager>();
+        lobby.CreateRoom(_roomSubjectInputField.text)
             .ContinueWithOnMainThread(task =>
                 {
                     if (task.IsFaulted)
@@ -38,9 +40,14 @@ public class CreateRoomUIController : MonoBehaviour
                     }
                     Debug.Log("[CreateRoomUIController] Go To Lobby Room.");
                     OnClosePanel();
+                    ServiceLocator.Get<IDatabaseBackend>().RegisterRemoveRoomHandler(lobby.GetRoomID());
                     ServiceLocator.Get<ILocalSceneLoader>().LoadScene("LobbyRoom");
                 });
     }
     
-    private void OnClosePanel() => _createRoomPanel.SetActive(false);
+    private void OnClosePanel()
+    {
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
+        _createRoomPanel.SetActive(false);
+    }
 }

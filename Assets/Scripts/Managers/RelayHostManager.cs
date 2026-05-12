@@ -12,73 +12,67 @@ using UnityEngine;
 
 public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
 {
-    protected override async void Init() => await UnityServiceInitialize.Processing();
-    protected override void Register() => ServiceLocator.Register<IRelayHostManager>(this);
-    protected override void Unregister() => ServiceLocator.Unregister<IRelayHostManager>();
+    private Action _onHostDisconnected;
+    private bool _isQuit;
     
-    public async Task<string> StartHostWithRelayAsync(int maxConnections = 7)
+    protected override async void Init() => await UnityServiceInitialize.Processing();
+    protected override void Register()
+    {
+        NetworkManager.Singleton.OnClientDisconnectCallback += HostDisconnected;
+        ServiceLocator.Register<IRelayHostManager>(this);
+    }
+
+    protected override void Unregister()
+    {
+        NetworkManager.Singleton.OnClientDisconnectCallback -= HostDisconnected;
+        ServiceLocator.Unregister<IRelayHostManager>();
+    }
+
+    private async Task<string> StartHostWithRelayAsync(int maxConnections = 7)
     {
         try
         {
-            // Relay 서버에 공간 할당
+            Debug.Log("[RelayHostManager] Relay 서버에 공간 할당"); 
             Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxConnections);
 
-            // 다른 플레이어가 접속할 Join Code 생성
+            Debug.Log("[RelayHostManager] 다른 플레이어가 접속할 Join Code 생성");
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
-            // UnityTransport 에 Relay 서버 정보 주입
+            Debug.Log("[RelayHostManager] UnityTransport 에 Relay 서버 정보 주입");
             RelayServerData serverData = AllocationUtils.ToRelayServerData(allocation, "dtls");
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(serverData);
 
-            // Host 시작
+            Debug.Log("[RelayHostManager] Host 시작");
             NetworkManager.Singleton.StartHost();
             return joinCode;
         }
         catch (Exception e)
         {
-            Debug.LogError($"[Relay] Host 시작 실패: {e.Message}");
+            Debug.LogError($"[RelayHostManager] Host 시작 실패: {e.Message}");
             throw;
         }
     }
 
-    public async Task StartClientWithRelayAsync(string joinCode)
+    private async Task StartClientWithRelayAsync(string joinCode)
     {
         try
         {
-            // Join Code 로 Allocation 참가
+            Debug.Log("[RelayHostManager] Join Code 로 Allocation 참가");
             JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
 
-            // UnityTransport 에 Relay 서버 정보 주입
+            Debug.Log("[RelayHostManager] UnityTransport 에 Relay 서버 정보 주입");
             RelayServerData serverData = AllocationUtils.ToRelayServerData(joinAllocation, "dtls");
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(serverData);
 
-            // Client 시작
+            Debug.Log("[RelayHostManager] Client 시작");
             NetworkManager.Singleton.StartClient();
         }
         catch (Exception e)
         {
-            Debug.LogError($"[Relay] Client 접속 실패: {e.Message}");
+            Debug.LogError($"[RelayHostManager] Client 접속 실패: {e.Message}");
             throw;
         }
     }
-
-    public void AddListenerToClientConnectedCallback(Action<ulong> listener)
-        => NetworkManager.Singleton.OnClientConnectedCallback += listener;
-
-    public void RemoveListenerFromClientConnectedCallback(Action<ulong> listener)
-        => NetworkManager.Singleton.OnClientConnectedCallback -= listener;
-
-    public void AddListenerToClientDisconnectedCallback(Action<ulong> listener)
-        => NetworkManager.Singleton.OnClientDisconnectCallback += listener;
-
-    public void RemoveListenerFromClientDisconnectedCallback(Action<ulong> listener)
-        => NetworkManager.Singleton.OnClientDisconnectCallback -= listener;
-
-    public void AddListenerToServerStartCallback(Action listener)
-        => NetworkManager.Singleton.OnServerStarted += listener;
-
-    public void RemoveListenerFromServerStartCallback(Action listener)
-        => NetworkManager.Singleton.OnServerStarted -= listener;
 
     public async Task<string> StartHost()
     {
@@ -98,19 +92,61 @@ public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
 
     public async void StartClient(string joinCode)
     {
-        if (string.IsNullOrEmpty(joinCode)) return;
+        Debug.Log($"[RelayHostManager] Client ...  ");
+        if (string.IsNullOrEmpty(joinCode))
+        {
+            Debug.Log($"[RelayHostManager] Client ... Join Code is Empty ");
+            return;
+        }
 
         try
         {
+            Debug.Log($"[RelayHostManager] Client ... Try to connect ");
             await StartClientWithRelayAsync(joinCode);
             ulong clientId = NetworkManager.Singleton.LocalClientId;
             ServiceLocator.Get<IUserInfoManager>()?.SetClientId(clientId);
+            Debug.Log($"[RelayHostManager] Client ... Done ");
         }
         catch (Exception e)
         {
             Debug.LogError($"[RelayHostManager] Client 접속 오류: {e.Message}");
+            return;
         }
     }
 
-    public void Disconnect() => NetworkManager.Singleton.Shutdown();
+    public void Disconnect()
+    {
+        _isQuit = true;
+        NetworkManager.Singleton.Shutdown();
+        Debug.Log($"[RelayHostManager] Disconnect ");
+    }
+
+    public ulong GetClientId() => NetworkManager.Singleton.LocalClientId;
+    public void OnHostDisconnectedAddListener(Action callback) => _onHostDisconnected += callback;
+    public void OnHostDisconnectedRemoveListener(Action callback) => _onHostDisconnected -= callback;
+
+    private void HostDisconnected(ulong clientId)
+    {
+        Debug.Log($"[RelayHostManager] Somebody disconnected: c;{clientId} vs s;{NetworkManager.ServerClientId}");
+        if (NetworkManager.Singleton.LocalClientId != NetworkManager.ServerClientId)
+        {  // 내가 서버가 아닌 경우
+            Debug.Log("[RelayHostManager] Somebody disconnected ... I am client.");
+            if (clientId == NetworkManager.Singleton.LocalClientId)
+            {   // 서버가 터지면 clientID 는 나로 나옴.
+                if (_isQuit)
+                {
+                    Debug.Log("[RelayHostManager] Somebody disconnected ... I quited.");
+                    _isQuit = false;
+                    return;
+                }
+                Debug.Log("[RelayHostManager] Somebody disconnected ... The server is boom.");
+                _onHostDisconnected?.Invoke();
+            }
+        }
+        else
+        {
+            Debug.Log("[RelayHostManager] Somebody disconnected ... I am server.");
+            _isQuit = false;
+        }
+    }
 }

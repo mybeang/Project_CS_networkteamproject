@@ -14,7 +14,8 @@ public class LobbyRoomRoleUI : MonoBehaviour
     
     [SerializeField] private int _teamNumber;
     [SerializeField] private PlayerRole _playerRole;
-
+    [SerializeField] private MessagePopUpUIController _msgPopUp;
+    
     private void OnEnable()
     {
         _moveButton.onClick.AddListener(OnMove);
@@ -29,6 +30,8 @@ public class LobbyRoomRoleUI : MonoBehaviour
 
     private void OnMove()
     {
+        if (_msgPopUp.IsOpen) return;
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
         Debug.Log("[LobbyRoomRoleUI] On Move");
         AssignToRole();
     }
@@ -52,7 +55,7 @@ public class LobbyRoomRoleUI : MonoBehaviour
             }
             var userInfo = ServiceLocator.Get<IUserInfoManager>();
             userInfo?.SetIsDriver(_playerRole);
-            userInfo?.SetTeamNum(_teamNumber);
+            userInfo?.SetTeamNum((PlayerTeamEnum)(_teamNumber - 1));
         });
         Debug.Log("[LobbyRoomTeamUI] Update Data ... User Info Clear");
         return true;

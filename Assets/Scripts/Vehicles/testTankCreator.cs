@@ -1,5 +1,4 @@
-using Unity.Netcode;
-using UnityEditor.PackageManager;
+﻿using Unity.Netcode;
 using UnityEngine;
 
 public class testTankCreate : NetworkBehaviour
@@ -8,7 +7,7 @@ public class testTankCreate : NetworkBehaviour
     [SerializeField] private GameObject testPlayer;
 
 
-    testTank tank;
+    TankController tank;
     ulong cid;
 
     ulong testInt = 0;
@@ -37,27 +36,30 @@ public class testTankCreate : NetworkBehaviour
 
         if (!IsServer) return;
 
+        GameObject t = Instantiate(tankPrefab);
+        t.SetActive(true);
+        NetworkObject netT = t.GetComponent<NetworkObject>();
+        netT.SpawnAsPlayerObject(0);
+
         GameObject player = Instantiate(testPlayer);
-        NetworkObject netObj = player.GetComponent<NetworkObject>();
-        netObj.SpawnAsPlayerObject(0);
+        player.SetActive(true);
+        player.name = "[Driver]";
+        player.GetComponent<NetworkObject>().SpawnAsPlayerObject(0);
         Debug.Log($"플레이어 생성 완료: {0}");
 
         player = Instantiate(testPlayer);
-        netObj = player.GetComponent<NetworkObject>();
-        netObj.SpawnAsPlayerObject(1);
+        player.SetActive(true);
+        player.name = "[Gunner]";
+        player.GetComponent<VehicleTurret>().SetGunnerData(null,null);
         Debug.Log($"플레이어 생성 완료: {1}");
 
         Debug.Log($"탱크생성! {0}, {1}");
 
-        GameObject t = Instantiate(tankPrefab);
-        NetworkObject netT = t.GetComponent<NetworkObject>();
-
-        netT.Spawn();
-
-        tank = t.GetComponent<testTank>();
+        
+        //tank = t.GetComponent<TankController>();
 
 
-        tank.Init(0, 1);
+        //tank.Init(0, 1);
 
 
 
