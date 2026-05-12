@@ -110,9 +110,9 @@ public class VehicleTurret : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SendInputDataToServer(Vector2 input)
+    private void SendInputDataToServerRpc(Vector2 input)
     {
-        _vehicleMovement.UpdateTurretPosition(input, _gunnerId);
+        _vehicleMovement.UpdateTurretPositionClientRpc(input, _gunnerId);
     }
 
     private void TurretMovement(InputAction.CallbackContext ctx)
@@ -121,7 +121,7 @@ public class VehicleTurret : NetworkBehaviour
         Debug.Log("[VehicleTurrent] TurrnetMovement");
         // 들어온 입력이 0, 1, 0.707 / 3개 중 0 과 1에 대해서만 반응
         if (input.x * input.y != 0) return;
-        SendInputDataToServer(input);
+        SendInputDataToServerRpc(input);
     }
 
     private void Shot(InputAction.CallbackContext ctx)

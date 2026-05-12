@@ -213,7 +213,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     
     // ----------------- turret --------------------
     [ClientRpc]
-    public void UpdateTurretPosition(Vector2 input, ulong gunnerId)
+    public void UpdateTurretPositionClientRpc(Vector2 input, ulong gunnerId)
     {
         if (gunnerId == _gunnerId)
         {
