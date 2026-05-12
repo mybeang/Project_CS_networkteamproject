@@ -108,10 +108,10 @@ public class VehicleTurret : NetworkBehaviour
         isReloading = false;
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void SendInputDataToServerRpc(Vector2 input)
     {
-        _vehicleMovement.UpdateTurretPositionClientRpc(input, _gunnerId);
+        _vehicleMovement.UpdateTurretPosition(input, _gunnerId);
     }
 
     private void TurretMovement(InputAction.CallbackContext ctx)
