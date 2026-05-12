@@ -10,7 +10,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     [SerializeField] private PlayerableStatisticsSO _vehicleData;
     [SerializeField] private GameObject _driverCam;
     [SerializeField] private Rigidbody _rb;
-
+    
     [Header("UI")]
     [SerializeField] private GameObject _driverUICanvas;
 
@@ -22,7 +22,14 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     private bool _canFlip;
     private bool _isActiveScript;
 
-    private Vector2 lastInput;
+    private Vector2 _mvlastInput;
+    
+    [Header("터렛 오브젝트")] 
+    [SerializeField] private Transform _turretTf;
+    [SerializeField] private Transform _canonTf;
+    private Vector3 _trlastInput;
+    private float _canonAngle;
+    private ulong _gunnerId;
 
     public override void OnNetworkSpawn()
     {
@@ -57,6 +64,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
+        StartCoroutine(RotationUpdater());
 
         _driverUICanvas.SetActive(true);
     }
@@ -65,6 +73,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     {
         if (!_isActiveScript && !IsClient) return;
         canMove = false;
+        StopCoroutine(RotationUpdater());
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed -= FlipVehicle;
@@ -98,6 +107,8 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
                 ActiveScript();
                 break;
             }
+
+            if (player.role == PlayerRole.Gunner) _gunnerId = player.clientId;
         }
     }
 
@@ -112,6 +123,9 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
+        StartCoroutine(RotationUpdater());
+        
+        Camera.main.enabled = false;
     }
     private void OnScoreBoard(InputAction.CallbackContext ctx)
     {
@@ -122,7 +136,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     {
         if (!IsOwner || !canMove) return;
         Vector2 input = ctx.ReadValue<Vector2>();
-        lastInput = input;
+        _mvlastInput = input;
     }
 
     private void FixedUpdate()
@@ -138,16 +152,16 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
                 _coroutineIsRunning = false;
             }
 
-            if (lastInput.y == 0 && lastInput.x == 0)
+            if (_mvlastInput.y == 0 && _mvlastInput.x == 0)
             {
                 _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
             }
             else
             {
                 // TODO : 경사로에서 회전시 일정 회전이 후 회전 불가 현상 해결 필요.
-                Vector3 tempVector = transform.forward * (lastInput.y * _vehicleData.VechicleMoveSpeed);
+                Vector3 tempVector = transform.forward * (_mvlastInput.y * _vehicleData.VechicleMoveSpeed);
                 _rb.linearVelocity = new Vector3(tempVector.x, _rb.linearVelocity.y, tempVector.z);
-                _rb.angularVelocity = _rb.angularVelocity + transform.up * (lastInput.x * _vehicleData.VechicleRotationSpeed);
+                _rb.angularVelocity += transform.up * (_mvlastInput.x * _vehicleData.VechicleRotationSpeed);
             }
         }
         else
@@ -196,4 +210,30 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         // TODO : 반드시 ProjectileManager에서 호출 하는 부분 추가할 것.
         _rb.AddExplosionForce(explosionForce, explosionPosition, explosionRadius, upwardsModifier, ForceMode.Impulse);
     }
+    
+    // ----------------- turret --------------------
+    [ClientRpc]
+    public void UpdateTurretPosition(Vector2 input, ulong gunnerId)
+    {
+        if (gunnerId == _gunnerId)
+        {
+            _trlastInput = input;
+        }
+    }
+    
+    IEnumerator RotationUpdater()
+    {
+        Debug.Log("[VehicleTurrent] RotationUpdater");
+        while (true)
+        {
+            _turretTf.localRotation *= Quaternion.Euler(0, _trlastInput.x * _vehicleData.TurretHorizontalRotationSpeed, 0);
+
+            _canonAngle += _trlastInput.y * _vehicleData.TurretVerticalRotationSpeed;
+            _canonAngle  = System.Math.Clamp(_canonAngle, _vehicleData.TurretMaximumDepressionAngle, _vehicleData.TurretMaximumElevationAngle); // 나중에 데이터 기반으로 재구성
+            _canonTf.localRotation = Quaternion.Euler(_canonAngle, 0, 0);
+
+            yield return null;
+        }
+    }
+    
 }

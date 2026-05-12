@@ -15,18 +15,16 @@ public class VehicleTurret : NetworkBehaviour
     [SerializeField] private GameObject _gunnerCam;
 
     [SerializeField] private Transform _canon;
+    [SerializeField] private VehicleMovement _vehicleMovement;
 
     private Gunner_UI _gunnerUI; // TODO : 나중에 상위 객체를 받아서 전환하게 바꾸기
-
+    private ulong _gunnerId;
     private TeamInfo _teamInfo;
 
     private WaitForSeconds _tick;
 
     private bool isReloading;
     private bool _activeScript;
-    private float _canonAngle;
-
-    private Vector3 _lastInput;
 
     public override void OnNetworkSpawn()
     {
@@ -49,13 +47,11 @@ public class VehicleTurret : NetworkBehaviour
         _gunnerUICanvas.SetActive(true);
 
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
-        StartCoroutine(RotationUpdater());
     }
 
     private void OnDisable()
     {
         if (!_activeScript && !IsClient) return;
-        StopCoroutine(RotationUpdater());
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed -= Shot;
@@ -78,6 +74,7 @@ public class VehicleTurret : NetworkBehaviour
         {
             if (player.role == PlayerRole.Gunner && player.clientId == NetworkManager.Singleton.LocalClientId)
             {
+                _gunnerId = player.clientId;
                 _activeScript = true;
                 ActiveScript();
                 break;
@@ -95,8 +92,7 @@ public class VehicleTurret : NetworkBehaviour
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
-
-        StartCoroutine(RotationUpdater());
+        Camera.main.enabled = false;
     }
 
     IEnumerator ReLoad()
@@ -113,27 +109,19 @@ public class VehicleTurret : NetworkBehaviour
         isReloading = false;
     }
 
-    IEnumerator RotationUpdater()
+    [ServerRpc]
+    private void SendInputDataToServer(Vector2 input)
     {
-        while (true)
-        {
-            transform.localRotation *= Quaternion.Euler(0, _lastInput.x * _vehicleData.TurretHorizontalRotationSpeed, 0);
-
-            _canonAngle += _lastInput.y * _vehicleData.TurretVerticalRotationSpeed;
-            _canonAngle  = Math.Clamp(_canonAngle, _vehicleData.TurretMaximumDepressionAngle, _vehicleData.TurretMaximumElevationAngle); // 나중에 데이터 기반으로 재구성
-            _canon.localRotation = Quaternion.Euler(_canonAngle, 0, 0);
-
-            yield return null;
-        }
+        _vehicleMovement.UpdateTurretPosition(input, _gunnerId);
     }
 
-    public void TurretMovement(InputAction.CallbackContext ctx)
+    private void TurretMovement(InputAction.CallbackContext ctx)
     {
         Vector2 input = ctx.ReadValue<Vector2>(); // 회전 축 0.601
         Debug.Log("[VehicleTurrent] TurrnetMovement");
         // 들어온 입력이 0, 1, 0.707 / 3개 중 0 과 1에 대해서만 반응
         if (input.x * input.y != 0) return;
-        _lastInput = input;
+        SendInputDataToServer(input);
     }
 
     private void Shot(InputAction.CallbackContext ctx)
