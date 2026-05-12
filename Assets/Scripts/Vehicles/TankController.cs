@@ -67,7 +67,7 @@ public class TankController : NetworkBehaviour, IDamageableObject
         Debug.Log($"[TankController] Init Tank ... My team is {_teamNum}");
         Debug.Log($"[TankController] Init Tank ... Change Color {_material.name}");
         GetComponent<MeshRenderer>().material = _material;
-        if (userInfo.role == PlayerRole.Driver)
+        if (_teamNum == userInfo.teamNum && userInfo.role == PlayerRole.Driver)
             _hp.Value = _stat.VechicleMaximumHP;
         var teamInfo = ServiceLocator.Get<IGameManager>().GetMyTeamInfo(_teamNum);
         _movement.SetDriverData(_stat, teamInfo);
@@ -98,7 +98,9 @@ public class TankController : NetworkBehaviour, IDamageableObject
     {
         if (!_isDamageable) return;
         Debug.Log($"_hp : {_hp} , dmg : {dmg}");
-        _hp.Value -= dmg;
+        var user = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
+        if (_teamNum == user.teamNum && user.role == PlayerRole.Driver)
+            _hp.Value -= dmg;
         if (_hp.Value <= 0)
         {
             _isAlive.Value = false;
