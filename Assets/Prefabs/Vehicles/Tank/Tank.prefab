@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 533188718878442206}
   - component: {fileID: 5720975293138152276}
   - component: {fileID: 7005544149843474306}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: wheel_f_r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   - component: {fileID: 6401724078158740820}
   - component: {fileID: 990629898617914550}
   - component: {fileID: 596104084524587008}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: wheel_b_l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -553,7 +553,7 @@ MonoBehaviour:
   _vechicleSO: {fileID: 11400000, guid: 7293aaab1e87101499a92eaed4577e34, type: 2}
   _damageableObject:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 128
   _onDebugLog: 1
 --- !u!114 &846322708626938188
 MonoBehaviour:
@@ -876,7 +876,7 @@ GameObject:
   - component: {fileID: 1186169861229558370}
   - component: {fileID: 202902183480174393}
   - component: {fileID: 6508696510899431039}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: wheel_b_r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1231,7 +1231,7 @@ GameObject:
   - component: {fileID: 2842638910627446856}
   - component: {fileID: 1745652331537469231}
   - component: {fileID: 5619198580370344929}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: wheel_f_l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
