@@ -50,7 +50,7 @@ public class testTankCreate : NetworkBehaviour
         player = Instantiate(testPlayer);
         player.SetActive(true);
         player.name = "[Gunner]";
-        player.GetComponent<NetworkObject>().SpawnAsPlayerObject(1);
+        player.GetComponent<VehicleTurret>().SetGunnerData(null,null);
         Debug.Log($"플레이어 생성 완료: {1}");
 
         Debug.Log($"탱크생성! {0}, {1}");

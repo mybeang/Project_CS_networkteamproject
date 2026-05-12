@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 533188718878442206}
   - component: {fileID: 5720975293138152276}
   - component: {fileID: 7005544149843474306}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: wheel_f_r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   - component: {fileID: 6401724078158740820}
   - component: {fileID: 990629898617914550}
   - component: {fileID: 596104084524587008}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: wheel_b_l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -297,7 +297,7 @@ MonoBehaviour:
   RotationMaxInterpolationTime: 0.1
   ScaleLerpSmoothing: 1
   ScaleMaxInterpolationTime: 0.1
-  AuthorityMode: 1
+  AuthorityMode: 0
   TickSyncChildren: 0
   UseUnreliableDeltas: 0
   SyncPositionX: 1
@@ -333,8 +333,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VehicleTurret
   ShowTopMostFoldoutHeaderGroup: 1
   _vehicleData: {fileID: 0}
-  _gunnerUICanvas: {fileID: 4758971423307739136}
-  _projectile: {fileID: 0}
+  _gunnerUICanvas: {fileID: 1838618772807077861}
+  _projectile: {fileID: 9186020340153132002}
+  _gunnerCam: {fileID: 5991413381178377174}
+  _canon: {fileID: 859449544468412838}
+  _vehicleMovement: {fileID: 3369685110926289917}
 --- !u!1 &3601410087486877860
 GameObject:
   m_ObjectHideFlags: 0
@@ -551,7 +554,7 @@ MonoBehaviour:
   _vechicleSO: {fileID: 11400000, guid: 7293aaab1e87101499a92eaed4577e34, type: 2}
   _damageableObject:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 128
   _onDebugLog: 1
 --- !u!114 &846322708626938188
 MonoBehaviour:
@@ -632,8 +635,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VehicleMovement
   ShowTopMostFoldoutHeaderGroup: 1
   _vehicleData: {fileID: 0}
+  _driverCam: {fileID: 7337951242835670947}
   _rb: {fileID: 3416943275154448508}
-  _driverUICanvas: {fileID: 6992767008090897497}
+  _driverUICanvas: {fileID: 118455385051559027}
+  _turretTf: {fileID: 2768573414467460739}
+  _canonTf: {fileID: 859449544468412838}
 --- !u!1 &5991413381178377174
 GameObject:
   m_ObjectHideFlags: 0
@@ -873,7 +879,7 @@ GameObject:
   - component: {fileID: 1186169861229558370}
   - component: {fileID: 202902183480174393}
   - component: {fileID: 6508696510899431039}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: wheel_b_r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1228,7 +1234,7 @@ GameObject:
   - component: {fileID: 2842638910627446856}
   - component: {fileID: 1745652331537469231}
   - component: {fileID: 5619198580370344929}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: wheel_f_l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1327,6 +1333,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3868845042203727567, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
+      propertyPath: _scoreBoard
+      value: 
+      objectReference: {fileID: 7443025185275675753}
+    - target: {fileID: 3868845042203727567, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
+      propertyPath: _MinimapCamera
+      value: 
+      objectReference: {fileID: 6075026251084829972}
     - target: {fileID: 8760981936563763657, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1412,9 +1426,14 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
---- !u!223 &4758971423307739136 stripped
-Canvas:
-  m_CorrespondingSourceObject: {fileID: 5475999725440893262, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
+--- !u!1 &1838618772807077861 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1185007450411204267, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
+  m_PrefabInstance: {fileID: 717739162386870606}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7443025185275675753 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7980101530312258855, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
   m_PrefabInstance: {fileID: 717739162386870606}
   m_PrefabAsset: {fileID: 0}
 --- !u!224 &8097658293004765319 stripped
@@ -1438,6 +1457,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2108361087883326593, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
+      propertyPath: _scoreBoad
+      value: 
+      objectReference: {fileID: 1888358315364003145}
     - target: {fileID: 2455642622109859123, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1531,9 +1554,14 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
---- !u!223 &6992767008090897497 stripped
-Canvas:
-  m_CorrespondingSourceObject: {fileID: 4349004328924970020, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
+--- !u!1 &118455385051559027 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6698363812054807566, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
+  m_PrefabInstance: {fileID: 6724306275538124925}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1888358315364003145 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5144591869259050292, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
   m_PrefabInstance: {fileID: 6724306275538124925}
   m_PrefabAsset: {fileID: 0}
 --- !u!224 &9170939737669369166 stripped

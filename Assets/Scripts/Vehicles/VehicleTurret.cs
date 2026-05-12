@@ -1,32 +1,29 @@
 ﻿using System;
 using System.Collections;
+using System.Globalization;
 using Unity.Netcode;
-using Unity.VectorGraphics;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.Windows;
+using UnityEngine.Rendering;
 
 public class VehicleTurret : NetworkBehaviour
 {
     [SerializeField] private PlayerableStatisticsSO _vehicleData;
-    [SerializeField] private Canvas _gunnerUICanvas;
+    [SerializeField] private GameObject _gunnerUICanvas;
     //[SerializeField] private VehicleMovement ;
     [SerializeField] private ProjectileManager _projectile;
-    [SerializeField] private Camera _gunnerCam;
+    [SerializeField] private GameObject _gunnerCam;
 
     [SerializeField] private Transform _canon;
+    [SerializeField] private VehicleMovement _vehicleMovement;
 
-    private Tank_Gunner _gunnerUI; // TODO : 나중에 상위 객체를 받아서 전환하게 바꾸기
-
+    private Gunner_UI _gunnerUI; // TODO : 나중에 상위 객체를 받아서 전환하게 바꾸기
+    private ulong _gunnerId;
     private TeamInfo _teamInfo;
 
     private WaitForSeconds _tick;
-
     private bool isReloading;
-    private float _canonAngle;
-
-    private Vector3 _lastInput;
+    private bool _activeScript;
 
     public override void OnNetworkSpawn()
     {
@@ -40,30 +37,61 @@ public class VehicleTurret : NetworkBehaviour
 
     private void OnEnable()
     {
-        _gunnerCam.enabled = true;
-        _gunnerUICanvas.enabled = true;
+        if (!_activeScript && !IsClient) return;
+        Debug.Log("[VehicleTurrent] OnEnable");
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
+        _gunnerUICanvas.SetActive(true);
+
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
-        StartCoroutine(RotatoinUpdater());
     }
 
     private void OnDisable()
     {
-        _gunnerCam.enabled = false;
-        StopCoroutine(RotatoinUpdater());
+        if (!_activeScript && !IsClient) return;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed -= Shot;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed -= OnScoreBoard;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Disable();
-        _gunnerUICanvas.enabled = false;
+        _gunnerUICanvas.SetActive(false);
+    }
+
+    private void OnScoreBoard(InputAction.CallbackContext ctx)
+    {
+        _gunnerUI.ShowScore();
     }
 
     public void SetGunnerData(PlayerableStatisticsSO so, TeamInfo team)
     {
         _vehicleData = so;
         _teamInfo = team;
+
+        foreach (var player in _teamInfo.players)
+        {
+            if (player.role == PlayerRole.Gunner && player.clientId == NetworkManager.Singleton.LocalClientId)
+            {
+                _gunnerId = player.clientId;
+                _activeScript = true;
+                ActiveScript();
+                break;
+            }
+        }
+    }
+
+    private void ActiveScript()
+    {
+        _gunnerCam.SetActive(true);
+        _gunnerUICanvas.SetActive(true);
+        Debug.Log("[VehicleTurrent] ActiveScript");
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
+        Camera.main.gameObject.SetActive(false);
     }
 
     IEnumerator ReLoad()
@@ -80,27 +108,20 @@ public class VehicleTurret : NetworkBehaviour
         isReloading = false;
     }
 
-    IEnumerator RotatoinUpdater()
+    [ServerRpc(RequireOwnership = false)]
+    private void SendInputDataToServerRpc(Vector2 input)
     {
-        while (true)
-        {
-            transform.localRotation *= Quaternion.Euler(0, _lastInput.x * _vehicleData.TurretHorizontalRotationSpeed, 0);
-
-            _canonAngle += _lastInput.y * _vehicleData.TurretVerticalRotationSpeed;
-            _canonAngle  = Math.Clamp(_canonAngle, _vehicleData.TurretMaximumDepressionAngle, _vehicleData.TurretMaximumElevationAngle); // 나중에 데이터 기반으로 재구성
-            _canon.localRotation = Quaternion.Euler(_canonAngle, 0, 0);
-
-            yield return null;
-        }
+        Debug.Log("[VehicleTurrent] SendInputDataToServer");
+        _vehicleMovement.UpdateTurretPosition(input, _gunnerId);
     }
 
-    public void TurretMovement(InputAction.CallbackContext ctx)
+    private void TurretMovement(InputAction.CallbackContext ctx)
     {
-        Vector3 input = ctx.ReadValue<Vector3>(); // 회전 축 0.601
-
+        Vector2 input = ctx.ReadValue<Vector2>(); // 회전 축 0.601
+        Debug.Log("[VehicleTurrent] TurrnetMovement");
         // 들어온 입력이 0, 1, 0.707 / 3개 중 0 과 1에 대해서만 반응
         if (input.x * input.y != 0) return;
-        _lastInput = input;
+        SendInputDataToServerRpc(input);
     }
 
     private void Shot(InputAction.CallbackContext ctx)
