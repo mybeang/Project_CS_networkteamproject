@@ -91,6 +91,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
         return null;
     }
+
+    public Dictionary<PlayerTeamEnum, GameObject> GetPlayableObjects() => _managementObject;
     
     public override void OnNetworkSpawn() { }
 
