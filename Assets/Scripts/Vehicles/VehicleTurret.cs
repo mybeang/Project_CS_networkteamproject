@@ -41,6 +41,7 @@ public class VehicleTurret : NetworkBehaviour
     private void OnEnable()
     {
         if (!_activeScript && !IsClient) return;
+        Debug.Log("[VehicleTurrent] OnEnable");
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
@@ -48,13 +49,13 @@ public class VehicleTurret : NetworkBehaviour
         _gunnerUICanvas.SetActive(true);
 
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
-        StartCoroutine(RotatoinUpdater());
+        StartCoroutine(RotationUpdater());
     }
 
     private void OnDisable()
     {
         if (!_activeScript && !IsClient) return;
-        StopCoroutine(RotatoinUpdater());
+        StopCoroutine(RotationUpdater());
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed -= Shot;
@@ -88,13 +89,14 @@ public class VehicleTurret : NetworkBehaviour
     {
         _gunnerCam.SetActive(true);
         _gunnerUICanvas.SetActive(true);
+        Debug.Log("[VehicleTurrent] ActiveScript");
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
 
-        StartCoroutine(RotatoinUpdater());
+        StartCoroutine(RotationUpdater());
     }
 
     IEnumerator ReLoad()
@@ -111,7 +113,7 @@ public class VehicleTurret : NetworkBehaviour
         isReloading = false;
     }
 
-    IEnumerator RotatoinUpdater()
+    IEnumerator RotationUpdater()
     {
         while (true)
         {
@@ -128,7 +130,7 @@ public class VehicleTurret : NetworkBehaviour
     public void TurretMovement(InputAction.CallbackContext ctx)
     {
         Vector2 input = ctx.ReadValue<Vector2>(); // 회전 축 0.601
-
+        Debug.Log("[VehicleTurrent] TurrnetMovement");
         // 들어온 입력이 0, 1, 0.707 / 3개 중 0 과 1에 대해서만 반응
         if (input.x * input.y != 0) return;
         _lastInput = input;

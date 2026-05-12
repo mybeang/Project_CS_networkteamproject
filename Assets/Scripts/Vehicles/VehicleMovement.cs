@@ -51,6 +51,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     {
         if (!_isActiveScript && !IsClient) return;
         StartCoroutine(Freeze());
+        Debug.Log("[VehicleMovement] OnEnable");
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
@@ -105,6 +106,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         _driverUICanvas.SetActive(true);
         _driverCam.SetActive(true);
         StartCoroutine(Freeze());
+        Debug.Log("[VehicleMovement] ActiveScript");
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
@@ -143,9 +145,9 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
             else
             {
                 // TODO : 경사로에서 회전시 일정 회전이 후 회전 불가 현상 해결 필요.
-                Vector3 tempVector = transform.forward * lastInput.y * _vehicleData.VechicleMoveSpeed;
+                Vector3 tempVector = transform.forward * (lastInput.y * _vehicleData.VechicleMoveSpeed);
                 _rb.linearVelocity = new Vector3(tempVector.x, _rb.linearVelocity.y, tempVector.z);
-                _rb.angularVelocity = _rb.angularVelocity + (transform.up * lastInput.x) * _vehicleData.VechicleRotationSpeed;
+                _rb.angularVelocity = _rb.angularVelocity + transform.up * (lastInput.x * _vehicleData.VechicleRotationSpeed);
             }
         }
         else
