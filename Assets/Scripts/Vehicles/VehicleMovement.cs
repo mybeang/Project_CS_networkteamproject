@@ -94,7 +94,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     IEnumerator Freeze()
     {
         canMove = false;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(3f);
         canMove = true;
     }
 
@@ -124,7 +124,6 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
-        
         Camera.main.gameObject.SetActive(false);
     }
     private void OnScoreBoard(InputAction.CallbackContext ctx)
@@ -168,12 +167,12 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         {
             if (!_coroutineIsRunning && !_canFlip)
             {
-                _flipCounter = StartCoroutine(stuckChecker());
+                _flipCounter = StartCoroutine(StuckChecker());
             }
         }
     }
 
-    IEnumerator stuckChecker()
+    private IEnumerator StuckChecker()
     {
         _coroutineIsRunning = true;
         yield return new WaitForSeconds(3f);

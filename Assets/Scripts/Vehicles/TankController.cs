@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
 {
@@ -11,6 +12,17 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     [SerializeField] private VehicleTurret _turret;
     [SerializeField] private MeshRenderer _turretRenderer;
     [SerializeField] private MeshRenderer _canonRenderer;
+    
+    [Header("SnowEffect")]
+    [SerializeField] private GameObject _snowVfx;
+    [SerializeField] private GameObject _gunnerSnowSight;
+    [SerializeField] private GameObject _driverSnowSight;
+    
+    [Header("MiniMapSetting")]
+    [SerializeField] private MinimapSetting[] _minimapSettings;
+    [SerializeField] private Camera _minimapCamera;
+    [SerializeField] private MeshRenderer _minimapDotMr;
+    
     //현재 UI
     private PlayerTeamEnum _teamNum;
     
@@ -23,11 +35,13 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     private Material _material;
     private MeshRenderer _meshRenderer;
     private BoxCollider _collider;
+    private Rigidbody _rigidbody;
     
     private bool _isDamageable;
 
     private void Awake()
     {
+        _rigidbody = GetComponent<Rigidbody>();
         _meshRenderer = GetComponent<MeshRenderer>();
         _collider = GetComponent<BoxCollider>();
         _teamNum = PlayerTeamEnum.neutralObject;
@@ -73,13 +87,22 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         GetComponent<MeshRenderer>().material = _material;
         _turretRenderer.material = _material;
         _canonRenderer.material = _material;
+        foreach (var item in _minimapSettings)
+        {
+            if (item.TeamNum == _teamNum)
+            {
+                _minimapDotMr.material = item.MinimapMaterial;
+                _minimapCamera.targetTexture = item.MaximapTexture;
+                break;
+            }
+        }
         if (_teamNum == userInfo.teamNum && userInfo.role == PlayerRole.Driver)
             _hp.Value = _stat.VechicleMaximumHP;
         var teamInfo = ServiceLocator.Get<IGameManager>().GetMyTeamInfo(_teamNum);
+        _rigidbody.position = pos;
+        Debug.Log($"[TankController] Init Tank ... position ; {pos} => {_rigidbody.position}");
         _movement.SetDriverData(_stat, teamInfo);
         _turret.SetGunnerData(_stat, teamInfo);
-        transform.position = pos;
-        Debug.Log($"[TankController] Init Tank ... position ; {pos} => {transform.position}");
         Debug.Log("[TankController] Init Tank ... Completed");
     }
 
@@ -140,8 +163,28 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         
     }
 
+    [ClientRpc]
+    private void ViewEffectControlClientRpc(bool enable)
+    {   // 각자 내 것만 켜.
+        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
+        if (_snowVfx != null)
+        {
+            _snowVfx.SetActive(enable);
+            if (userInfo.teamNum == _teamNum && userInfo.role == PlayerRole.Driver)
+            {
+                _driverSnowSight.SetActive(enable);
+                return;
+            }
+            if (userInfo.teamNum == _teamNum && userInfo.role == PlayerRole.Gunner)
+            {
+                _gunnerSnowSight.SetActive(enable);
+            }
+        }
+    }
+    
     public void ViewEffectControl(bool enable)
     {
         Debug.Log($"[TankController] View Effect Control ... {enable}");
+        ViewEffectControlClientRpc(enable);
     }
 }
