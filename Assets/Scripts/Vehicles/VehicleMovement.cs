@@ -89,12 +89,9 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     public void SetDriverData(PlayerableStatisticsSO so, TeamInfo teamInfo)
     {
         _vehicleData = so;
-        ulong t = NetworkManager.Singleton.LocalClientId;
         foreach (var player in teamInfo.players)
         {
-            Debug.Log($"[{name}] {teamInfo.teamNum}로 받은 ID : {player.clientId}");
-            Debug.Log($" 나의 Client ID : {t}");
-            if (player.clientId == t)
+            if (player.role == PlayerRole.Driver && player.clientId == NetworkManager.Singleton.LocalClientId)
             {
                 _isActiveScript = true;
                 ActiveScript();

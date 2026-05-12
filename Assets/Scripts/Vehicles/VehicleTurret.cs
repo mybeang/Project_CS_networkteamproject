@@ -73,16 +73,13 @@ public class VehicleTurret : NetworkBehaviour
         _vehicleData = so;
         _teamInfo = team;
 
-        ulong t = NetworkManager.Singleton.LocalClientId;
-
         foreach (var player in _teamInfo.players)
         {
-            Debug.Log($"[{name}] {team.teamNum}로 받은 ID : {player.clientId}");
-            Debug.Log($" 나의 Client ID : {t}");
-            if (player.clientId == t)
+            if (player.role == PlayerRole.Gunner && player.clientId == NetworkManager.Singleton.LocalClientId)
             {
                 _activeScript = true;
                 ActiveScript();
+                break;
             }
         }
     }
