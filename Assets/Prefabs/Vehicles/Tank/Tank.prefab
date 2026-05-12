@@ -333,7 +333,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VehicleTurret
   ShowTopMostFoldoutHeaderGroup: 1
   _vehicleData: {fileID: 0}
-  _gunnerUICanvas: {fileID: 4758971423307739136}
+  _gunnerUICanvas: {fileID: 1838618772807077861}
   _projectile: {fileID: 9186020340153132002}
   _gunnerCam: {fileID: 5991413381178377174}
   _canon: {fileID: 859449544468412838}
@@ -456,7 +456,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2750736029
+  GlobalObjectIdHash: 784402775
   InScenePlacedSourceGlobalObjectIdHash: 2750736029
   DeferredDespawnTick: 0
   Ownership: 1
@@ -636,7 +636,7 @@ MonoBehaviour:
   _vehicleData: {fileID: 0}
   _driverCam: {fileID: 7337951242835670947}
   _rb: {fileID: 3416943275154448508}
-  _driverUICanvas: {fileID: 6992767008090897497}
+  _driverUICanvas: {fileID: 118455385051559027}
 --- !u!1 &5991413381178377174
 GameObject:
   m_ObjectHideFlags: 0
@@ -1423,9 +1423,9 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
---- !u!223 &4758971423307739136 stripped
-Canvas:
-  m_CorrespondingSourceObject: {fileID: 5475999725440893262, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
+--- !u!1 &1838618772807077861 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1185007450411204267, guid: d2c4b050e95a888458e3b3e00fd7f833, type: 3}
   m_PrefabInstance: {fileID: 717739162386870606}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &7443025185275675753 stripped
@@ -1551,14 +1551,14 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
+--- !u!1 &118455385051559027 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6698363812054807566, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
+  m_PrefabInstance: {fileID: 6724306275538124925}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1888358315364003145 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5144591869259050292, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
-  m_PrefabInstance: {fileID: 6724306275538124925}
-  m_PrefabAsset: {fileID: 0}
---- !u!223 &6992767008090897497 stripped
-Canvas:
-  m_CorrespondingSourceObject: {fileID: 4349004328924970020, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
   m_PrefabInstance: {fileID: 6724306275538124925}
   m_PrefabAsset: {fileID: 0}
 --- !u!224 &9170939737669369166 stripped
