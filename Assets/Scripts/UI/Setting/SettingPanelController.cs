@@ -14,17 +14,8 @@ public class SettingPanelController : MonoBehaviour
     [SerializeField] private Slider _sfxSlider;
     [SerializeField] private Slider _voiceSlider;
     
-    
-
-    private void Awake()
-    {
-        _input = new InputSystem_Actions(); // 인풋시스템 초기화
-        _input.UI.ToggleSetting.performed += OnSettingsPopup; // 인풋시스템 기능 구독
-    }
-
     private void OnEnable()
-    {
-        _input.Enable();
+    {   
         // 버튼 이벤트 구독
         _continueButton.onClick.AddListener(OnContinueButton); // 계속하기 버튼
         _returnButton.onClick.AddListener(OnReturnToLobbyButton); // 로비로 나가기 버튼
@@ -36,9 +27,15 @@ public class SettingPanelController : MonoBehaviour
         _voiceSlider.onValueChanged.AddListener(OnChangeVoiceVol); // Voice 볼륨
     }
 
+    private void Start()
+    {
+        ServiceLocator.PrintServices();
+        _input = ServiceLocator.Get<IInputSystem>().GetInputSystem(); // 인풋시스템 초기화
+        _input.UI.ToggleSetting.performed += OnSettingsPopup; // 인풋시스템 기능 구독
+    }
+
     private void OnDisable()
     {
-        _input.Disable();
         // 버튼 이벤트 해제
         _continueButton.onClick.RemoveListener(OnContinueButton);
         _returnButton.onClick.RemoveListener(OnReturnToLobbyButton);
@@ -48,6 +45,8 @@ public class SettingPanelController : MonoBehaviour
         _bgmSlider.onValueChanged.RemoveListener(OnChangeBGMVolume);
         _sfxSlider.onValueChanged.RemoveListener(OnChangeSFXVolume);
         _voiceSlider.onValueChanged.RemoveListener(OnChangeVoiceVol);
+        
+        _input.UI.ToggleSetting.performed -= OnSettingsPopup; // 인풋시스템 기능 구독
     }
 
     // Esc키 눌렀을때 팝업창 열고 닫기

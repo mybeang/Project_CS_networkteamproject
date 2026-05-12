@@ -53,7 +53,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private NetworkVariable<int> _team2Score = new (writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<int> _team3Score = new (writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<int> _team4Score = new (writePerm: NetworkVariableWritePermission.Owner);
-    private NetworkVariable<double> _remainingTime;
+    private NetworkVariable<double> _remainingTime = new();
     #endregion
 
     #region ActionFuntion
