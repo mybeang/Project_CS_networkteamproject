@@ -120,7 +120,7 @@ public class VehicleTurret : NetworkBehaviour
         Vector2 input = ctx.ReadValue<Vector2>(); // 회전 축 0.601
         Debug.Log("[VehicleTurrent] TurrnetMovement");
         // 들어온 입력이 0, 1, 0.707 / 3개 중 0 과 1에 대해서만 반응
-        if (input.x * input.y != 0) return;
+        // if (input.x * input.y != 0) return;
         SendInputDataToServerRpc(input);
     }
 
