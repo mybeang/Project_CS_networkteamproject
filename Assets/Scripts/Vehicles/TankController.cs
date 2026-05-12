@@ -51,11 +51,12 @@ public class TankController : NetworkBehaviour, IDamageableObject
     }
 
     [ClientRpc]
-    public void SetDataClientRpc(PlayerTeamEnum teamNum)
+    public void SetDataClientRpc(PlayerTeamEnum teamNum, Vector3 pos)
     {
         Debug.Log($"[TankController] Set Data ...");
         _teamNum = teamNum;
         _material = _materials[(int)teamNum];
+        transform.position = pos;
         Init();
     }
     

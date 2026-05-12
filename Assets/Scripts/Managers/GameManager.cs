@@ -292,7 +292,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             // tankPos
             var pos = ServiceLocator.Get<IMapManager>().GetStartPoint(team.teamNum);
             Debug.Log($"[GameManager] {bodyObj.name}'s pos is {pos}");
-            bodyObj.transform.position = pos;
+            // bodyObj.transform.position = pos;
 
             yield return new WaitForSeconds(0.1f);
             // Spawn on Network
@@ -300,7 +300,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             // set data; team and teamColor
             var tc = bodyObj.GetComponent<TankController>();
             Debug.Log($"[GameManager] {bodyObj.name}'s team: {team.teamNum}");
-            tc.SetDataClientRpc(team.teamNum);
+            tc.SetDataClientRpc(team.teamNum, pos);
             _managementObject[team.teamNum] = bodyObj;
             Debug.Log($"[GameManager] {bodyObj.name} 생성 완료");
         }

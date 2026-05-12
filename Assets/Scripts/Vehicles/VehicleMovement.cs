@@ -125,7 +125,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
         StartCoroutine(RotationUpdater());
         
-        Camera.main.enabled = false;
+        Camera.main.gameObject.SetActive(false);
     }
     private void OnScoreBoard(InputAction.CallbackContext ctx)
     {

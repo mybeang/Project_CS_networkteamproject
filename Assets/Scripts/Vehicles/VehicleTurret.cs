@@ -22,7 +22,6 @@ public class VehicleTurret : NetworkBehaviour
     private TeamInfo _teamInfo;
 
     private WaitForSeconds _tick;
-
     private bool isReloading;
     private bool _activeScript;
 
@@ -92,7 +91,7 @@ public class VehicleTurret : NetworkBehaviour
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
-        Camera.main.enabled = false;
+        Camera.main.gameObject.SetActive(false);
     }
 
     IEnumerator ReLoad()
