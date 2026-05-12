@@ -64,7 +64,6 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
-        StartCoroutine(RotationUpdater());
 
         _driverUICanvas.SetActive(true);
     }
@@ -73,7 +72,6 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     {
         if (!_isActiveScript && !IsClient) return;
         canMove = false;
-        StopCoroutine(RotationUpdater());
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed -= FlipVehicle;
@@ -86,6 +84,11 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Disable();
 
         _driverUICanvas.SetActive(false);
+    }
+
+    private void Update()
+    {
+        RotationUpdater();
     }
 
     IEnumerator Freeze()
@@ -105,9 +108,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
             {
                 _isActiveScript = true;
                 ActiveScript();
-                break;
             }
-
             if (player.role == PlayerRole.Gunner) _gunnerId = player.clientId;
         }
     }
@@ -123,7 +124,6 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
-        StartCoroutine(RotationUpdater());
         
         Camera.main.gameObject.SetActive(false);
     }
@@ -171,14 +171,6 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
                 _flipCounter = StartCoroutine(stuckChecker());
             }
         }
-
-        // 입력 부재 시 미끄럼 방지 (Sticky Friction) 필요한지 검증 후 적용
-        /*
-         if (lastInput.magnitude < 0.05f)
-        {
-            Vector3 vel = Vector3.ProjectOnPlane(rb.linearVelocity, Vector3.up);
-            rb.AddForce(-vel * 0.5f, ForceMode.VelocityChange);
-        }*/
     }
 
     IEnumerator stuckChecker()
@@ -214,26 +206,19 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     // ----------------- turret --------------------
     public void UpdateTurretPosition(Vector2 input, ulong gunnerId)
     {
-        Debug.Log($"[VehicleMovement] UpdateTurretPosition gunner id; field:{_gunnerId} vs param:{gunnerId}");
+        Debug.Log($"[VehicleMovement] {gameObject.name} UpdateTurretPosition gunner id; field:{_gunnerId} vs param:{gunnerId}");
         if (gunnerId == _gunnerId)
         {
             _trlastInput = input;
         }
     }
     
-    IEnumerator RotationUpdater()
+    private void RotationUpdater()
     {
-        Debug.Log("[VehicleMovement] RotationUpdater");
-        while (true)
-        {
-            _turretTf.localRotation *= Quaternion.Euler(0, _trlastInput.x * _vehicleData.TurretHorizontalRotationSpeed, 0);
-
-            _canonAngle += _trlastInput.y * _vehicleData.TurretVerticalRotationSpeed;
-            _canonAngle  = System.Math.Clamp(_canonAngle, _vehicleData.TurretMaximumDepressionAngle, _vehicleData.TurretMaximumElevationAngle); // 나중에 데이터 기반으로 재구성
-            _canonTf.localRotation = Quaternion.Euler(_canonAngle, 0, 0);
-
-            yield return null;
-        }
+        _turretTf.localRotation *= Quaternion.Euler(0, _trlastInput.x * _vehicleData.TurretHorizontalRotationSpeed, 0);
+        _canonAngle += _trlastInput.y * _vehicleData.TurretVerticalRotationSpeed;
+        _canonAngle = System.Math.Clamp(_canonAngle, _vehicleData.TurretMaximumDepressionAngle, 
+            _vehicleData.TurretMaximumElevationAngle); 
+        _canonTf.localRotation = Quaternion.Euler(_canonAngle, 0, 0);
     }
-    
 }
