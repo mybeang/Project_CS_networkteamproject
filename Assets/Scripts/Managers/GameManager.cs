@@ -34,7 +34,6 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private bool _hasEventEndtimer;
 
     private double _startTime;
-    private double _elapsedTime;
     private double[] _RespawnTimer;
     private double[] _eventTimer;
     private double[] _eventEndTimer;
@@ -54,6 +53,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private NetworkVariable<int> _team2Score = new (writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<int> _team3Score = new (writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<int> _team4Score = new (writePerm: NetworkVariableWritePermission.Owner);
+    private NetworkVariable<double> _remainingTime;
     #endregion
 
     #region ActionFuntion
@@ -114,32 +114,32 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     IEnumerator Timer()
     {
         _startTime = NetworkManager.Singleton.ServerTime.Time;
-        _elapsedTime = 0;
+        _remainingTime.Value = 0;
         Debug.Log("[GameManager] Game Start ... Starting Timer");
-        while (_elapsedTime <= _gamePlayableTime)
+        while (_remainingTime.Value <= _gamePlayableTime)
         {
-            _elapsedTime = NetworkManager.Singleton.ServerTime.Time - _startTime;
-            OnChangeTime?.Invoke((int)(_gamePlayableTime - _elapsedTime));
+            _remainingTime.Value = NetworkManager.Singleton.ServerTime.Time - _startTime;
+            OnChangeTime?.Invoke((int)(_gamePlayableTime - _remainingTime.Value));
             if (IsServer && _eventScheduleManager != null)
             {
-                if (_eventCounter < _eventTimer.Length &&_eventTimer[_eventCounter] <= _elapsedTime)
+                if (_eventCounter < _eventTimer.Length &&_eventTimer[_eventCounter] <= _remainingTime.Value)
                 {
                     if (_eventEndTimer != null && _eventCounter < _eventEndTimer.Length)
                         _isEventEndTimer = true;
-                    Debug.Log($"[GameManager] Catch Event ec:{_eventCounter} et:{_eventTimer[_eventCounter]} el{_elapsedTime}");
+                    Debug.Log($"[GameManager] Catch Event ec:{_eventCounter} et:{_eventTimer[_eventCounter]} el{_remainingTime.Value}");
                     _eventScheduleManager.OnEventSpawn();
                     _eventCounter++;
                 }
-                else if (_isEventEndTimer && _eventEndTimer != null && _eventEndTimer[_eventCounter - 1] <= _elapsedTime)
+                else if (_isEventEndTimer && _eventEndTimer != null && _eventEndTimer[_eventCounter - 1] <= _remainingTime.Value)
                 {
-                    Debug.Log($"[GameManager] Release Event ec:{_eventCounter} et:{_eventEndTimer[_eventCounter - 1]} el{_elapsedTime}");
+                    Debug.Log($"[GameManager] Release Event ec:{_eventCounter} et:{_eventEndTimer[_eventCounter - 1]} el{_remainingTime.Value}");
                     _isEventEndTimer = false;
                     _eventScheduleManager.OnEventDespawn();
                 }
             }
             yield return _tick;
         }
-        if (IsServer) _gameState.Value = GameState.GameEnd;
+        _gameState.Value = GameState.GameEnd;
     }
 
     public void SetData(TeamInfo[] teams, in string roomID, int mapNumber)
@@ -250,8 +250,12 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private void ResetGameData()
     {
         Debug.Log("[GameManager] Reset Game Data ... ");
+        if (!IsServer)
+        {
+            Debug.Log("[GameManager] Reset Game Data ... SKIP");
+            return;
+        }
         _timerCoroutine = StartCoroutine(Timer());
-        if (!IsServer) return;
         _team1Score.Value = 0;
         _team2Score.Value = 0;
         _team3Score.Value = 0;
@@ -315,7 +319,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         // 이동 수단 비활성화 및 플레그 호출
         if (!IsServer) return;
         var respawnPos = ServiceLocator.Get<IMapManager>().GetStartPoint(myTeam);
-        _RespawnTimer[(int)myTeam] = _elapsedTime + _basicSpawnTime;
+        _RespawnTimer[(int)myTeam] = _remainingTime.Value + _basicSpawnTime;
         if (_triggerTimerCoroutine == null)
             _triggerTimerCoroutine = StartCoroutine(RespawnCoroutine(respawnPos));
 
@@ -350,7 +354,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             counter = 0;
             for (i = 0; i < _RespawnTimer.Length; i++)
             {
-                if (_elapsedTime <= _RespawnTimer[i])
+                if (_remainingTime.Value <= _RespawnTimer[i])
                 {
                     ReSpawnVehicle((PlayerTeamEnum)i, respawnPos);
                 }
