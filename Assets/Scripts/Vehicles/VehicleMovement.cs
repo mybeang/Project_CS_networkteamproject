@@ -92,7 +92,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         ulong t = NetworkManager.Singleton.LocalClientId;
         foreach (var player in teamInfo.players)
         {
-            Debug.Log($"[{name}] {teamInfo.teamNum}로 받은 ID : {player.userId}");
+            Debug.Log($"[{name}] {teamInfo.teamNum}로 받은 ID : {player.clientId}");
             Debug.Log($" 나의 Client ID : {t}");
             if (player.clientId == t)
             {
