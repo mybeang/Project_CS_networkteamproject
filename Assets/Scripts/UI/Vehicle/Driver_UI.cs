@@ -18,6 +18,7 @@ public abstract class Driver_UI : MonoBehaviour
     [SerializeField][Tooltip("타이머 TMP 등록")] private TextMeshProUGUI _timer;
     [SerializeField][Tooltip("체력 바")] protected Slider _hpSlider;
     [SerializeField][Tooltip("킬로그 표시용 TMP")] protected TextMeshProUGUI _killLog;
+    [SerializeField] protected GameObject _scoreBoad;
 
     [Header("작업자 실수 방지용 참조")]
     [SerializeField] protected CanvasScaler _canvas;
@@ -54,13 +55,13 @@ public abstract class Driver_UI : MonoBehaviour
         _canvas.matchWidthOrHeight = 1;
         _canvas.referencePixelsPerUnit = 100;
 
-
+        _scoreBoad.SetActive(false);
         Debug.Log($"캔버스 설정 완료됌.");
     }
     
-    public void ShowScore()
+    private void ShowScore(bool b)
     {
-        // 스코어 판 등록 후 여기에서 호출
+        _scoreBoad.SetActive(b);
     }
 
     public abstract void UpdateKillLog(PlayerTeamEnum self, PlayerTeamEnum enemy);
