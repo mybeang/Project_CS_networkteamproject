@@ -1777,7 +1777,19 @@ MonoBehaviour:
   m_Value: 0.5
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &7499221594716297084
 GameObject:
   m_ObjectHideFlags: 0
@@ -2185,6 +2197,7 @@ GameObject:
   - component: {fileID: 4687840618192204273}
   - component: {fileID: 7682026422224143529}
   - component: {fileID: 5088957395022322450}
+  - component: {fileID: 4592411404383843856}
   m_Layer: 5
   m_Name: Setting_Canvas
   m_TagString: Untagged
@@ -2275,6 +2288,25 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &4592411404383843856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8478258309775621336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 439c7f7ca16027e40acd2c393536e76f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SettingPanelController
+  _panel: {fileID: 5017966560418857617}
+  _continueButton: {fileID: 5138603862074364287}
+  _returnButton: {fileID: 3797255094123971554}
+  _exitButton: {fileID: 5767708024968777385}
+  _bgmSlider: {fileID: 1111207622523983978}
+  _sfxSlider: {fileID: 8340009056342347939}
+  _voiceSlider: {fileID: 6435056930673646407}
 --- !u!1 &8628146716343710067
 GameObject:
   m_ObjectHideFlags: 0

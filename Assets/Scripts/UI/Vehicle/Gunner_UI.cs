@@ -8,6 +8,7 @@ public class Tank_Gunner : MonoBehaviour
     [SerializeField] Camera _MinimapCamera;
     [SerializeField] Slider _reloadSlider;
     [SerializeField] GameObject _readyToFireText;
+    [SerializeField] private GameObject _scoreBoad;
 
     private void Start()
     {
@@ -17,11 +18,12 @@ public class Tank_Gunner : MonoBehaviour
         {
             Debug.LogError("미니맵 카메라 참조 누락 감지됌");
         }
+        _scoreBoad.SetActive(false);
     }
 
-    public void ShowScore()
+    public void ShowScore(bool b)
     {
-        // 스코어 판 등록 후 여기에서 호출
+        _scoreBoad.SetActive(b);
     }
 
     private void ReadyToFire()
