@@ -1,6 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Unity.Netcode;
+using Unity.VectorGraphics;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Windows;
 
@@ -10,34 +13,51 @@ public class VehicleTurret : NetworkBehaviour
     [SerializeField] private Canvas _gunnerUICanvas;
     //[SerializeField] private VehicleMovement ;
     [SerializeField] private ProjectileManager _projectile;
+    [SerializeField] private Camera _gunnerCam;
+
+    [SerializeField] private Transform _canon;
 
     private Tank_Gunner _gunnerUI; // TODO : 나중에 상위 객체를 받아서 전환하게 바꾸기
-    private InputSystem_Actions _inputActions;
 
     private TeamInfo _teamInfo;
 
+    private WaitForSeconds _tick;
+
     private bool isReloading;
+    private float _canonAngle;
+
+    private Vector3 _lastInput;
 
     public override void OnNetworkSpawn()
     {
-        if (!IsLocalPlayer) return;
-        _inputActions = new InputSystem_Actions();
 
-        _inputActions.Player.Move.performed += TurretMovement;
-        _inputActions.Player.Move.canceled += TurretMovement;
-        _inputActions.Player.Attack.performed += Shot;
-        _inputActions.Enable();
-
-        _gunnerUICanvas.enabled = true;
     }
 
-    private void OnDestroy()
+    private void Awake()
     {
-        if (_gunnerUICanvas.enabled)
-        {
-            _inputActions.Player.Move.performed -= TurretMovement;
-            _inputActions.Player.Move.canceled -= TurretMovement;
-        }
+        _tick = new WaitForSeconds(0.2f);
+    }
+
+    private void OnEnable()
+    {
+        _gunnerCam.enabled = true;
+        _gunnerUICanvas.enabled = true;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
+        StartCoroutine(RotatoinUpdater());
+    }
+
+    private void OnDisable()
+    {
+        _gunnerCam.enabled = false;
+        StopCoroutine(RotatoinUpdater());
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= TurretMovement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= TurretMovement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed -= Shot;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Disable();
+        _gunnerUICanvas.enabled = false;
     }
 
     public void SetGunnerData(PlayerableStatisticsSO so, TeamInfo team)
@@ -54,26 +74,40 @@ public class VehicleTurret : NetworkBehaviour
         while(_vehicleData.VechicleReloadtime <= _currentTime)
         {
             _currentTime += Time.time - _startTime;
-            yield return null;
+            _gunnerUI.UpdateToReloadUI( (float)_currentTime / _vehicleData.VechicleReloadtime);
+            yield return _tick;
         }
         isReloading = false;
     }
 
-    public void ShowScoreUI()
+    IEnumerator RotatoinUpdater()
     {
+        while (true)
+        {
+            transform.localRotation *= Quaternion.Euler(0, _lastInput.x * _vehicleData.TurretHorizontalRotationSpeed, 0);
 
+            _canonAngle += _lastInput.y * _vehicleData.TurretVerticalRotationSpeed;
+            _canonAngle  = Math.Clamp(_canonAngle, _vehicleData.TurretMaximumDepressionAngle, _vehicleData.TurretMaximumElevationAngle); // 나중에 데이터 기반으로 재구성
+            _canon.localRotation = Quaternion.Euler(_canonAngle, 0, 0);
+
+            yield return null;
+        }
     }
 
     public void TurretMovement(InputAction.CallbackContext ctx)
     {
-        // 포탑을 상 하 또는 좌 우만 움직이게 하기
+        Vector3 input = ctx.ReadValue<Vector3>(); // 회전 축 0.601
+
+        // 들어온 입력이 0, 1, 0.707 / 3개 중 0 과 1에 대해서만 반응
+        if (input.x * input.y != 0) return;
+        _lastInput = input;
     }
 
     private void Shot(InputAction.CallbackContext ctx)
     {
         if (!IsLocalPlayer && !isReloading) return;
-        _projectile.Shot(transform, _teamInfo.teamNum);
+        _projectile.Shot(_gunnerCam.transform, _teamInfo.teamNum);
+        _gunnerUI.Fire();
         StartCoroutine(ReLoad());
     }
-
 }
