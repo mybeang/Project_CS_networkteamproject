@@ -214,6 +214,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     // ----------------- turret --------------------
     public void UpdateTurretPosition(Vector2 input, ulong gunnerId)
     {
+        Debug.Log($"[VehicleMovement] UpdateTurretPosition gunner id; field:{_gunnerId} vs param:{gunnerId}");
         if (gunnerId == _gunnerId)
         {
             _trlastInput = input;
@@ -222,7 +223,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     
     IEnumerator RotationUpdater()
     {
-        Debug.Log("[VehicleTurrent] RotationUpdater");
+        Debug.Log("[VehicleMovement] RotationUpdater");
         while (true)
         {
             _turretTf.localRotation *= Quaternion.Euler(0, _trlastInput.x * _vehicleData.TurretHorizontalRotationSpeed, 0);

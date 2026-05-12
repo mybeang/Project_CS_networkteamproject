@@ -111,6 +111,7 @@ public class VehicleTurret : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SendInputDataToServerRpc(Vector2 input)
     {
+        Debug.Log("[VehicleTurrent] SendInputDataToServer");
         _vehicleMovement.UpdateTurretPosition(input, _gunnerId);
     }
 
