@@ -26,7 +26,7 @@ public abstract class Driver_UI : MonoBehaviour
 
     #region basicVariable
 
-    
+    private bool _isScoreBoard;
 
     #endregion
 
@@ -56,12 +56,14 @@ public abstract class Driver_UI : MonoBehaviour
         _canvas.referencePixelsPerUnit = 100;
 
         _scoreBoad.SetActive(false);
+        _isScoreBoard = false;
         Debug.Log($"캔버스 설정 완료됌.");
     }
     
-    private void ShowScore(bool b)
+    public  void ShowScore()
     {
-        _scoreBoad.SetActive(b);
+        _isScoreBoard = !_isScoreBoard;
+        _scoreBoad.SetActive(_isScoreBoard);
     }
 
     public abstract void UpdateKillLog(PlayerTeamEnum self, PlayerTeamEnum enemy);

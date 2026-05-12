@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections;
 using Unity.Netcode;
-using Unity.VectorGraphics;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.Windows;
+using UnityEngine.Rendering;
 
 public class VehicleTurret : NetworkBehaviour
 {
@@ -17,13 +15,14 @@ public class VehicleTurret : NetworkBehaviour
 
     [SerializeField] private Transform _canon;
 
-    private Tank_Gunner _gunnerUI; // TODO : 나중에 상위 객체를 받아서 전환하게 바꾸기
+    private Gunner_UI _gunnerUI; // TODO : 나중에 상위 객체를 받아서 전환하게 바꾸기
 
     private TeamInfo _teamInfo;
 
     private WaitForSeconds _tick;
 
     private bool isReloading;
+    private bool _activeScript;
     private float _canonAngle;
 
     private Vector3 _lastInput;
@@ -36,9 +35,59 @@ public class VehicleTurret : NetworkBehaviour
     private void Awake()
     {
         _tick = new WaitForSeconds(0.2f);
+        gameObject.SetActive(false);
     }
 
     private void OnEnable()
+    {
+        if (!_activeScript || !IsClient) return;
+
+        _gunnerCam.enabled = true;
+        _gunnerUICanvas.enabled = true;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
+
+
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
+        StartCoroutine(RotatoinUpdater());
+    }
+
+    private void OnDisable()
+    {
+        if (!_activeScript || !IsClient) return;
+        _gunnerCam.enabled = false;
+        StopCoroutine(RotatoinUpdater());
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= TurretMovement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= TurretMovement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed -= Shot;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed -= OnScoreBoard;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Disable();
+        _gunnerUICanvas.enabled = false;
+    }
+
+    private void OnScoreBoard(InputAction.CallbackContext ctx)
+    {
+        _gunnerUI.ShowScore();
+    }
+
+    public void SetGunnerData(PlayerableStatisticsSO so, TeamInfo team)
+    {
+        _vehicleData = so;
+        _teamInfo = team;
+
+        foreach(var player in _teamInfo.players)
+        {
+            if (player.clientId == NetworkManager.Singleton.LocalClientId)
+            {
+                _activeScript = true;
+                ActiveScript();
+            }
+        }
+    }
+
+    private void ActiveScript()
     {
         _gunnerCam.enabled = true;
         _gunnerUICanvas.enabled = true;
@@ -47,23 +96,6 @@ public class VehicleTurret : NetworkBehaviour
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
         StartCoroutine(RotatoinUpdater());
-    }
-
-    private void OnDisable()
-    {
-        _gunnerCam.enabled = false;
-        StopCoroutine(RotatoinUpdater());
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= TurretMovement;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= TurretMovement;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed -= Shot;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Disable();
-        _gunnerUICanvas.enabled = false;
-    }
-
-    public void SetGunnerData(PlayerableStatisticsSO so, TeamInfo team)
-    {
-        _vehicleData = so;
-        _teamInfo = team;
     }
 
     IEnumerator ReLoad()
@@ -96,7 +128,7 @@ public class VehicleTurret : NetworkBehaviour
 
     public void TurretMovement(InputAction.CallbackContext ctx)
     {
-        Vector3 input = ctx.ReadValue<Vector3>(); // 회전 축 0.601
+        Vector2 input = ctx.ReadValue<Vector2>(); // 회전 축 0.601
 
         // 들어온 입력이 0, 1, 0.707 / 3개 중 0 과 1에 대해서만 반응
         if (input.x * input.y != 0) return;

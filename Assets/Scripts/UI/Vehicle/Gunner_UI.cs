@@ -2,14 +2,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Tank_Gunner : MonoBehaviour
+public class Gunner_UI : MonoBehaviour
 {
     [SerializeField] RenderTexture _minimapRenderTexture;
     [SerializeField] Camera _MinimapCamera;
     [SerializeField] Slider _reloadSlider;
     [SerializeField] GameObject _readyToFireText;
-    [SerializeField] private GameObject _scoreBoad;
+    [SerializeField] private GameObject _scoreBoard;
 
+    private bool _isScoreboard;
     private void Start()
     {
         if( _MinimapCamera != null)
@@ -18,12 +19,14 @@ public class Tank_Gunner : MonoBehaviour
         {
             Debug.LogError("미니맵 카메라 참조 누락 감지됌");
         }
-        _scoreBoad.SetActive(false);
+        _isScoreboard = false;
+        _scoreBoard.SetActive(false);
     }
 
-    public void ShowScore(bool b)
+    public void ShowScore()
     {
-        _scoreBoad.SetActive(b);
+        _isScoreboard = !_isScoreboard;
+        _scoreBoard.SetActive(_isScoreboard);
     }
 
     private void ReadyToFire()

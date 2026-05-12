@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -69,8 +69,9 @@ public class TankController : NetworkBehaviour, IDamageableObject
         GetComponent<MeshRenderer>().material = _material;
         if (userInfo.role == PlayerRole.Driver)
             _hp.Value = _stat.VechicleMaximumHP;
-        _movement.SetDriverData(_stat);
-        _turret.SetGunnerData(_stat, ServiceLocator.Get<IGameManager>().GetMyTeamInfo(_teamNum));
+        var teamInfo = ServiceLocator.Get<IGameManager>().GetMyTeamInfo(_teamNum);
+        _movement.SetDriverData(_stat, teamInfo);
+        _turret.SetGunnerData(_stat, teamInfo);
         Debug.Log("[TankController] Init Tank ... Completed");
     }
 

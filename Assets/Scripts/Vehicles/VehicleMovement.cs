@@ -15,10 +15,12 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     [SerializeField] private Canvas _driverUICanvas;
 
     private Coroutine _flipCounter;
+    private Driver_UI _driverUI;
 
     private bool canMove;
     private bool _coroutineIsRunning;
     private bool _canFlip;
+    private bool _isActiveScript;
 
     private Vector2 lastInput;
 
@@ -47,25 +49,30 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
 
     private void OnEnable()
     {
+        if (!_isActiveScript || !IsClient) return;
         _driverUICanvas.enabled = true;
         _driverCam.enabled = true;
         StartCoroutine(Freeze());
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
     }
 
     private void OnDisable()
     {
+        if (!_isActiveScript || !IsClient) return;
         canMove = false;
         _driverCam.enabled = false;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed -= FlipVehicle;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed -= OnScoreBoard;
 
         _coroutineIsRunning = false;
-        StopCoroutine(_flipCounter);
+        if (_flipCounter != null)
+            StopCoroutine(_flipCounter);
         _flipCounter = null;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Disable();
 
@@ -80,9 +87,32 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     }
 
     // 상위 객체에서 관리 되는
-    public void SetDriverData(PlayerableStatisticsSO so)
+    public void SetDriverData(PlayerableStatisticsSO so, TeamInfo teamInfo)
     {
         _vehicleData = so;
+        foreach (var player in teamInfo.players)
+        {
+            if (player.clientId == NetworkManager.Singleton.LocalClientId)
+            {
+                _isActiveScript = true;
+                ActiveScript();
+            }
+        }
+    }
+
+    private void ActiveScript()
+    {
+        _driverUICanvas.enabled = true;
+        _driverCam.enabled = true;
+        StartCoroutine(Freeze());
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += Movement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
+    }
+    private void OnScoreBoard(InputAction.CallbackContext ctx)
+    {
+        _driverUI.ShowScore();
     }
 
     public void Movement(InputAction.CallbackContext ctx)
