@@ -31,7 +31,7 @@ public class AudioManager : Manager<AudioManager>, IAudioService
         _bgmSource.Play();
     }
 
-    public void GetBGMVolume(out float volume) => volume = _bgmSource.volume;
+    public float GetBGMVolume() => _bgmSource.volume;
     public void SetBGMVolume(float volume) => _bgmSource.volume = volume;
    
     public void PlayOneShotSfx(AudioClip clip)
@@ -48,7 +48,7 @@ public class AudioManager : Manager<AudioManager>, IAudioService
     }
 
     public void PlayStopSfx() => _sfxSource.Stop();
-    public void GetSfxVolume(out float volume) => volume = _sfxSource.volume;
+    public float GetSfxVolume() => _sfxSource.volume;
     public void SetSfxVolume(float volume) => _sfxSource.volume = volume;
     
     public void PlayButtonSfx() => _sfxSource.PlayOneShot(_btSound);
