@@ -169,14 +169,15 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
         if (_snowVfx != null)
         {
-            _snowVfx.SetActive(enable);
             if (userInfo.teamNum == _teamNum && userInfo.role == PlayerRole.Driver)
             {
+                _snowVfx.SetActive(enable);
                 _driverSnowSight.SetActive(enable);
                 return;
             }
             if (userInfo.teamNum == _teamNum && userInfo.role == PlayerRole.Gunner)
             {
+                _snowVfx.SetActive(enable);
                 _gunnerSnowSight.SetActive(enable);
             }
         }
