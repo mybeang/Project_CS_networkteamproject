@@ -29,7 +29,6 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     
     // 현재 HP
     private NetworkVariable<int> _hp = new(0, writePerm: NetworkVariableWritePermission.Owner);
-    private NetworkVariable<bool> _isAlive = new(true, writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<bool> _isEnd = new(writePerm: NetworkVariableWritePermission.Owner);
     // 공격 쿨다운 (일단 일반변수로 가보자)
 
@@ -55,7 +54,6 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
 
     public override void OnNetworkSpawn()
     {
-        _isAlive.OnValueChanged += SpawnControl;
         _isEnd.OnValueChanged += (_, _) => DestoryOnNetwork();
     }
 
@@ -155,7 +153,6 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
             _hp.Value -= dmg;
             if (_hp.Value <= 0)
             {
-                _isAlive.Value = false;
                 ServiceLocator.Get<IGameManager>().OnDestoryVehicleServerRpc(_teamNum, enemy);
             }
         }

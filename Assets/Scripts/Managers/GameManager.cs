@@ -310,7 +310,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     /// </summary>
     /// <param name="myTeam"></param>
     /// <param name="enemy"></param>
-    [ServerRpc]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void OnDestoryVehicleServerRpc(PlayerTeamEnum myTeam, PlayerTeamEnum enemy)
     {
         // 이동 수단 비활성화 및 플레그 호출
