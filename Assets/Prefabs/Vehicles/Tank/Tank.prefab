@@ -10296,7 +10296,6 @@ MonoBehaviour:
   _damageableObject:
     serializedVersion: 2
     m_Bits: 128
-  _onDebugLog: 1
 --- !u!114 &846322708626938188
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10397,7 +10396,6 @@ MonoBehaviour:
   _warpMask:
     serializedVersion: 2
     m_Bits: 1024
-  _warpEffect: {fileID: 6254335897581606287}
 --- !u!1 &4188883651252804258
 GameObject:
   m_ObjectHideFlags: 0
@@ -21202,11 +21200,6 @@ PrefabInstance:
 --- !u!4 &6254335897581606286 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5942451075640420071, guid: a4dbebdb75f630344a106ca703ab2618, type: 3}
-  m_PrefabInstance: {fileID: 341163719851258729}
-  m_PrefabAsset: {fileID: 0}
---- !u!198 &6254335897581606287 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 5942451075640420070, guid: a4dbebdb75f630344a106ca703ab2618, type: 3}
   m_PrefabInstance: {fileID: 341163719851258729}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &717739162386870606

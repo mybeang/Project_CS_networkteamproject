@@ -7,12 +7,6 @@ public class ProjectileManager : NetworkBehaviour
     // raycast, 투사체 속도, 피해량, 범위, 범위별 피해 계수, 투사체 최대 비행 거리(사거리)
     [SerializeField] PlayerableStatisticsSO _vechicleSO;
     [SerializeField] LayerMask _damageableObject;
-
-#if UNITY_EDITOR
-    [Header("디버깅용")]
-    [Tooltip("적중된 대상의 이름을 로그에 작성함.")][SerializeField] bool _onDebugLog;
-#endif
-
     Ray _ray;
     RaycastHit _targetPoint;
     RaycastHit[] _hitedTargets;
@@ -32,11 +26,11 @@ public class ProjectileManager : NetworkBehaviour
     // 외부에서 호출될 코드로 호출 시 Raycast 기반으로 사격 지점과 거리를 받아온 후 해당 지점에 거리 비례 시간 후에 피해를 입히는 방식으로 작동하면 될 거 같다는 생각.
     public void Shot(Transform shotPos, PlayerTeamEnum self)
     {
-        Debug.Log("Shot!");
+        Debug.Log("[ProjectileManager] Shot!");
 
         if (_vechicleSO == null)
         {
-            Debug.LogError("PlayerableStatisticsSO가 존재하지 않습니다.");
+            Debug.LogError("[ProjectileManager] PlayerableStatisticsSO가 존재하지 않습니다.");
             return;
         }
         _ray = new Ray(shotPos.position, shotPos.forward);
@@ -72,26 +66,22 @@ public class ProjectileManager : NetworkBehaviour
             0.001f,
             _damageableObject);
 
-        Debug.Log($"적중 위치 기반 탐지 된 대상 : {count}");
+        Debug.Log($"[ProjectileManager] 적중 위치 기반 탐지 된 대상 : {count}");
 
         if (count < 1 || _hitedTargets == null) return;
 
         for (int i = 0; i < count; i++)
         {
-#if UNITY_EDITOR
-            if (_onDebugLog)
-            {
-                Debug.Log($"검출된 대상 : {_hitedTargets[i].collider.name}");
-                Debug.Log($"폭발 중심지에서 대상까지의 거리 : {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point)}");
-            }
-#endif
+            Debug.Log($"[ProjectileManager] 검출된 대상 : {_hitedTargets[i].collider.name}");
+            Debug.Log($"[ProjectileManager] 폭발 중심지에서 대상까지의 거리 : {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point)}");
+
             (_hitedTargets[i].collider.GetComponent<TankController>() as IDamageableObject)
             .TakeDamaged(
                     (int)Mathf.Lerp( // 거리에 따라 피해를 다를 게 주기 위해(선형 보간 처리를 위해) Mathf.Lerp로 처리
                         _vechicleSO.ProjectileDamage,
                         (_vechicleSO.ProjectileDamage / 4),
                         Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point) / _vechicleSO.ProjectileMaximumDamageableRange), self); // 폭심지를 기준으로 콜라이더의 접촉부위 중 가장 가까운 지점과 거리 비교 후 피해량 측정
-            Debug.Log($"TakeDamage: {_vechicleSO.ProjectileDamage} , {_vechicleSO.ProjectileDamage / 4} , {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point) / _vechicleSO.ProjectileMaximumDamageableRange}");
+            Debug.Log($"[ProjectileManager] TakeDamage: {_vechicleSO.ProjectileDamage} , {_vechicleSO.ProjectileDamage / 4} , {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point) / _vechicleSO.ProjectileMaximumDamageableRange}");
         }
     }
 }
