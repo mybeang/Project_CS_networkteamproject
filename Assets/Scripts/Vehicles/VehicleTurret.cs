@@ -127,7 +127,7 @@ public class VehicleTurret : NetworkBehaviour
 
     private void Shot(InputAction.CallbackContext ctx)
     {
-        if (!isReloading) return;
+        if (isReloading) return;
         Debug.Log("[VehicleTurrent] Shot");
         _projectile.Shot(_gunnerCam.transform, _teamInfo.teamNum);
         _gunnerUI.Fire();
