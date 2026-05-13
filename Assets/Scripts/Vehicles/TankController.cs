@@ -114,6 +114,7 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
 
     private void HpValueChangeHandler(int oldVal, int newVal)
     {
+        Debug.Log($"[TankController] {gameObject.name} _hp : {oldVal} -> {newVal}");
         var hpRate = newVal / (float)_stat.VechicleMaximumHP;
         _driverUI?.ChangeVehicleHealth(hpRate);
     }
@@ -143,7 +144,10 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         Debug.Log($"[TankController] {gameObject.name} _hp : {_hp.Value} , dmg : {dmg}");
         var user = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
         if (_teamNum == user.teamNum && user.role == PlayerRole.Driver)
+        {
+            Debug.Log($"[TankController] 처맞았니?");
             _hp.Value -= dmg;
+        }
         if (_hp.Value <= 0)
         {
             _isAlive.Value = false;
