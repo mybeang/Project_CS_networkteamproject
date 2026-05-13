@@ -37,10 +37,10 @@ public class VehicleTurret : NetworkBehaviour
         _tick = new WaitForSeconds(0.2f);
     }
 
-    private void BindHanders()
+    private void BindHandlers()
     {
         if (!_activeScript && !IsClient) return;
-        Debug.Log($"[VehicleTurrent] {_teamInfo.teamNum} BindHanders");
+        Debug.Log($"[VehicleTurrent] {_teamInfo.teamNum} BindHandlers");
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
@@ -52,6 +52,7 @@ public class VehicleTurret : NetworkBehaviour
     private void UnbindHandlers()
     {
         if (!_activeScript && !IsClient) return;
+        if (_teamInfo.teamNum != ServiceLocator.Get<IUserInfoManager>().GetUserInfo().teamNum) return;
         Debug.Log($"[VehicleTurrent] {_teamInfo.teamNum} UnbindHandlers");
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= TurretMovement;
@@ -94,7 +95,7 @@ public class VehicleTurret : NetworkBehaviour
         _gunnerUI = _gunnerUICanvas.GetComponent<Gunner_UI>();
         isReloading = false;
         Debug.Log("[VehicleTurrent] ActiveScript");
-        BindHanders();
+        BindHandlers();
     }
 
     IEnumerator ReLoad()

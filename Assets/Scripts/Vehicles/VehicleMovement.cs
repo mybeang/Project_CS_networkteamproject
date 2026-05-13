@@ -67,11 +67,11 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         UnbindHandlers();
     }
 
-    private void BindHanders()
+    private void BindHandlers()
     {
         if (!_isActiveScript && !IsClient) return;
         StartCoroutine(Freeze());
-        Debug.Log($"[VehicleMovement] {_teamInfo.teamNum} BindHanders");
+        Debug.Log($"[VehicleMovement] {_teamInfo.teamNum} BindHandlers");
         _driverUICanvas.SetActive(true);
         if (!_driverCam.activeSelf) _driverCam.SetActive(true);
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
@@ -86,7 +86,8 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     private void UnbindHandlers()
     {
         if (!_isActiveScript && !IsClient) return;
-        Debug.Log($"[VehicleMovement] {_teamInfo.teamNum} UnBindHanders");
+        if (_teamInfo.teamNum != ServiceLocator.Get<IUserInfoManager>().GetUserInfo().teamNum) return;
+        Debug.Log($"[VehicleMovement] {_teamInfo.teamNum} UnBindHandlers");
         canMove = false;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= Movement;
@@ -135,7 +136,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     private void ActiveScript()
     {
         _driverUI = _driverUICanvas.GetComponent<Driver_UI_Tank>();
-        BindHanders();
+        BindHandlers();
     }
     private void OnScoreBoard(InputAction.CallbackContext ctx)
     {
