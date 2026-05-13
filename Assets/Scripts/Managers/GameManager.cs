@@ -501,4 +501,10 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         Debug.Log("게임 종료 성공적으로 호출됌");
         ServiceLocator.Get<ILocalSceneLoader>().LoadScene("Result");
     }
+
+    [ContextMenu("Show Service Locator List")]
+    private void PrintServiceLocator()
+    {
+        ServiceLocator.PrintServices();
+    }
 }

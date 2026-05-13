@@ -17,7 +17,6 @@ public class RespawnUIController : NetworkManager<RespawnUIController>, IRespawn
     public override void OnNetworkSpawn()
     {
         Debug.Log("[RespawnUIController] OnNetworkSpawn");
-        ServiceLocator.PrintServices();
         var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
         ServiceLocator.Get<IGameManager>().AddRespawnCounterHandler(userInfo.teamNum, UpdateRespawnTimeText);
     }
