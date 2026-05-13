@@ -85,6 +85,7 @@ public class VehicleTurret : NetworkBehaviour
     {
         _gunnerCam.SetActive(true);
         _gunnerUICanvas.SetActive(true);
+        isReloading = false;
         Debug.Log("[VehicleTurrent] ActiveScript");
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
@@ -126,7 +127,7 @@ public class VehicleTurret : NetworkBehaviour
 
     private void Shot(InputAction.CallbackContext ctx)
     {
-        if (!IsLocalPlayer && !isReloading) return;
+        if (!isReloading) return;
         Debug.Log("[VehicleTurrent] Shot");
         _projectile.Shot(_gunnerCam.transform, _teamInfo.teamNum);
         _gunnerUI.Fire();
