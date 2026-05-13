@@ -10185,7 +10185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 784402775
+  GlobalObjectIdHash: 2750736029
   InScenePlacedSourceGlobalObjectIdHash: 2750736029
   DeferredDespawnTick: 0
   Ownership: 1
@@ -10393,6 +10393,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WarpManager
   ShowTopMostFoldoutHeaderGroup: 1
+  _warpMask:
+    serializedVersion: 2
+    m_Bits: 1024
 --- !u!1 &4188883651252804258
 GameObject:
   m_ObjectHideFlags: 0

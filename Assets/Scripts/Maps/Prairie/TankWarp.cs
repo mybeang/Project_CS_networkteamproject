@@ -6,10 +6,11 @@ using UnityEngine;
 
 public class TankWarp : NetworkBehaviour
 {
+    [SerializeField] LayerMask _warpMask;
     Transform _warpPoints; // 포인트 위치
 
     // List<Transform> _warps = new List<Transform>(9);
-
+    
     bool _isWarp = true; // 워프 가능한지?
 
     private void Awake()
@@ -19,6 +20,7 @@ public class TankWarp : NetworkBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.gameObject.layer != _warpMask) return;
         if (_isWarp && IsOwner) // 워프가 가능하다면
         {
             while (true)
@@ -43,6 +45,7 @@ public class TankWarp : NetworkBehaviour
 
     private void OnTriggerExit(Collider other)
     {
+        if (other.gameObject.layer != _warpMask) return;
         if (!_isWarp) // 워프를 했다면
         {
             StartCoroutine(WaitCoolTime()); // 2초후에 다시 가능
