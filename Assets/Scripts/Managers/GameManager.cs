@@ -39,7 +39,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
     private WaitForSecondsRealtime _tick;
     private Coroutine _timerCoroutine;
-    private Dictionary<PlayerTeamEnum, Coroutine> _triggerTimerCoroutines;
+    private Dictionary<PlayerTeamEnum, Coroutine> _triggerTimerCoroutines = new();
 
     private Dictionary<PlayerTeamEnum, GameObject> _managementObject = new();
     private EventScheduleManager _eventScheduleManager;
