@@ -142,13 +142,13 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     {
         if (!_isDamageable) return;
         Debug.Log($"[TankController] {gameObject.name} _hp : {_hp.Value} , dmg : {dmg}");
-        var user = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
-        TakeDamageClientRpc(user, dmg, enemy);
+        TakeDamageClientRpc(dmg, enemy);
     }
 
     [ClientRpc]
-    private void TakeDamageClientRpc(UserInfo user, int dmg, PlayerTeamEnum enemy)
+    private void TakeDamageClientRpc(int dmg, PlayerTeamEnum enemy)
     {
+        var user = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
         Debug.Log($"[TankController] {_teamNum}:{user.teamNum} | {user.role}:{PlayerRole.Driver}");
         if (_teamNum == user.teamNum && user.role == PlayerRole.Driver)
         {
