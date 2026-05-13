@@ -36,4 +36,6 @@ public interface IGameManager
 
     public void AddKillLogHandler(Action<PlayerTeamEnum, PlayerTeamEnum> callback);
     public void RemoveKillLogHandler(Action<PlayerTeamEnum, PlayerTeamEnum> callback);
+    public void AddRespawnCounterHandler(PlayerTeamEnum team, NetworkVariable<int>.OnValueChangedDelegate callback);
+    public void RemoveRespawnCounterHandler(PlayerTeamEnum team, NetworkVariable<int>.OnValueChangedDelegate callback);
 }

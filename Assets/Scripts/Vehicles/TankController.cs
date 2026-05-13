@@ -176,17 +176,6 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         if (_teamNum == userInfo.teamNum && userInfo.role == PlayerRole.Driver)
             _isEnd.Value = true;
     }
-    
-    [ClientRpc]
-    public void RespawnClientRpc(Vector3 pos)
-    {
-        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
-        if (_teamNum == userInfo.teamNum && userInfo.role == PlayerRole.Driver)
-        {
-            _rigidbody.position = pos;
-            _isAlive.Value = true;
-        }
-    } 
 
     public void ExplosionDamaged(System.Numerics.Vector3 expsPos, int dmg, PlayerTeamEnum enemy)
     {
