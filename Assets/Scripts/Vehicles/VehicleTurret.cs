@@ -16,6 +16,7 @@ public class VehicleTurret : NetworkBehaviour
 
     [SerializeField] private Transform _canon;
     [SerializeField] private VehicleMovement _vehicleMovement;
+    [SerializeField] private AudioClip _shotSound;
 
     private Gunner_UI _gunnerUI; // TODO : 나중에 상위 객체를 받아서 전환하게 바꾸기
     private TeamInfo _teamInfo;
@@ -130,6 +131,8 @@ public class VehicleTurret : NetworkBehaviour
     {
         if (isReloading) return;
         Debug.Log("[VehicleTurrent] Shot");
+        // Shot Effect 추가 필요
+        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_shotSound);
         _projectile.Shot(_gunnerCam.transform, _teamInfo.teamNum);
         _gunnerUI.Fire();
         StartCoroutine(ReLoad());

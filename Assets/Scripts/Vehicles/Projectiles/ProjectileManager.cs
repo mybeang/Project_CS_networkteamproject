@@ -1,28 +1,40 @@
-﻿using System.Net.NetworkInformation;
+﻿using System.Collections;
+using System.Net.NetworkInformation;
 using Unity.Netcode;
 using UnityEngine;
 
 public class ProjectileManager : NetworkBehaviour
 {
     // raycast, 투사체 속도, 피해량, 범위, 범위별 피해 계수, 투사체 최대 비행 거리(사거리)
-    [SerializeField] PlayerableStatisticsSO _vechicleSO;
-    [SerializeField] LayerMask _damageableObject;
-    Ray _ray;
-    RaycastHit _targetPoint;
-    RaycastHit[] _hitedTargets;
+    [SerializeField] private PlayerableStatisticsSO _vechicleSO;
+    [SerializeField] private LayerMask _damageableObject;
+    [SerializeField] private AudioClip _boomClip;
+    private Ray _ray;
+    private RaycastHit _targetPoint;
+    private RaycastHit[] _hitedTargets;
 
     public override void OnNetworkSpawn()
     {
 
     }
 
-    void Start()
+    private void Start()
     {
         _hitedTargets = new RaycastHit[5]; // 현재 게임 내에서 5개가 검출될 일은 없을 거라고 생각하지만, 설계 실수를 검출하기 위해 5개로 설정
     }
 
     public void Init(PlayerableStatisticsSO so) => _vechicleSO = so;
 
+    private IEnumerator DelayExplosionCoroutine(PlayerTeamEnum self, Vector3 hitPosition)
+    {
+        var distance = Vector3.Distance(hitPosition, transform.position);
+        float waitTime = 0.5f;
+        yield return new WaitForSeconds(waitTime * distance);
+        // Boom Effect 추가 필요
+        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_boomClip);
+        DesignatDamageableGroundServerRpc(_targetPoint.point, self);
+    }
+    
     // 외부에서 호출될 코드로 호출 시 Raycast 기반으로 사격 지점과 거리를 받아온 후 해당 지점에 거리 비례 시간 후에 피해를 입히는 방식으로 작동하면 될 거 같다는 생각.
     public void Shot(Transform shotPos, PlayerTeamEnum self)
     {
@@ -35,10 +47,10 @@ public class ProjectileManager : NetworkBehaviour
         }
         _ray = new Ray(shotPos.position, shotPos.forward);
         // raycast로 메인 카메라(사수의 카메라)의 중심(사격점)을 기준으로 가장 처음 닿은 위치(물체의 위치로 받으면 아마 물체의 중심을 받게 될거임.)를 받아온 후 DeignatDamageableGround 호출
-        if (Physics.Raycast(_ray, out _targetPoint, _vechicleSO.ProjectileMaximumDinstance, _damageableObject))
+        if (Physics.Raycast(_ray, out _targetPoint, _vechicleSO.ProjectileMaximumDinstance))
         {
-            Debug.Log(_targetPoint.point);
-            DesignatDamageableGroundServerRpc(_targetPoint.point, self);
+            Debug.Log($"[ProjectileManager] {_targetPoint.point}");
+            StartCoroutine(DelayExplosionCoroutine(self, _targetPoint.point));
         }
     }
 
