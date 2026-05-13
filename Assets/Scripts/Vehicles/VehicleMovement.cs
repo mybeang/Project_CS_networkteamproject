@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -55,23 +56,35 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
         }
     }
 
-    private void OnEnable()
+    private void OnDisable()
+    {
+        if (IsServer) UnbindHandlers();
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        UnbindHandlers();
+    }
+
+    private void BindHanders()
     {
         if (!_isActiveScript && !IsClient) return;
         StartCoroutine(Freeze());
-        Debug.Log("[VehicleMovement] OnEnable");
+        Debug.Log("[VehicleMovement] BindHanders");
+        _driverUICanvas.SetActive(true);
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += PlayMoveSound;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += Movement;
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += StopMoveSound;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
-
-        _driverUICanvas.SetActive(true);
     }
 
-    private void OnDisable()
+    private void UnbindHandlers()
     {
         if (!_isActiveScript && !IsClient) return;
+        Debug.Log("[VehicleMovement] UnBindHanders");
         canMove = false;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= Movement;
@@ -118,19 +131,8 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
 
     private void ActiveScript()
     {
-        _driverUICanvas.SetActive(true);
         _driverUI = _driverUICanvas.GetComponent<Driver_UI_Tank>();
-        _driverCam.SetActive(true);
-        StartCoroutine(Freeze());
-        Debug.Log("[VehicleMovement] ActiveScript");
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += PlayMoveSound;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += Movement;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += StopMoveSound;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
-        Camera.main.gameObject.SetActive(false);
+        BindHanders();
     }
     private void OnScoreBoard(InputAction.CallbackContext ctx)
     {

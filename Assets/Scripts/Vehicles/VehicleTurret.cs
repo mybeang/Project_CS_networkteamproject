@@ -27,9 +27,9 @@ public class VehicleTurret : NetworkBehaviour
     private bool isReloading;
     private bool _activeScript;
 
-    public override void OnNetworkSpawn()
+    public override void OnNetworkDespawn()
     {
-
+        UnbindHandlers();
     }
 
     private void Awake()
@@ -37,22 +37,22 @@ public class VehicleTurret : NetworkBehaviour
         _tick = new WaitForSeconds(0.2f);
     }
 
-    private void OnEnable()
+    private void BindHanders()
     {
         if (!_activeScript && !IsClient) return;
-        Debug.Log("[VehicleTurrent] OnEnable");
+        Debug.Log("[VehicleTurrent] BindHanders");
+        ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
         _gunnerUICanvas.SetActive(true);
-
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
     }
 
-    private void OnDisable()
+    private void UnbindHandlers()
     {
         if (!_activeScript && !IsClient) return;
+        Debug.Log("[VehicleTurrent] UnbindHandlers");
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed -= Shot;
@@ -83,19 +83,18 @@ public class VehicleTurret : NetworkBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        if (IsServer) UnbindHandlers();
+    }
+
     private void ActiveScript()
     {
         _gunnerCam.SetActive(true);
-        _gunnerUICanvas.SetActive(true);
         _gunnerUI = _gunnerUICanvas.GetComponent<Gunner_UI>();
         isReloading = false;
         Debug.Log("[VehicleTurrent] ActiveScript");
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed += Shot;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
-        Camera.main.gameObject.SetActive(false);
+        BindHanders();
     }
 
     IEnumerator ReLoad()
