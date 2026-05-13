@@ -99,10 +99,10 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         if (_teamNum == userInfo.teamNum && userInfo.role == PlayerRole.Driver)
             _hp.Value = _stat.VechicleMaximumHP;
         var teamInfo = ServiceLocator.Get<IGameManager>().GetMyTeamInfo(_teamNum);
-        _rigidbody.position = pos;
-        Debug.Log($"[TankController] Init Tank ... position ; {pos} => {_rigidbody.position}");
         _movement.SetDriverData(_stat, teamInfo);
         _turret.SetGunnerData(_stat, teamInfo);
+        _rigidbody.position = pos;
+        Debug.Log($"[TankController] Init Tank ... position ; {pos} => {_rigidbody.position}");
         Debug.Log("[TankController] Init Tank ... Completed");
     }
 
