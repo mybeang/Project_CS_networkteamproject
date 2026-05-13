@@ -153,7 +153,7 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
         if (_teamNum == userInfo.teamNum && userInfo.role == PlayerRole.Driver)
         {
-            transform.position = pos;
+            _rigidbody.position = pos;
             _isAlive.Value = true;
         }
     } 
