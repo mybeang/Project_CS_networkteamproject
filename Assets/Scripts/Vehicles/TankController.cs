@@ -57,6 +57,11 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         _isEnd.OnValueChanged += (_, _) => DestoryOnNetwork();
     }
 
+    public override void OnNetworkDespawn()
+    {
+        Camera.main.gameObject.SetActive(true);
+    }
+
     private void DestoryOnNetwork()
     {
         ServiceLocator.Get<IGameManager>().RemoveKillLogHandler(KillLogHandler);
