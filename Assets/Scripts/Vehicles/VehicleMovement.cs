@@ -120,6 +120,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     public void SetDriverData(PlayerableStatisticsSO so, TeamInfo teamInfo)
     {
         _vehicleData = so;
+        _teamInfo = teamInfo;
         foreach (var player in teamInfo.players)
         {
             if (player.role == PlayerRole.Driver && player.clientId == NetworkManager.Singleton.LocalClientId)
