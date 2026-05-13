@@ -15,13 +15,13 @@ MonoBehaviour:
   _vechicleMaximumHP: 1000
   _vechicleMoveSpeed: 5
   _vechicleRotationSpeed: 1
-  _vechicleReloadtime: 0
-  _turretVerticalRotationSpeed: 2
-  _turretHorizontalRotationSpeed: 2
+  _vechicleReloadtime: 3
+  _turretVerticalRotationSpeed: 1
+  _turretHorizontalRotationSpeed: 1
   _turretMaximumDepressionAngle: -50
   _turretMaximumElevationAngle: 50
-  _projectileDamage: 1000
+  _projectileDamage: 100
   _projectileFlightSpeed: 1
-  _projectileMaximumDamageRange: 3
-  _projectileMaximumDinstance: 5
+  _projectileMaximumDamageRange: 5
+  _projectileMaximumDinstance: 30
   _vechicleName: "\uBA4B\uC788\uB294 \uC804\uCC28"

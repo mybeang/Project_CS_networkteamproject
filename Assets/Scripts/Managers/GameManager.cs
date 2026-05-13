@@ -17,7 +17,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     [Header("이동 객체 관련")]
     [SerializeField][Tooltip("전차 등의 객체(Prefab)을 직접 넣는 곳")] private GameObject[] _playerPrefabs;
     [Header("게임 정보들")]
-    [SerializeField] private double _basicSpawnTime;
+    [SerializeField][Range(1, 10)] private int _respawnInterval;
     [SerializeField][Range(60, 1800)] private int _gamePlayableTime;
     #endregion
 
@@ -34,13 +34,12 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private bool _hasEventEndtimer;
 
     private double _startTime;
-    private double[] _RespawnTimer;
     private double[] _eventTimer;
     private double[] _eventEndTimer;
 
     private WaitForSecondsRealtime _tick;
     private Coroutine _timerCoroutine;
-    private Coroutine _triggerTimerCoroutine;
+    private Dictionary<PlayerTeamEnum, Coroutine> _triggerTimerCoroutines = new();
 
     private Dictionary<PlayerTeamEnum, GameObject> _managementObject = new();
     private EventScheduleManager _eventScheduleManager;
@@ -53,6 +52,11 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private NetworkVariable<int> _team2Score = new (writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<int> _team3Score = new (writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<int> _team4Score = new (writePerm: NetworkVariableWritePermission.Owner);
+    
+    private NetworkVariable<int> _team1RespawnTime = new ();
+    private NetworkVariable<int> _team2RespawnTime = new ();
+    private NetworkVariable<int> _team3RespawnTime = new ();
+    private NetworkVariable<int> _team4RespawnTime = new ();
     private NetworkVariable<double> _remainingTime = new();
     #endregion
 
@@ -76,10 +80,13 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
     private void Awake()
     {
-        _RespawnTimer = new double[4];
         _isEventEndTimer = false;
         _eventCounter = 0;
         _tick = new WaitForSecondsRealtime(0.1f);
+        _triggerTimerCoroutines[PlayerTeamEnum.firstTeam] = null;
+        _triggerTimerCoroutines[PlayerTeamEnum.secondTeam] = null;
+        _triggerTimerCoroutines[PlayerTeamEnum.thirdTeam] = null;
+        _triggerTimerCoroutines[PlayerTeamEnum.fourthTeam] = null;
     }
 
     public TeamInfo GetMyTeamInfo(PlayerTeamEnum myTeamNum)
@@ -301,76 +308,139 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _gameState.Value = GameState.SetOtherDataForGame;
     }
 
-    // 소환된 경우 모든 Client 들에게 알려야함.
-    private void ReSpawnVehicle(PlayerTeamEnum team, Vector3 pos) 
-    {
-        var bodyObject = _managementObject[team];
-        bodyObject.GetComponent<TankController>().RespawnClientRpc(pos);
-        Debug.Log($"{_managementObject[team].name} 리스폰 완료");
-    }
-
     /// <summary>
     /// 체력이 0 이하가 되어 파괴 판정이 된 경우 호출
     /// 체력이 0인 경우 호출 방법 :  myTeam(자신)이 enemy(적)에게 파괴되었습니다.
     /// </summary>
     /// <param name="myTeam"></param>
     /// <param name="enemy"></param>
-    [ServerRpc]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void OnDestoryVehicleServerRpc(PlayerTeamEnum myTeam, PlayerTeamEnum enemy)
     {
         // 이동 수단 비활성화 및 플레그 호출
+        Debug.Log("[GameManager] OnDestoryVehicleServerRpc ... ");
         if (!IsServer) return;
         var respawnPos = ServiceLocator.Get<IMapManager>().GetStartPoint(myTeam);
-        _RespawnTimer[(int)myTeam] = _remainingTime.Value + _basicSpawnTime;
-        if (_triggerTimerCoroutine == null)
-            _triggerTimerCoroutine = StartCoroutine(RespawnCoroutine(respawnPos));
+        if (_triggerTimerCoroutines[myTeam] == null)
+        {
+            Debug.Log("[GameManager] OnDestoryVehicleServerRpc ... Start Respawn Coroutine");
+            _triggerTimerCoroutines[myTeam] = StartCoroutine(RespawnCoroutine(myTeam, respawnPos));
+        }
 
         // 점수
         switch(enemy) 
         {   // ToDo. Playable 유닛에 따라 점수 판정이 달라 짐. 추후 구현.
             case PlayerTeamEnum.firstTeam:
-                _team1Score.OnValueChanged(_team1Score.Value, _team1Score.Value += 1);
+                _team1Score.Value += 1;
                 break;
             case PlayerTeamEnum.secondTeam:
-                _team2Score.OnValueChanged(_team2Score.Value, _team2Score.Value += 1);
+                _team2Score.Value += 1;
                 break;
             case PlayerTeamEnum.thirdTeam:
-                _team3Score.OnValueChanged(_team3Score.Value, _team3Score.Value += 1);
+                _team3Score.Value += 1;
                 break;
             case PlayerTeamEnum.fourthTeam:
-                _team4Score.OnValueChanged(_team4Score.Value, _team4Score.Value += 1);
+                _team4Score.Value += 1;
                 break;
         }
         OnChangeScore?.Invoke(new int[4] {_team1Score.Value, _team2Score.Value, _team3Score.Value, _team4Score.Value});
-
+    
         // 킬로그 호출
-        OnKillLog?.Invoke(myTeam,enemy);
+        OnKillLog?.Invoke(myTeam, enemy);
+        Debug.Log("[GameManager] OnDestoryVehicleServerRpc ... Done");
     }
 
-    IEnumerator RespawnCoroutine(Vector3 respawnPos)
+    public void AddKillLogHandler(Action<PlayerTeamEnum, PlayerTeamEnum> callback) => OnKillLog += callback;
+    public void RemoveKillLogHandler(Action<PlayerTeamEnum, PlayerTeamEnum> callback) => OnKillLog -= callback;
+
+    IEnumerator RespawnCoroutine(PlayerTeamEnum team, Vector3 respawnPos)
     {
-        byte i;
-        byte counter;
-        while (true)
+        Debug.Log("[GameManager] RespawnCoroutine ... ");
+        RespawnUIControl(team, true);
+        var bodyObject = _managementObject[team];
+        bodyObject.SetActive(false);
+        Debug.Log("[GameManager] RespawnCoroutine ... Despawn");
+        bodyObject.GetComponent<NetworkObject>().Despawn(false);
+        NetworkVariable<int> netVar = _team1RespawnTime;
+        switch (team)
         {
-            counter = 0;
-            for (i = 0; i < _RespawnTimer.Length; i++)
-            {
-                if (_remainingTime.Value <= _RespawnTimer[i])
-                {
-                    ReSpawnVehicle((PlayerTeamEnum)i, respawnPos);
-                }
-                else
-                {
-                    counter++;
-                }
-                    
-            }
-            if (3 < counter)
+            case PlayerTeamEnum.secondTeam:
+                netVar = _team2RespawnTime;
                 break;
-            yield return _tick;
+            case PlayerTeamEnum.thirdTeam:
+                netVar = _team3RespawnTime;
+                break;
+            case PlayerTeamEnum.fourthTeam:
+                netVar = _team4RespawnTime;
+                break;
         }
-        _triggerTimerCoroutine = null;
+        netVar.Value = _respawnInterval;
+        while (netVar.Value > 0)
+        {
+            netVar.Value--;   
+            yield return new WaitForSecondsRealtime(1f);    
+        }
+
+        ulong driverId = 0L;
+        foreach (var teamInfo in _teams)
+        {
+            if (teamInfo.teamNum == team)
+            {
+                foreach (var player in teamInfo.players)
+                    if (player.role == PlayerRole.Driver) driverId = player.clientId;        
+            }
+        }
+        bodyObject.SetActive(true);
+        Debug.Log("[GameManager] RespawnCoroutine ... Spawn");
+        bodyObject.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
+        var tc = bodyObject.GetComponent<TankController>();
+        Debug.Log($"[GameManager] RespawnCoroutine ; {bodyObject.name}'s team: {team}");
+        tc.SetDataClientRpc(team, respawnPos);
+        _triggerTimerCoroutines[team] = null; // 팀별로 있어야되.
+        RespawnUIControl(team, false);
+    }
+
+    public void AddRespawnCounterHandler(PlayerTeamEnum team, NetworkVariable<int>.OnValueChangedDelegate callback)
+    {
+        switch (team)
+        {
+            case PlayerTeamEnum.firstTeam:
+                _team1RespawnTime.OnValueChanged += callback;
+                break;
+            case PlayerTeamEnum.secondTeam:
+                _team2RespawnTime.OnValueChanged += callback;
+                break;
+            case PlayerTeamEnum.thirdTeam:
+                _team3RespawnTime.OnValueChanged += callback;
+                break;
+            case PlayerTeamEnum.fourthTeam:
+                _team4RespawnTime.OnValueChanged += callback;
+                break;
+        }
+    }
+
+    public void RemoveRespawnCounterHandler(PlayerTeamEnum team, NetworkVariable<int>.OnValueChangedDelegate callback)
+    {
+        switch (team)
+        {
+            case PlayerTeamEnum.firstTeam:
+                _team1RespawnTime.OnValueChanged -= callback;
+                break;
+            case PlayerTeamEnum.secondTeam:
+                _team2RespawnTime.OnValueChanged -= callback;
+                break;
+            case PlayerTeamEnum.thirdTeam:
+                _team3RespawnTime.OnValueChanged -= callback;
+                break;
+            case PlayerTeamEnum.fourthTeam:
+                _team4RespawnTime.OnValueChanged -= callback;
+                break;
+        }
+    }
+    
+    private void RespawnUIControl(PlayerTeamEnum teamEnum, bool enable)
+    {
+        ServiceLocator.Get<IRespawnUIController>().SetActive(teamEnum, enable);
     }
 
     private void GameEnd()
@@ -393,11 +463,14 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             _timerCoroutine = null;
         }
 
-        if (_triggerTimerCoroutine != null)
+        Debug.Log("[GameManager] GameEnd ... Stop Trigger Timer");
+        foreach (var team in _teams)
         {
-            Debug.Log("[GameManager] GameEnd ... Stop Trigger Timer");
-            StopCoroutine(_triggerTimerCoroutine);
-            _triggerTimerCoroutine = null;
+            if (_triggerTimerCoroutines[team.teamNum] != null)
+            {
+                StopCoroutine(_triggerTimerCoroutines[team.teamNum]);
+                _triggerTimerCoroutines[team.teamNum] = null;
+            }
         }
 
         foreach (var team in _teams)
@@ -427,5 +500,23 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         }
         Debug.Log("게임 종료 성공적으로 호출됌");
         ServiceLocator.Get<ILocalSceneLoader>().LoadScene("Result");
+    }
+
+    [ContextMenu("Show Service Locator List")]
+    private void PrintServiceLocator()
+    {
+        ServiceLocator.PrintServices();
+    }
+    
+    [ContextMenu("Show Scores")]
+    private void PrintScores()
+    {
+        Debug.Log($"--- Scores ----\n" +
+                  $"> team1: {_team1Score.Value}\n" +
+                  $"> team2: {_team2Score.Value}\n" +
+                  $"> team3: {_team3Score.Value}\n" +
+                  $"> team4: {_team4Score.Value}\n" +
+                  $"--------------------------------");
+        
     }
 }
