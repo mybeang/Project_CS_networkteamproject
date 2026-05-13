@@ -143,9 +143,15 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         if (!_isDamageable) return;
         Debug.Log($"[TankController] {gameObject.name} _hp : {_hp.Value} , dmg : {dmg}");
         var user = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
+        TakeDamageClientRpc(user, dmg, enemy);
+    }
+
+    [ClientRpc]
+    private void TakeDamageClientRpc(UserInfo user, int dmg, PlayerTeamEnum enemy)
+    {
+        Debug.Log($"[TankController] {_teamNum}:{user.teamNum} | {user.role}:{PlayerRole.Driver}");
         if (_teamNum == user.teamNum && user.role == PlayerRole.Driver)
         {
-            Debug.Log($"[TankController] 처맞았니?");
             _hp.Value -= dmg;
         }
         if (_hp.Value <= 0)
