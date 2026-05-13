@@ -314,10 +314,14 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     public void OnDestoryVehicleServerRpc(PlayerTeamEnum myTeam, PlayerTeamEnum enemy)
     {
         // 이동 수단 비활성화 및 플레그 호출
+        Debug.Log("[GameManager] OnDestoryVehicleServerRpc ... ");
         if (!IsServer) return;
         var respawnPos = ServiceLocator.Get<IMapManager>().GetStartPoint(myTeam);
         if (_triggerTimerCoroutines[myTeam] == null)
+        {
+            Debug.Log("[GameManager] OnDestoryVehicleServerRpc ... Start Respawn Coroutine");
             _triggerTimerCoroutines[myTeam] = StartCoroutine(RespawnCoroutine(myTeam, respawnPos));
+        }
 
         // 점수
         switch(enemy) 
@@ -336,9 +340,10 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 break;
         }
         OnChangeScore?.Invoke(new int[4] {_team1Score.Value, _team2Score.Value, _team3Score.Value, _team4Score.Value});
-
+    
         // 킬로그 호출
         OnKillLog?.Invoke(myTeam, enemy);
+        Debug.Log("[GameManager] OnDestoryVehicleServerRpc ... Done");
     }
 
     public void AddKillLogHandler(Action<PlayerTeamEnum, PlayerTeamEnum> callback) => OnKillLog += callback;
@@ -346,9 +351,11 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
 
     IEnumerator RespawnCoroutine(PlayerTeamEnum team, Vector3 respawnPos)
     {
+        Debug.Log("[GameManager] RespawnCoroutine ... ");
         RespawnUIControl(team, true);
         var bodyObject = _managementObject[team];
         bodyObject.SetActive(false);
+        Debug.Log("[GameManager] RespawnCoroutine ... Despawn");
         bodyObject.GetComponent<NetworkObject>().Despawn(false);
         NetworkVariable<int> netVar = _team1RespawnTime;
         switch (team)
@@ -380,9 +387,10 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             }
         }
         bodyObject.SetActive(true);
+        Debug.Log("[GameManager] RespawnCoroutine ... Spawn");
         bodyObject.GetComponent<NetworkObject>().SpawnAsPlayerObject(driverId, true);
         var tc = bodyObject.GetComponent<TankController>();
-        Debug.Log($"[GameManager] Respawn ; {bodyObject.name}'s team: {team}");
+        Debug.Log($"[GameManager] RespawnCoroutine ; {bodyObject.name}'s team: {team}");
         tc.SetDataClientRpc(team, respawnPos);
         _triggerTimerCoroutines[team] = null; // 팀별로 있어야되.
         RespawnUIControl(team, false);
