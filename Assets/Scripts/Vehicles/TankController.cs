@@ -153,11 +153,11 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         if (_teamNum == user.teamNum && user.role == PlayerRole.Driver)
         {
             _hp.Value -= dmg;
-        }
-        if (_hp.Value <= 0)
-        {
-            _isAlive.Value = false;
-            ServiceLocator.Get<IGameManager>().OnDestoryVehicleServerRpc(_teamNum, enemy);
+            if (_hp.Value <= 0)
+            {
+                _isAlive.Value = false;
+                ServiceLocator.Get<IGameManager>().OnDestoryVehicleServerRpc(_teamNum, enemy);
+            }
         }
     }
 
