@@ -23,6 +23,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     private bool _coroutineIsRunning;
     private bool _canFlip;
     private bool _isActiveScript;
+    private TeamInfo _teamInfo;
 
     private Vector2 _mvlastInput;
     
@@ -70,8 +71,9 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     {
         if (!_isActiveScript && !IsClient) return;
         StartCoroutine(Freeze());
-        Debug.Log("[VehicleMovement] BindHanders");
+        Debug.Log($"[VehicleMovement] {_teamInfo.teamNum} BindHanders");
         _driverUICanvas.SetActive(true);
+        if (!_driverCam.activeSelf) _driverCam.SetActive(true);
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += PlayMoveSound;
@@ -84,7 +86,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     private void UnbindHandlers()
     {
         if (!_isActiveScript && !IsClient) return;
-        Debug.Log("[VehicleMovement] UnBindHanders");
+        Debug.Log($"[VehicleMovement] {_teamInfo.teamNum} UnBindHanders");
         canMove = false;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= Movement;

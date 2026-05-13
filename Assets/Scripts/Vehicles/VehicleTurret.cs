@@ -40,7 +40,7 @@ public class VehicleTurret : NetworkBehaviour
     private void BindHanders()
     {
         if (!_activeScript && !IsClient) return;
-        Debug.Log("[VehicleTurrent] BindHanders");
+        Debug.Log($"[VehicleTurrent] {_teamInfo.teamNum} BindHanders");
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += TurretMovement;
@@ -52,7 +52,7 @@ public class VehicleTurret : NetworkBehaviour
     private void UnbindHandlers()
     {
         if (!_activeScript && !IsClient) return;
-        Debug.Log("[VehicleTurrent] UnbindHandlers");
+        Debug.Log($"[VehicleTurrent] {_teamInfo.teamNum} UnbindHandlers");
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= TurretMovement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Attack.performed -= Shot;
