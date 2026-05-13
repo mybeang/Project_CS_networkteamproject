@@ -83,6 +83,10 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _isEventEndTimer = false;
         _eventCounter = 0;
         _tick = new WaitForSecondsRealtime(0.1f);
+        _triggerTimerCoroutines[PlayerTeamEnum.firstTeam] = null;
+        _triggerTimerCoroutines[PlayerTeamEnum.secondTeam] = null;
+        _triggerTimerCoroutines[PlayerTeamEnum.thirdTeam] = null;
+        _triggerTimerCoroutines[PlayerTeamEnum.fourthTeam] = null;
     }
 
     public TeamInfo GetMyTeamInfo(PlayerTeamEnum myTeamNum)
