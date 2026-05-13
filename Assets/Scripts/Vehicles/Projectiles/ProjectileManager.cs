@@ -28,7 +28,7 @@ public class ProjectileManager : NetworkBehaviour
     private IEnumerator DelayExplosionCoroutine(PlayerTeamEnum self, Vector3 hitPosition)
     {
         var distance = Vector3.Distance(hitPosition, transform.position);
-        float waitTime = 0.5f;
+        float waitTime = 0.2f;
         yield return new WaitForSeconds(waitTime * distance);
         // Boom Effect 추가 필요
         ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_boomClip);
