@@ -8,11 +8,6 @@ public class RespawnUIController : NetworkManager<RespawnUIController>, IRespawn
     [SerializeField] private TextMeshProUGUI _respawnTimeText;
     protected override void Register() => ServiceLocator.Register<IRespawnUIController>(this);
     protected override void Unregister() => ServiceLocator.Unregister<IRespawnUIController>();
-    
-    private void OnEnable()
-    {
-        
-    }
 
     public override void OnNetworkSpawn()
     {
