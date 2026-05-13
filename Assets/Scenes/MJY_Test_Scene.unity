@@ -204,11 +204,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
---- !u!198 &319971434 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
-  m_PrefabInstance: {fileID: 121078960}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &571779747
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -411,11 +406,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!198 &789991390 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
-  m_PrefabInstance: {fileID: 971921886}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &859699487
 GameObject:
   m_ObjectHideFlags: 0
@@ -507,7 +497,6 @@ GameObject:
   - component: {fileID: 876092776}
   - component: {fileID: 876092775}
   - component: {fileID: 876092774}
-  - component: {fileID: 876092773}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -515,24 +504,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &876092773
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 876092772}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a4e9dc1433fbf34998ced4af6b4aa85, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::teststCode
-  speed: 0
-  _canon: {fileID: 0}
-  _rb: {fileID: 0}
-  explosionForce: 0
-  explosionRadius: 0
-  upwardModifier: 0
 --- !u!65 &876092774
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -873,6 +844,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
+      propertyPath: ShapeModule.type
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: ShapeModule.angle
       value: 30
       objectReference: {fileID: 0}
@@ -881,8 +856,60 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
+      propertyPath: ShapeModule.arc.value
+      value: 360
+      objectReference: {fileID: 0}
+    - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
+      propertyPath: ShapeModule.m_Scale.x
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
+      propertyPath: ShapeModule.m_Scale.y
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
+      propertyPath: ShapeModule.m_Scale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
+      propertyPath: ShapeModule.arc.spread
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
+      propertyPath: ShapeModule.m_Position.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
+      propertyPath: ShapeModule.m_Rotation.x
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: ShapeModule.radius.value
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
+      propertyPath: ShapeModule.boxThickness.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
+      propertyPath: ShapeModule.boxThickness.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
+      propertyPath: ShapeModule.boxThickness.z
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
+      propertyPath: ShapeModule.radiusThickness
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 3.16
+      objectReference: {fileID: 0}
+    - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
+      propertyPath: ShapeModule.randomPositionAmount
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: InitialModule.startLifetime.scalar
@@ -894,7 +921,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: EmissionModule.m_Bursts.Array.data[0].cycleCount
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: EmissionModule.m_Bursts.Array.data[0].countCurve.scalar
@@ -906,11 +933,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909028, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909028, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 10
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909028, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1316,9 +1343,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1472471354}
-        m_TargetAssemblyTypeName: LunaticMapGimmick, Assembly-CSharp
-        m_MethodName: nwknw
+      - m_Target: {fileID: 1940524556}
+        m_TargetAssemblyTypeName: Test_Meteor, Assembly-CSharp
+        m_MethodName: TestButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1366,11 +1393,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1277460579}
   m_CullTransparentMesh: 1
---- !u!198 &1449706816 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 1715845624619909026, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
-  m_PrefabInstance: {fileID: 571779747}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1472471353
 GameObject:
   m_ObjectHideFlags: 0
@@ -1404,9 +1426,6 @@ MonoBehaviour:
   _mediumMeteor: {fileID: 0}
   _largeMeteor: {fileID: 0}
   _particle: {fileID: 1697208028}
-  _particle1: {fileID: 319971434}
-  _particle2: {fileID: 789991390}
-  _particle3: {fileID: 1449706816}
 --- !u!4 &1472471355
 Transform:
   m_ObjectHideFlags: 0
@@ -1439,6 +1458,7 @@ GameObject:
   - component: {fileID: 1940524554}
   - component: {fileID: 1940524553}
   - component: {fileID: 1940524552}
+  - component: {fileID: 1940524556}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1529,6 +1549,19 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1940524556
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1940524551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 626aa99b04258eb4f983ff0748d83e69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Test_Meteor
+  _meteor: {fileID: 1697208028}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
