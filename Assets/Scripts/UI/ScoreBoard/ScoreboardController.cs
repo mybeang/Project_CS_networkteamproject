@@ -28,7 +28,7 @@ public class ScoreboardController : MonoBehaviour
 
     public void OnScoreBoardEnable()
     {
-        _scoreBoard.enabled = true;
+        _scoreBoard.gameObject.SetActive(true);
         _team1.text = _team1score.ToString();
         _team2.text = _team2score.ToString();
         _team3.text = _team3score.ToString();
@@ -37,7 +37,7 @@ public class ScoreboardController : MonoBehaviour
 
     public void OnScoreBoardDisable()
     {
-        _scoreBoard.enabled = false;
+        _scoreBoard.gameObject.SetActive(false);
     }
 
 }
