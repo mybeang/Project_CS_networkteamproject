@@ -105,7 +105,7 @@ public class VehicleTurret : NetworkBehaviour
         Debug.Log("[VehicleTurrent] ReLoad ... ");
         while(_vehicleData.VechicleReloadtime <= _currentTime)
         {
-            _currentTime += Time.time - _startTime;
+            _currentTime = Time.time - _startTime;
             _gunnerUI.UpdateToReloadUI( (float)_currentTime / _vehicleData.VechicleReloadtime );
             Debug.Log("[VehicleTurrent] ReLoad ... Dokimeki");
             yield return _tick;
