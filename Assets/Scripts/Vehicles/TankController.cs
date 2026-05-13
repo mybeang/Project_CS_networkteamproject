@@ -61,7 +61,7 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
 
     public override void OnNetworkDespawn()
     {
-        _mainCamera.gameObject.SetActive(true);
+        _mainCamera?.gameObject.SetActive(true);
     }
 
     private void DestoryOnNetwork()

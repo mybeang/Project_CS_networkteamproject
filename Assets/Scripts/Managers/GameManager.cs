@@ -375,7 +375,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 break;
         }
         netVar.Value = _respawnInterval;
-        while (netVar.Value <= 0)
+        while (netVar.Value > 0)
         {
             netVar.Value--;   
             yield return new WaitForSecondsRealtime(1f);    
