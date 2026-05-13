@@ -36,7 +36,6 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     private MeshRenderer _meshRenderer;
     private BoxCollider _collider;
     private Rigidbody _rigidbody;
-    private Camera _mainCamera;
     
     private bool _isDamageable;
 
@@ -56,12 +55,6 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     public override void OnNetworkSpawn()
     {
         _isEnd.OnValueChanged += (_, _) => DestoryOnNetwork();
-        _mainCamera = Camera.main;
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        _mainCamera?.gameObject.SetActive(true);
     }
 
     private void DestoryOnNetwork()
