@@ -116,6 +116,7 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     private void ActiveScript()
     {
         _driverUICanvas.SetActive(true);
+        _driverUI = _driverUICanvas.GetComponent<Driver_UI_Tank>();
         _driverCam.SetActive(true);
         StartCoroutine(Freeze());
         Debug.Log("[VehicleMovement] ActiveScript");

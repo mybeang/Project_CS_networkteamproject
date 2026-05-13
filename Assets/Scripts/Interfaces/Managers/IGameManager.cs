@@ -33,4 +33,7 @@ public interface IGameManager
     public TeamInfo[] GetTeams();
     public TeamInfo GetMyTeamInfo(PlayerTeamEnum myTeamNum);
     public Dictionary<PlayerTeamEnum, GameObject> GetPlayableObjects();
+
+    public void AddKillLogHandler(Action<PlayerTeamEnum, PlayerTeamEnum> callback);
+    public void RemoveKillLogHandler(Action<PlayerTeamEnum, PlayerTeamEnum> callback);
 }

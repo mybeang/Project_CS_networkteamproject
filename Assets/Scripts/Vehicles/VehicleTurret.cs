@@ -85,6 +85,7 @@ public class VehicleTurret : NetworkBehaviour
     {
         _gunnerCam.SetActive(true);
         _gunnerUICanvas.SetActive(true);
+        _gunnerUI = _gunnerUICanvas.GetComponent<Gunner_UI>();
         isReloading = false;
         Debug.Log("[VehicleTurrent] ActiveScript");
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += TurretMovement;

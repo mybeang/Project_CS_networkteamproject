@@ -344,8 +344,11 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         OnChangeScore?.Invoke(new int[4] {_team1Score.Value, _team2Score.Value, _team3Score.Value, _team4Score.Value});
 
         // 킬로그 호출
-        OnKillLog?.Invoke(myTeam,enemy);
+        OnKillLog?.Invoke(myTeam, enemy);
     }
+
+    public void AddKillLogHandler(Action<PlayerTeamEnum, PlayerTeamEnum> callback) => OnKillLog += callback;
+    public void RemoveKillLogHandler(Action<PlayerTeamEnum, PlayerTeamEnum> callback) => OnKillLog -= callback;
 
     IEnumerator RespawnCoroutine(Vector3 respawnPos)
     {

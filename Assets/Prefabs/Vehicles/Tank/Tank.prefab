@@ -10185,7 +10185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2750736029
+  GlobalObjectIdHash: 784402775
   InScenePlacedSourceGlobalObjectIdHash: 2750736029
   DeferredDespawnTick: 0
   Ownership: 1
@@ -10268,6 +10268,7 @@ MonoBehaviour:
   _turret: {fileID: 6605915527490352175}
   _turretRenderer: {fileID: 7386875840684766821}
   _canonRenderer: {fileID: 6380328518538419269}
+  _driverUI: {fileID: 4617297734245545212}
   _snowVfx: {fileID: 1658335399134434999}
   _gunnerSnowSight: {fileID: 4188883651252804258}
   _driverSnowSight: {fileID: 6527671268601509125}
@@ -21408,6 +21409,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5144591869259050292, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
   m_PrefabInstance: {fileID: 6724306275538124925}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &4617297734245545212 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2108361087883326593, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
+  m_PrefabInstance: {fileID: 6724306275538124925}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 118455385051559027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 801d4967abba81d4c9da704bc7e28abc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Driver_UI_Viewer
 --- !u!224 &9170939737669369166 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2455642622109859123, guid: 938b85b7b8b0f0e49ab25ddb55e9f903, type: 3}
