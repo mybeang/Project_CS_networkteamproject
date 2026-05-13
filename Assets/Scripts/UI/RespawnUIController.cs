@@ -8,11 +8,22 @@ public class RespawnUIController : NetworkManager<RespawnUIController>, IRespawn
     [SerializeField] private TextMeshProUGUI _respawnTimeText;
     protected override void Register() => ServiceLocator.Register<IRespawnUIController>(this);
     protected override void Unregister() => ServiceLocator.Unregister<IRespawnUIController>();
-
+    
     private void OnEnable()
     {
+        
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        Debug.Log("[RespawnUIController] OnNetworkSpawn");
         var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
         ServiceLocator.Get<IGameManager>().AddRespawnCounterHandler(userInfo.teamNum, UpdateRespawnTimeText);
+    }
+
+    public void SetActive(PlayerTeamEnum team, bool enable)
+    {
+        SetActiveClientRpc(team, enable);
     }
     
     [ClientRpc]

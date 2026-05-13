@@ -1,5 +1,7 @@
 ﻿
 public interface IRespawnUIController
 {
-    public void SetActiveClientRpc(PlayerTeamEnum team, bool enable);
+    
+    
+    public void SetActive(PlayerTeamEnum team, bool enable);
 }

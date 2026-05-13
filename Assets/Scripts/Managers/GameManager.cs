@@ -440,7 +440,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     
     private void RespawnUIControl(PlayerTeamEnum teamEnum, bool enable)
     {
-        ServiceLocator.Get<IRespawnUIController>().SetActiveClientRpc(teamEnum, enable);
+        ServiceLocator.Get<IRespawnUIController>().SetActive(teamEnum, enable);
     }
 
     private void GameEnd()
