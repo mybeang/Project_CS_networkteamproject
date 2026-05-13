@@ -1,7 +1,8 @@
-﻿using TMPro;
+﻿using System;
+using TMPro;
 using UnityEngine;
 
-public class SocreBoardController : MonoBehaviour
+public class ScoreboardController : MonoBehaviour
 {
     [SerializeField] Canvas _scoreBoard;
     [SerializeField] TextMeshProUGUI _team1;
@@ -14,15 +15,8 @@ public class SocreBoardController : MonoBehaviour
     private int _team3score;
     private int _team4score;
 
-    private void Awake()
-    {
-        ServiceLocator.Get<IGameManager>().OnChangeScore += ScoreListener;
-    }
-
-    private void OnDestroy()
-    {
-        ServiceLocator.Get<IGameManager>().OnChangeScore -= ScoreListener;
-    }
+    private void Start() => ServiceLocator.Get<IGameManager>().OnChangeScore += ScoreListener;
+    private void OnDestroy() => ServiceLocator.Get<IGameManager>().OnChangeScore -= ScoreListener;
 
     private void ScoreListener(int[] score)
     {

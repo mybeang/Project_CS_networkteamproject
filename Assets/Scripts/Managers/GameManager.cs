@@ -507,4 +507,16 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     {
         ServiceLocator.PrintServices();
     }
+    
+    [ContextMenu("Show Scores")]
+    private void PrintScores()
+    {
+        Debug.Log($"--- Scores ----\n" +
+                  $"> team1: {_team1Score.Value}\n" +
+                  $"> team2: {_team2Score.Value}\n" +
+                  $"> team3: {_team3Score.Value}\n" +
+                  $"> team4: {_team4Score.Value}\n" +
+                  $"--------------------------------");
+        
+    }
 }
