@@ -331,16 +331,16 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         switch(enemy) 
         {   // ToDo. Playable 유닛에 따라 점수 판정이 달라 짐. 추후 구현.
             case PlayerTeamEnum.firstTeam:
-                _team1Score.OnValueChanged(_team1Score.Value, _team1Score.Value += 1);
+                _team1Score.Value += 1;
                 break;
             case PlayerTeamEnum.secondTeam:
-                _team2Score.OnValueChanged(_team2Score.Value, _team2Score.Value += 1);
+                _team2Score.Value += 1;
                 break;
             case PlayerTeamEnum.thirdTeam:
-                _team3Score.OnValueChanged(_team3Score.Value, _team3Score.Value += 1);
+                _team3Score.Value += 1;
                 break;
             case PlayerTeamEnum.fourthTeam:
-                _team4Score.OnValueChanged(_team4Score.Value, _team4Score.Value += 1);
+                _team4Score.Value += 1;
                 break;
         }
         OnChangeScore?.Invoke(new int[4] {_team1Score.Value, _team2Score.Value, _team3Score.Value, _team4Score.Value});
