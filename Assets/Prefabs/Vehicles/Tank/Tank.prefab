@@ -5219,6 +5219,7 @@ MonoBehaviour:
   _canon: {fileID: 859449544468412838}
   _vehicleMovement: {fileID: 3369685110926289917}
   _shotSound: {fileID: 8300000, guid: 8d7bb800474dc4a41855a84cbaeec50a, type: 3}
+  _reloadSound: {fileID: 0}
 --- !u!1 &3025701722025415016
 GameObject:
   m_ObjectHideFlags: 0
@@ -10186,7 +10187,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 784402775
+  GlobalObjectIdHash: 2750736029
   InScenePlacedSourceGlobalObjectIdHash: 2750736029
   DeferredDespawnTick: 0
   Ownership: 1
@@ -10270,7 +10271,6 @@ MonoBehaviour:
   _turretRenderer: {fileID: 7386875840684766821}
   _canonRenderer: {fileID: 6380328518538419269}
   _driverUI: {fileID: 4617297734245545212}
-  _hitSound: {fileID: 8300000, guid: 2cf902a8c94d5bf4b9aadb8030e7a2f5, type: 3}
   _snowVfx: {fileID: 1658335399134434999}
   _gunnerSnowSight: {fileID: 4188883651252804258}
   _driverSnowSight: {fileID: 6527671268601509125}
@@ -10298,6 +10298,7 @@ MonoBehaviour:
   _damageableObject:
     serializedVersion: 2
     m_Bits: 128
+  _boomClip: {fileID: 8300000, guid: defaca4832212784fa2913e7731f97be, type: 3}
 --- !u!114 &846322708626938188
 MonoBehaviour:
   m_ObjectHideFlags: 0

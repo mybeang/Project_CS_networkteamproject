@@ -17,6 +17,7 @@ public class VehicleTurret : NetworkBehaviour
     [SerializeField] private Transform _canon;
     [SerializeField] private VehicleMovement _vehicleMovement;
     [SerializeField] private AudioClip _shotSound;
+    [SerializeField] private AudioClip _reloadSound;
 
     private Gunner_UI _gunnerUI; // TODO : 나중에 상위 객체를 받아서 전환하게 바꾸기
     private TeamInfo _teamInfo;
@@ -103,6 +104,7 @@ public class VehicleTurret : NetworkBehaviour
         double _startTime = Time.time;
         double _currentTime = 0;
         Debug.Log("[VehicleTurrent] ReLoad ... ");
+        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_reloadSound);
         while(_vehicleData.VechicleReloadtime > _currentTime)
         {
             _currentTime = Time.time - _startTime;
