@@ -15,6 +15,12 @@ public class AudioManager : Manager<AudioManager>, IAudioService
     protected override void Register() => ServiceLocator.Register<IAudioService>(this);
     protected override void Unregister() => ServiceLocator.Unregister<IAudioService>();
 
+    protected override void Init()
+    {
+        _bgmSource.volume = 0.5f;
+        _sfxSource.volume = 0.5f;
+    }
+
     public void PlayMainBGM()
     {
         if (_mainBgmClips == null) return;

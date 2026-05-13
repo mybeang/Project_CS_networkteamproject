@@ -12,6 +12,7 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     [SerializeField] private VehicleTurret _turret;
     [SerializeField] private MeshRenderer _turretRenderer;
     [SerializeField] private MeshRenderer _canonRenderer;
+    [SerializeField] private Driver_UI_Tank _driverUI;
     
     [Header("SnowEffect")]
     [SerializeField] private GameObject _snowVfx;
@@ -27,8 +28,7 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     private PlayerTeamEnum _teamNum;
     
     // 현재 HP
-    private NetworkVariable<int> _hp = new(0, writePerm: NetworkVariableWritePermission.Owner); 
-    private NetworkVariable<bool> _isAlive = new(true, writePerm: NetworkVariableWritePermission.Owner);
+    private NetworkVariable<int> _hp = new(0, writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<bool> _isEnd = new(writePerm: NetworkVariableWritePermission.Owner);
     // 공격 쿨다운 (일단 일반변수로 가보자)
 
@@ -54,12 +54,12 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
 
     public override void OnNetworkSpawn()
     {
-        _isAlive.OnValueChanged += SpawnControl;
         _isEnd.OnValueChanged += (_, _) => DestoryOnNetwork();
     }
 
     private void DestoryOnNetwork()
     {
+        ServiceLocator.Get<IGameManager>().RemoveKillLogHandler(KillLogHandler);
         var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
         if (_teamNum != userInfo.teamNum && userInfo.role != PlayerRole.Driver) return;
         var ngo = GetComponent<NetworkObject>();
@@ -96,14 +96,25 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
                 break;
             }
         }
+
         if (_teamNum == userInfo.teamNum && userInfo.role == PlayerRole.Driver)
             _hp.Value = _stat.VechicleMaximumHP;
+        
+        _hp.OnValueChanged += HpValueChangeHandler;
+        ServiceLocator.Get<IGameManager>().AddKillLogHandler(KillLogHandler);
         var teamInfo = ServiceLocator.Get<IGameManager>().GetMyTeamInfo(_teamNum);
         _movement.SetDriverData(_stat, teamInfo);
         _turret.SetGunnerData(_stat, teamInfo);
         _rigidbody.position = pos;
         Debug.Log($"[TankController] Init Tank ... position ; {pos} => {_rigidbody.position}");
         Debug.Log("[TankController] Init Tank ... Completed");
+    }
+
+    private void HpValueChangeHandler(int oldVal, int newVal)
+    {
+        Debug.Log($"[TankController] {gameObject.name} _hp : {oldVal} -> {newVal}");
+        var hpRate = newVal / (float)_stat.VechicleMaximumHP;
+        _driverUI?.ChangeVehicleHealth(hpRate);
     }
 
     private void SpawnControl(bool oldVal, bool newVal)
@@ -128,15 +139,31 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     public void TakeDamaged(int dmg, PlayerTeamEnum enemy)
     {
         if (!_isDamageable) return;
-        Debug.Log($"_hp : {_hp} , dmg : {dmg}");
+        Debug.Log($"[TankController] {gameObject.name} _hp : {_hp.Value} , dmg : {dmg}");
+        TakeDamageClientRpc(dmg, enemy);
+    }
+
+    [ClientRpc]
+    private void TakeDamageClientRpc(int dmg, PlayerTeamEnum enemy)
+    {
         var user = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
+        Debug.Log($"[TankController] {_teamNum}:{user.teamNum} | {user.role}:{PlayerRole.Driver}");
         if (_teamNum == user.teamNum && user.role == PlayerRole.Driver)
-            _hp.Value -= dmg;
-        if (_hp.Value <= 0)
         {
-            _isAlive.Value = false;
-            ServiceLocator.Get<IGameManager>().OnDestoryVehicleServerRpc(_teamNum, enemy);
+            _hp.Value -= dmg;
+            if (_hp.Value <= 0)
+            {
+                ServiceLocator.Get<IGameManager>().OnDestoryVehicleServerRpc(_teamNum, enemy);
+            }
         }
+    }
+
+    private void KillLogHandler(PlayerTeamEnum self, PlayerTeamEnum enemy) => KillLogClientRpc(self, enemy);
+
+    [ClientRpc]
+    private void KillLogClientRpc(PlayerTeamEnum self, PlayerTeamEnum enemy)
+    {
+        _driverUI?.UpdateKillLog(self, enemy);   
     }
     
     [ClientRpc]
@@ -146,17 +173,6 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         if (_teamNum == userInfo.teamNum && userInfo.role == PlayerRole.Driver)
             _isEnd.Value = true;
     }
-    
-    [ClientRpc]
-    public void RespawnClientRpc(Vector3 pos)
-    {
-        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
-        if (_teamNum == userInfo.teamNum && userInfo.role == PlayerRole.Driver)
-        {
-            _rigidbody.position = pos;
-            _isAlive.Value = true;
-        }
-    } 
 
     public void ExplosionDamaged(System.Numerics.Vector3 expsPos, int dmg, PlayerTeamEnum enemy)
     {
