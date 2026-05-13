@@ -140,7 +140,7 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     public void TakeDamaged(int dmg, PlayerTeamEnum enemy)
     {
         if (!_isDamageable) return;
-        Debug.Log($"_hp : {_hp} , dmg : {dmg}");
+        Debug.Log($"[TankController] {gameObject.name} _hp : {_hp.Value} , dmg : {dmg}");
         var user = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
         if (_teamNum == user.teamNum && user.role == PlayerRole.Driver)
             _hp.Value -= dmg;

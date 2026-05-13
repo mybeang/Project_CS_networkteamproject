@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90e8b8af2060ab946b70f44d2d13bfc1, type: 3}
   m_Name: PlayerableStatisticsSO
   m_EditorClassIdentifier: Assembly-CSharp::PlayerableStatisticsSO
-  _vechicleMaximumHP: 1000
+  _vechicleMaximumHP: 10000
   _vechicleMoveSpeed: 5
   _vechicleRotationSpeed: 1
   _vechicleReloadtime: 3
@@ -20,8 +20,8 @@ MonoBehaviour:
   _turretHorizontalRotationSpeed: 2
   _turretMaximumDepressionAngle: -50
   _turretMaximumElevationAngle: 50
-  _projectileDamage: 1000
+  _projectileDamage: 100
   _projectileFlightSpeed: 1
-  _projectileMaximumDamageRange: 3
-  _projectileMaximumDinstance: 5
+  _projectileMaximumDamageRange: 5
+  _projectileMaximumDinstance: 30
   _vechicleName: "\uBA4B\uC788\uB294 \uC804\uCC28"
