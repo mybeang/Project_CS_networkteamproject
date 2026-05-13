@@ -929,7 +929,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909028, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909028, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: m_LocalPosition.y
@@ -937,15 +937,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909028, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909028, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.9848078
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909028, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: 0.17364816
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909028, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: m_LocalRotation.y
@@ -957,7 +957,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909028, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 1715845624619909028, guid: c9b1245b224136949bb19ed43c6297de, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -1562,6 +1562,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Test_Meteor
   _meteor: {fileID: 1697208028}
+  _maxSpawnMeteor: 0
+  _maxHorizontalRange: 0
+  _minHorizontalRange: 0
+  _maxVerticalRange: 0
+  _minVerticalRange: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
