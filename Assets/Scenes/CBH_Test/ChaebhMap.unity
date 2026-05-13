@@ -298,9 +298,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tank
       objectReference: {fileID: 0}
+    - target: {fileID: 3601410087486877860, guid: cfe1376f7b0488b4282f0fb106708d4e, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5229639949477109274, guid: cfe1376f7b0488b4282f0fb106708d4e, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5671205911607181156, guid: cfe1376f7b0488b4282f0fb106708d4e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6522370014387607933, guid: cfe1376f7b0488b4282f0fb106708d4e, type: 3}
       propertyPath: GlobalObjectIdHash
@@ -366,6 +374,10 @@ PrefabInstance:
     - target: {fileID: 3601410087486877860, guid: cfe1376f7b0488b4282f0fb106708d4e, type: 3}
       propertyPath: m_Name
       value: Tank (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3601410087486877860, guid: cfe1376f7b0488b4282f0fb106708d4e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6380328518538419269, guid: cfe1376f7b0488b4282f0fb106708d4e, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -526,7 +538,7 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: -1
+  m_Depth: 100
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -549,8 +561,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1091950085}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.0035815358, y: 0.9357392, z: -0.35254523, w: -0.009549325}
-  m_LocalPosition: {x: 4.874095, y: 5.4519014, z: 6.2421513}
+  m_LocalRotation: {x: -0.07708471, y: -0.9221716, z: 0.28707802, w: -0.24747463}
+  m_LocalPosition: {x: -2.287221, y: 2.4956446, z: 3.478399}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -649,7 +661,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1250828685
 MonoBehaviour:
   m_ObjectHideFlags: 0
