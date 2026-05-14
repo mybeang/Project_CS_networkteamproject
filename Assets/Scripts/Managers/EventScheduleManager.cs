@@ -9,6 +9,7 @@ public class EventScheduleManager : MonoBehaviour
     private void Start()
     {
         InergrityCheck();
+        if (ServiceLocator.Get<ILocalSceneLoader>().GetCurrentSceneName() == "Login") return;
         ServiceLocator.Get<IGameManager>().AddEventSchedule(this);
     }
 
