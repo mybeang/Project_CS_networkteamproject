@@ -26,11 +26,12 @@ public class ScoreboardController : NetworkBehaviour
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
     private void ScoreListenerClientRpc(string scoreStringData)
     {
+        Debug.Log($"[ScoreboardController] [{name}] {scoreStringData}");
         int[] score = new int [4];
         for (int i = 0; i < score.Length; i++)
             score[i] = int.Parse(scoreStringData.Split(',')[i]);
             
-        Debug.Log($"[{name}] in score");
+        Debug.Log($"[ScoreboardController] [{name}] in score");
         _team1score = score[0];
         _team2score = score[1];
         _team3score = score[2];

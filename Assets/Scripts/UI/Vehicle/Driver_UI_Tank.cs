@@ -29,6 +29,8 @@ public class Driver_UI_Tank : Driver_UI
 
     private void ChangeTime(double oldVal, double newVal)
     {
+        Debug.Log($"[Driver_UI_Tank] ChangeTime ... {newVal}");
+        _timer.text = $"{(int)newVal / 60} : {(int)newVal % 60}";
         ChangeTimeClientRpc((int) newVal);
     }
 

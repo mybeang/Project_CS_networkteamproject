@@ -449,10 +449,16 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     }
 
     public void AddTimerHandler(NetworkVariable<double>.OnValueChangedDelegate callback)
-        => _remainingTime.OnValueChanged += callback;
-    
+    {
+        Debug.Log("[GameManager] AddTimerHandler ... ");
+        _remainingTime.OnValueChanged += callback;
+    }
+
     public void RemoveTimerHandler(NetworkVariable<double>.OnValueChangedDelegate callback)
-        => _remainingTime.OnValueChanged -= callback;
+    {
+        Debug.Log("[GameManager] RemoveTimerHandler ... ");
+        _remainingTime.OnValueChanged -= callback;
+    }
 
     private void RespawnUIControl(PlayerTeamEnum teamEnum, bool enable)
     {
