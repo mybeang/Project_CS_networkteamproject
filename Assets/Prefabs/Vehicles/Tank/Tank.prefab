@@ -10189,7 +10189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 784402775
+  GlobalObjectIdHash: 2750736029
   InScenePlacedSourceGlobalObjectIdHash: 2750736029
   DeferredDespawnTick: 0
   Ownership: 1
@@ -21075,7 +21075,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4809729218628053369, guid: b91ad3170e6f79f4c8703cda7bbd1c25, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6965243623887584256, guid: b91ad3170e6f79f4c8703cda7bbd1c25, type: 3}
       propertyPath: m_Pivot.x
