@@ -10189,7 +10189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2750736029
+  GlobalObjectIdHash: 784402775
   InScenePlacedSourceGlobalObjectIdHash: 2750736029
   DeferredDespawnTick: 0
   Ownership: 1
@@ -21069,6 +21069,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 933829485815634980}
     m_Modifications:
+    - target: {fileID: 155913986627501110, guid: b91ad3170e6f79f4c8703cda7bbd1c25, type: 3}
+      propertyPath: m_text
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 776323273027180263, guid: b91ad3170e6f79f4c8703cda7bbd1c25, type: 3}
+      propertyPath: m_text
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2508772542318407740, guid: b91ad3170e6f79f4c8703cda7bbd1c25, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -21079,6 +21087,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4809729218628053369, guid: b91ad3170e6f79f4c8703cda7bbd1c25, type: 3}
       propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5525529445750934044, guid: b91ad3170e6f79f4c8703cda7bbd1c25, type: 3}
+      propertyPath: m_text
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6539645467906743621, guid: b91ad3170e6f79f4c8703cda7bbd1c25, type: 3}
+      propertyPath: m_text
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6965243623887584256, guid: b91ad3170e6f79f4c8703cda7bbd1c25, type: 3}

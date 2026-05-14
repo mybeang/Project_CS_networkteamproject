@@ -25,8 +25,7 @@ public class ScoreboardController : NetworkBehaviour
         int[] score = new int [4];
         for (int i = 0; i < score.Length; i++)
             score[i] = int.Parse(scoreStringData.Split(',')[i]);
-            
-        Debug.Log($"[ScoreboardController] [{name}] in score");
+        
         _team1.text = score[0].ToString();
         _team2.text = score[1].ToString();
         _team3.text = score[2].ToString();

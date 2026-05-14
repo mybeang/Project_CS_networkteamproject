@@ -31,7 +31,6 @@ public class Driver_UI_Tank : Driver_UI
     {
         // ToDO. Hardcoding
         int time = 600 - (int)newVal;
-        Debug.Log($"[Driver_UI_Tank] ChangeTime ... {time}");
         _timer.text = $"{time / 60} : {time % 60}";
     }
 

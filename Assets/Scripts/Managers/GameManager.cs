@@ -291,8 +291,6 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             var tc = bodyObj.GetComponent<TankController>();
             Debug.Log($"[GameManager] {bodyObj.name}'s team: {team.teamNum}");
             tc.SetDataClientRpc(team.teamNum, pos);
-            string scoreStringData = $"{_team1Score.Value},{_team2Score.Value},{_team3Score.Value},{_team4Score.Value}";
-            OnChangeScore?.Invoke(scoreStringData);
             _managementObject[team.teamNum] = bodyObj;
             Debug.Log($"[GameManager] {bodyObj.name} 생성 완료");
         }
@@ -306,6 +304,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _voiceChannelName = VoiceChannelFormat(userInfo.teamNum);
         ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel(_voiceChannelName);
         ServiceLocator.Get<IAudioService>().PlayBGM(_mapNumber);
+        string scoreStringData = $"{_team1Score.Value},{_team2Score.Value},{_team3Score.Value},{_team4Score.Value}";
+        OnChangeScore?.Invoke(scoreStringData);
         Debug.Log("[GameManager] Set Other Data For Game ... Done ");
         if (IsServer) _gameState.Value = GameState.ReadyDone;
     }
