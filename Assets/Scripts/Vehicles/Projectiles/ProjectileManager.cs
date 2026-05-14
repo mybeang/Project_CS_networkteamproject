@@ -8,20 +8,17 @@ public class ProjectileManager : NetworkBehaviour
     // raycast, 투사체 속도, 피해량, 범위, 범위별 피해 계수, 투사체 최대 비행 거리(사거리)
     [SerializeField] private PlayerableStatisticsSO _vechicleSO;
     [SerializeField] private LayerMask _damageableObject;
-    [SerializeField] private AudioClip _boomClip;
-    [SerializeField] private AudioClip _shotClip;
     [SerializeField] [Range(0.1f, 1f)] private float _waitTime;
+    [SerializeField] private TargetRabbit _targetRabbit;
+    
     private Ray _ray;
     private RaycastHit _targetPoint;
     private RaycastHit[] _hitedTargets;
-    private PlayerTeamEnum _teamNum;
 
     public override void OnNetworkSpawn()
     {
 
     }
-
-    public void SetTeamInfo(PlayerTeamEnum teamNum) => _teamNum = teamNum;
 
     private void Start()
     {
@@ -71,8 +68,7 @@ public class ProjectileManager : NetworkBehaviour
     private void DesignatDamageableGroundServerRpc(Vector3 point, PlayerTeamEnum self)
     {
         // Boom Effect 추가 필요
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfxClientRpc(_teamNum, SfxEnum.TankBoom);
-        
+        ControlRabbitClientRpc(true, point);
         // 지정된 위치에 구형 범위를 측정 및 일정 시간(짧은 시간) 후에 범위 안에 들어간 객체(피해를 입을 수 있는 객체)들 판정( 판정할 때 조심해야될 부분이 닿은 부위를 기준으로 해야됌, 중심으로 받으면 안됌)
         int count = Physics.SphereCastNonAlloc(
             point,
@@ -85,12 +81,12 @@ public class ProjectileManager : NetworkBehaviour
         Debug.Log($"[ProjectileManager] 적중 위치 기반 탐지 된 대상 : {count}");
 
         if (count < 1 || _hitedTargets == null) return;
-
+        
         for (int i = 0; i < count; i++)
         {
             Debug.Log($"[ProjectileManager] 검출된 대상 : {_hitedTargets[i].collider.name}");
             Debug.Log($"[ProjectileManager] 폭발 중심지에서 대상까지의 거리 : {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point)}");
-
+            
             (_hitedTargets[i].collider.GetComponent<TankController>() as IDamageableObject)
             .TakeDamaged(
                     (int)Mathf.Lerp( // 거리에 따라 피해를 다를 게 주기 위해(선형 보간 처리를 위해) Mathf.Lerp로 처리
@@ -99,5 +95,14 @@ public class ProjectileManager : NetworkBehaviour
                         Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point) / _vechicleSO.ProjectileMaximumDamageableRange), self); // 폭심지를 기준으로 콜라이더의 접촉부위 중 가장 가까운 지점과 거리 비교 후 피해량 측정
             Debug.Log($"[ProjectileManager] TakeDamage: {_vechicleSO.ProjectileDamage} , {_vechicleSO.ProjectileDamage / 4} , {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point) / _vechicleSO.ProjectileMaximumDamageableRange}");
         }
+        ControlRabbitClientRpc(false, point);
+    }
+
+    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    private void ControlRabbitClientRpc(bool active, Vector3 hitPosition)
+    {
+        _targetRabbit.gameObject.transform.position = hitPosition;
+        if (active) _targetRabbit.BoomStart();
+        else _targetRabbit.BoomStop();
     }
 }

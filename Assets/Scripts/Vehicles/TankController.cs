@@ -100,7 +100,6 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         if (_teamNum == userInfo.teamNum && userInfo.role == PlayerRole.Driver)
             _hp.Value = _stat.VechicleMaximumHP;
         
-        _projectileManager.SetTeamInfo(_teamNum);
         _hp.OnValueChanged += HpValueChangeHandler;
         ServiceLocator.Get<IGameManager>().AddKillLogHandler(KillLogHandler);
         var teamInfo = ServiceLocator.Get<IGameManager>().GetMyTeamInfo(_teamNum);

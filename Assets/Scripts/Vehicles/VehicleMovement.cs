@@ -142,11 +142,17 @@ public class VehicleMovement : NetworkBehaviour, IImpactForce
     {
         if (!IsOwner || !canMove) return;
         Vector2 input = ctx.ReadValue<Vector2>();
-        var audio = ServiceLocator.Get<IAudioService>();
-        if (input.x + input.y == 0f) audio.PlayStopSfxClientRpc(_teamInfo.teamNum);
-        else audio.PlaySfxClientRpc(_teamInfo.teamNum, SfxEnum.TankMove);
-        
+        if (input.x + input.y == 0f) MoveSoundServerRpc(false);
+        else MoveSoundServerRpc(true);
         _mvlastInput = input;
+    }
+
+    [ServerRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    private void MoveSoundServerRpc(bool moving)
+    {
+        var audio = ServiceLocator.Get<IAudioService>();
+        if (moving) audio.PlaySfxClientRpc(_teamInfo.teamNum, SfxEnum.TankMove);
+        else audio.PlayStopSfxClientRpc(_teamInfo.teamNum);
     }
 
     private void FixedUpdate()
