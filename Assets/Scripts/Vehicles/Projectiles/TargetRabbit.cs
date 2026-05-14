@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.LowLevelPhysics2D;
@@ -7,6 +8,7 @@ using UnityEngine.LowLevelPhysics2D;
 public class TargetRabbit : NetworkBehaviour
 {
     [SerializeField] private AudioClip _boomSfx;
+    [SerializeField] private GameObject _boomVfxPrefab;
     private AudioSource _audioSource;
 
     private void Awake()
@@ -39,5 +41,15 @@ public class TargetRabbit : NetworkBehaviour
         Debug.Log("[TargetRabbit] Play Boom Sound");
         _audioSource.volume = ServiceLocator.Get<IAudioService>().GetSfxVolume();
         _audioSource.PlayOneShot(_boomSfx);
+        BoomEffectServerRpc();
+    }
+
+    [ServerRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    private void BoomEffectServerRpc() => BoomEffectClientRpc();
+    
+    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    private void BoomEffectClientRpc()
+    {
+        Instantiate(_boomVfxPrefab, transform.position, transform.rotation);
     }
 }

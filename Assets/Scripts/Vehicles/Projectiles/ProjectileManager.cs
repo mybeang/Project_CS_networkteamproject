@@ -8,8 +8,10 @@ public class ProjectileManager : NetworkBehaviour
     // raycast, 투사체 속도, 피해량, 범위, 범위별 피해 계수, 투사체 최대 비행 거리(사거리)
     [SerializeField] private PlayerableStatisticsSO _vechicleSO;
     [SerializeField] private LayerMask _damageableObject;
-    [SerializeField] [Range(0.1f, 1f)] private float _waitTime;
+    [SerializeField] [Range(0.01f, 0.1f)] private float _waitTime;
     [SerializeField] private TargetRabbit _targetRabbit;
+    [SerializeField] private Transform _shotVfxPos;
+    [SerializeField] private GameObject _shotVfxPrefab;
     
     private Ray _ray;
     private RaycastHit _targetPoint;
@@ -32,6 +34,12 @@ public class ProjectileManager : NetworkBehaviour
         var distance = Vector3.Distance(hitPosition, transform.position);
         yield return new WaitForSeconds(_waitTime * distance);
         DesignatDamageableGroundServerRpc(_targetPoint.point, self);
+    }
+
+    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    public void ShotVfxPlayClientRpc()
+    {
+        Instantiate(_shotVfxPrefab, _shotVfxPos.position, _shotVfxPos.rotation);
     }
     
     // 외부에서 호출될 코드로 호출 시 Raycast 기반으로 사격 지점과 거리를 받아온 후 해당 지점에 거리 비례 시간 후에 피해를 입히는 방식으로 작동하면 될 거 같다는 생각.
