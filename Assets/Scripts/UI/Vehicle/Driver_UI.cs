@@ -1,8 +1,9 @@
 ﻿using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public abstract class Driver_UI : MonoBehaviour
+public abstract class Driver_UI : NetworkBehaviour
 {
     #region Show_in_Inspecter
     [Header("시야 관련")]

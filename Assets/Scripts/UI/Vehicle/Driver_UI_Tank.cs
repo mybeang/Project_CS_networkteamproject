@@ -1,4 +1,5 @@
 ﻿using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,12 +7,12 @@ public class Driver_UI_Tank : Driver_UI
 {
     private void OnEnable()
     {
-        ServiceLocator.Get<IGameManager>().OnChangeTime += ChangeTime;
+        ServiceLocator.Get<IGameManager>().OnChangeTime += ChangeTimeClientRpc;
     }
 
     private void OnDisable()
     {
-        ServiceLocator.Get<IGameManager>().OnChangeTime -= ChangeTime;
+        ServiceLocator.Get<IGameManager>().OnChangeTime -= ChangeTimeClientRpc;
     }
     /// <summary>
     /// 탱크가 피해를 입었을 시 해당 함수 호출 및 백분율로 현재 체력 표시
@@ -26,7 +27,8 @@ public class Driver_UI_Tank : Driver_UI
         _hpSlider.value = currentHealthPoint;
     }
 
-    private void ChangeTime(int time)
+    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    private void ChangeTimeClientRpc(int time)
     {
         _timer.text = $"{time / 60} : {time % 60}";
     }

@@ -3,7 +3,7 @@ using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
-public class ScoreboardController : MonoBehaviour
+public class ScoreboardController : NetworkBehaviour
 {
     [SerializeField] TextMeshProUGUI _team1;
     [SerializeField] TextMeshProUGUI _team2;
