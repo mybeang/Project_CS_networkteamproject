@@ -11,7 +11,6 @@ public class VehicleMovement : NetworkBehaviour
     [SerializeField] private PlayerableStatisticsSO _vehicleData;
     [SerializeField] private GameObject _driverCam;
     [SerializeField] private Rigidbody _rb;
-    [SerializeField] private AudioClip _moveSound;
     
     [Header("UI")]
     [SerializeField] private GameObject _driverUICanvas;
@@ -76,9 +75,7 @@ public class VehicleMovement : NetworkBehaviour
         if (!_driverCam.activeSelf) _driverCam.SetActive(true);
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Enable();
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += Movement;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed += PlayMoveSound;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += Movement;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled += StopMoveSound;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed += FlipVehicle;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed += OnScoreBoard;
     }
@@ -91,8 +88,6 @@ public class VehicleMovement : NetworkBehaviour
         canMove = false;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= Movement;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= Movement;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.performed -= PlayMoveSound;
-        ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Move.canceled -= StopMoveSound;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.Jump.performed -= FlipVehicle;
         ServiceLocator.Get<IInputSystem>().GetInputSystem().Player.ScoreBoard.performed -= OnScoreBoard;
 
@@ -143,14 +138,21 @@ public class VehicleMovement : NetworkBehaviour
         _driverUI.ShowScore();
     }
 
-    private void PlayMoveSound(InputAction.CallbackContext ctx) => ServiceLocator.Get<IAudioService>().PlaySfx(_moveSound);
-    private void StopMoveSound(InputAction.CallbackContext ctx) => ServiceLocator.Get<IAudioService>().PlayStopSfx();
-    
     private void Movement(InputAction.CallbackContext ctx)
     {
         if (!IsOwner || !canMove) return;
         Vector2 input = ctx.ReadValue<Vector2>();
+        if (input.x + input.y == 0f) MoveSoundServerRpc(false);
+        else MoveSoundServerRpc(true);
         _mvlastInput = input;
+    }
+
+    [ServerRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    private void MoveSoundServerRpc(bool moving)
+    {
+        var audio = ServiceLocator.Get<IAudioService>();
+        if (moving) audio.PlaySfxClientRpc(_teamInfo.teamNum, SfxEnum.TankMove);
+        else audio.PlayStopSfxClientRpc(_teamInfo.teamNum);
     }
 
     private void FixedUpdate()

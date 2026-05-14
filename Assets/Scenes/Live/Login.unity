@@ -2857,6 +2857,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1820858513}
+  - component: {fileID: 1820858516}
   - component: {fileID: 1820858512}
   - component: {fileID: 1820858515}
   - component: {fileID: 1820858514}
@@ -2879,6 +2880,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c713f07169844667b784643a08b4ac80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  ShowTopMostFoldoutHeaderGroup: 1
   _bgmSource: {fileID: 1820858515}
   _sfxSource: {fileID: 1820858514}
   _btSound: {fileID: 8300000, guid: eebd650be4fc277469d398078b459656, type: 3}
@@ -2888,6 +2890,13 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 0f2ad46aafb4cfa47a9d8d119ac4566b, type: 3}
   - {fileID: 8300000, guid: 99200f7aa2990ed429bc89ed712db38c, type: 3}
   _mainBgmClips: {fileID: 8300000, guid: 127653d91bf39114b86afdca96c49cae, type: 3}
+  _sfxBgmClips:
+  - sfxEnum: 0
+    clip: {fileID: 8300000, guid: 368ca7872fc32494b89984bdd405d8ec, type: 3}
+  - sfxEnum: 1
+    clip: {fileID: 8300000, guid: 8d7bb800474dc4a41855a84cbaeec50a, type: 3}
+  - sfxEnum: 2
+    clip: {fileID: 8300000, guid: 2cf902a8c94d5bf4b9aadb8030e7a2f5, type: 3}
 --- !u!4 &1820858513
 Transform:
   m_ObjectHideFlags: 0
@@ -3097,6 +3106,31 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1820858516
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1820858511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 1940315772
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1 &1840181174
 GameObject:
   m_ObjectHideFlags: 0
