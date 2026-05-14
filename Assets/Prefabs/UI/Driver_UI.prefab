@@ -140,7 +140,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Team 1
+  m_text: Team 2
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 927dfbdc5143e3e44a282a3039f7a0f0, type: 2}
   m_sharedMaterial: {fileID: 7653416916770368677, guid: 927dfbdc5143e3e44a282a3039f7a0f0, type: 2}
@@ -864,7 +864,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Team 1
+  m_text: Team 3
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 927dfbdc5143e3e44a282a3039f7a0f0, type: 2}
   m_sharedMaterial: {fileID: 7653416916770368677, guid: 927dfbdc5143e3e44a282a3039f7a0f0, type: 2}
@@ -936,6 +936,42 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &2018993772368239968
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9028452062249966575}
+  m_Layer: 5
+  m_Name: DriverSnowSight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &9028452062249966575
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2018993772368239968}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3254399344619230879}
+  m_Father: {fileID: 2455642622109859123}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2200004187128167110
 GameObject:
   m_ObjectHideFlags: 0
@@ -1441,7 +1477,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Team 1
+  m_text: Team 4
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 927dfbdc5143e3e44a282a3039f7a0f0, type: 2}
   m_sharedMaterial: {fileID: 7653416916770368677, guid: 927dfbdc5143e3e44a282a3039f7a0f0, type: 2}
@@ -1761,10 +1797,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad32cc9e5c82ea840b67d2545a4cec5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScoreboardController
-  _team1: {fileID: 0}
-  _team2: {fileID: 0}
-  _team3: {fileID: 0}
-  _team4: {fileID: 0}
+  _team1: {fileID: 139710724310331469}
+  _team2: {fileID: 7722796774787774458}
+  _team3: {fileID: 7440267036175165181}
+  _team4: {fileID: 6079810280416828636}
 --- !u!1 &5286561614225861239
 GameObject:
   m_ObjectHideFlags: 0
@@ -2122,6 +2158,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 9028452062249966575}
   - {fileID: 1480034174136267665}
   - {fileID: 2553404885272832576}
   - {fileID: 671797849068940696}
@@ -2219,8 +2256,83 @@ MonoBehaviour:
   _timer: {fileID: 8548646282147037390}
   _hpSlider: {fileID: 2299846747876208232}
   _killLog: {fileID: 1259118842516236976}
-  _scoreBoad: {fileID: 0}
+  _scoreBoad: {fileID: 5144591869259050292}
   _canvas: {fileID: 3111269669398478900}
+--- !u!1 &7022226163574088494
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3254399344619230879}
+  - component: {fileID: 7200640449747115990}
+  - component: {fileID: 4620894621677563480}
+  m_Layer: 5
+  m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3254399344619230879
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7022226163574088494}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9028452062249966575}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -0.9315, y: -19.563591}
+  m_SizeDelta: {x: 1529.0742, y: 642.191}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &7200640449747115990
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7022226163574088494}
+  m_CullTransparentMesh: 1
+--- !u!114 &4620894621677563480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7022226163574088494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.15686275}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &7463712700443273684
 GameObject:
   m_ObjectHideFlags: 0
@@ -2255,7 +2367,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 100}
+  m_AnchoredPosition: {x: 0, y: -17}
   m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7379941315015631894
@@ -2332,8 +2444,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -100}
-  m_SizeDelta: {x: 1500, y: 700}
+  m_AnchoredPosition: {x: 0, y: -10}
+  m_SizeDelta: {x: 1500, y: 608.7156}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8177992197262738232
 CanvasRenderer:

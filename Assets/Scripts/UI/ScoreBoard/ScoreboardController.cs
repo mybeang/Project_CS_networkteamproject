@@ -22,9 +22,10 @@ public class ScoreboardController : MonoBehaviour
 
     private void OnDestroy() => ServiceLocator.Get<IGameManager>().OnChangeScore -= ScoreListenerClientRpc;
 
-    [ClientRpc]
+    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
     private void ScoreListenerClientRpc(int[] score)
     {
+        Debug.Log($"[{name}] in score");
         _team1score = score[0];
         _team2score = score[1];
         _team3score = score[2];
