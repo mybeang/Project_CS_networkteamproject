@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Text.RegularExpressions;
 
 [Serializable]
 public class MapCameraMapping
@@ -40,6 +41,8 @@ public class LoginUIController : MonoBehaviour
     private string _nextSceneName = "LobbyList";
     private int _currentMapIndex;
     private Coroutine _mapChangeCoroutine;
+    // 정규식 컴파일
+    private static readonly Regex _loginRegex = new Regex(@"^[-_a-zA-Z0-9가-힣]+$", RegexOptions.Compiled);
 
     private void OnEnable()
     {
@@ -90,6 +93,11 @@ public class LoginUIController : MonoBehaviour
         if (_userIdInputField.text == "")
         {
             OpenWarningMessage("닉네임을 입력 해 주시기 바랍니다.");
+            return;
+        }
+        else if (!_loginRegex.IsMatch(_userIdInputField.text))
+        {
+            OpenWarningMessage("사용할 수 없는 문자나 기호를 입력하셨습니다.");
             return;
         }
         if (userInfo?.GetUserInfo().userId != _userIdInputField.text)
