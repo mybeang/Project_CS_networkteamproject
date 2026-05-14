@@ -192,8 +192,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     
     public void StartGame()
     {
-        Debug.Log($"[GameManager] Start Game at {name}"); 
-        ServiceLocator.Get<IInGameCommonUIController>().SetLoadingUIActive(true);
+        Debug.Log($"[GameManager] Start Game at {name}");
         ServiceLocator.Get<IMapManager>().SelectMap(_mapNumber);
         if (IsServer) _gameState.Value = GameState.Init;
         try
@@ -221,6 +220,9 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             switch (_gameState.Value)
             {
                 case GameState.Init:
+                    var loadingUIActive = ServiceLocator.Get<IInGameCommonUIController>();
+                    if (loadingUIActive != null) loadingUIActive.SetLoadingUIActive(true);
+                    PrintServiceLocator();
                     if (IsServer) _gameState.Value = GameState.ResetGameData;
                     break;
                 case GameState.ResetGameData:
