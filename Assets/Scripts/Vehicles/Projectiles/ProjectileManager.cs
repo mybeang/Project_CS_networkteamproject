@@ -2,6 +2,7 @@
 using System.Net.NetworkInformation;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class ProjectileManager : NetworkBehaviour
 {
@@ -94,14 +95,21 @@ public class ProjectileManager : NetworkBehaviour
         {
             Debug.Log($"[ProjectileManager] 검출된 대상 : {_hitedTargets[i].collider.name}");
             Debug.Log($"[ProjectileManager] 폭발 중심지에서 대상까지의 거리 : {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point)}");
+            var tc = _hitedTargets[i].collider.GetComponent<TankController>();
+            // 폭심지를 기준으로 콜라이더의 접촉부위 중 가장 가까운 지점과 거리 비교 후 피해량 측정
+            // 거리에 따라 피해를 다를 게 주기 위해(선형 보간 처리를 위해) Mathf.Lerp로 처리
+            var damage = _vechicleSO.ProjectileDamage;
+            var dmgRange = _vechicleSO.ProjectileMaximumDamageableRange;
+            var distance = Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point);
+            (tc as IDamageableObject).TakeDamaged((int)Mathf.Lerp(damage, damage / 4, distance / dmgRange), self);
+            Debug.Log($"[ProjectileManager] TakeDamage: {damage}, {damage / 4}, {distance / dmgRange}");
             
-            (_hitedTargets[i].collider.GetComponent<TankController>() as IDamageableObject)
-            .TakeDamaged(
-                    (int)Mathf.Lerp( // 거리에 따라 피해를 다를 게 주기 위해(선형 보간 처리를 위해) Mathf.Lerp로 처리
-                        _vechicleSO.ProjectileDamage,
-                        (_vechicleSO.ProjectileDamage / 4),
-                        Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point) / _vechicleSO.ProjectileMaximumDamageableRange), self); // 폭심지를 기준으로 콜라이더의 접촉부위 중 가장 가까운 지점과 거리 비교 후 피해량 측정
-            Debug.Log($"[ProjectileManager] TakeDamage: {_vechicleSO.ProjectileDamage} , {_vechicleSO.ProjectileDamage / 4} , {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point) / _vechicleSO.ProjectileMaximumDamageableRange}");
+            // 폭발에 따른 물리 효과
+            var ep = _vechicleSO.projectileExplosionPower;
+            var mr = _vechicleSO.ProjectileMaximumDamageableRange;
+            var eu = _vechicleSO.projectileExplosionUpper;
+            (tc as IImpactForce).ImpactPhysic(ep, point, mr, eu);
+            Debug.Log($"[ProjectileManager] ImpactPhysic: {ep}, {mr}, {eu}");
         }
         ControlRabbitClientRpc(false, point);
     }

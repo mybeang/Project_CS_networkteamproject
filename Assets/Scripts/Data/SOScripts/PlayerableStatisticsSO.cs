@@ -22,6 +22,9 @@ public sealed class PlayerableStatisticsSO : ScriptableObject
     [SerializeField] float _projectileMaximumDamageRange;
     [SerializeField] float _projectileMaximumDinstance;
 
+    public float projectileExplosionPower;
+    public float projectileExplosionUpper;
+    
     [Header("이동 객체 이름")]
     [SerializeField] string _vechicleName;
 
