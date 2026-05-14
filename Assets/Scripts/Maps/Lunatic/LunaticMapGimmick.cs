@@ -85,6 +85,8 @@ public class LunaticMapGimmick : EventTask
         Debug.Log($"[{name}] Is Server : {IsServer}");
         _emitParams = new ParticleSystem.EmitParams[_currentSO.meteorMaxSpawnMeteor];
 
+        _meteorSpawnPos = new Vector3[_currentSO.meteorMaxSpawnMeteor];
+
         for (int i = 0; i < 16; i++)
         {
             if(i < _currentSO.meteorMaxSpawnMeteor)
