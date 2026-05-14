@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
-using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class LunaticMapGimmick : EventTask
 {
@@ -30,10 +30,12 @@ public class LunaticMapGimmick : EventTask
 
     #region Private_Variables
 
-    private List<ParticleSystem> _particles = new List<ParticleSystem>(16);
+    private List<ParticleSystem> _particles = new List<ParticleSystem>(24);
 
     //private Vector3[] _meteorSpawnPos;
     private ParticleSystem.EmitParams[] _emitParams;
+
+    private Vector3[] _meteorSpawnPos;
 
     private int _currentStage;
     private MeteorSO _currentSO;
@@ -41,7 +43,10 @@ public class LunaticMapGimmick : EventTask
     private bool _isInit = false;
     #endregion
 
-    NetworkList<Vector3> _meteorSpawnPos = new NetworkList<Vector3>();
+    private void Awake()
+    {
+        _currentSO = new MeteorSO();
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -52,22 +57,27 @@ public class LunaticMapGimmick : EventTask
         switch (_currentStage)
         {
             case 0: case 1: case 2:
-                _currentSO = _smallMeteor.UpMeteor(_currentStage);
+                _currentSO = _smallMeteor.UpMeteor(_currentSO,_currentStage);
                 break;
             case 3: case 4: case 5:
-                _currentSO = _mediumMeteor.UpMeteor(_currentStage % 3);
+                _currentSO = _mediumMeteor.UpMeteor(_currentSO, _currentStage % 3);
                 break;
             case 6:
-                _currentSO = _largeMeteor.UpMeteor(_currentStage % 3);
+                _currentSO = _largeMeteor.UpMeteor(_currentSO, _currentStage % 3);
                 break;
         }
         _currentStage++;
     }
 
+    private void Start()
+    {
+        Init();
+    }
+
     public void Init()
     {
-        _isInit = true;
         _currentStage = 0;
+        _currentSO = _smallMeteor;
         GameObject obj;
 
         for (int i = 0; i < _particles.Capacity; i++)
@@ -80,30 +90,33 @@ public class LunaticMapGimmick : EventTask
 
     private  void GeneratePos()
     {
-        if (!_isInit) Init();
         Debug.Log($"[{name}] Is Server : {IsServer}");
-        _meteorSpawnPos.Clear();
-        _emitParams = new ParticleSystem.EmitParams[_currentSO.meteorMaxSpawnMeteor];
+
+        _meteorSpawnPos = new Vector3[_currentSO.meteorMaxSpawnMeteor];
 
         for (int i = 0; i < 16; i++)
         {
             if(i < _currentSO.meteorMaxSpawnMeteor)
             {
-                _meteorSpawnPos.Add(new Vector3(
+                _meteorSpawnPos[i] = new Vector3(
                 Random.Range(_currentSO.meteorMinHorizontalRange, _currentSO.meteorMaxHorizontalRange),
                 300,
-                Random.Range(_currentSO.meteorMinVerticalRange, _currentSO.meteorMaxVerticalRange)));
+                Random.Range(_currentSO.meteorMinVerticalRange, _currentSO.meteorMaxVerticalRange));
             }
         }
 
         Debug.Log($"[{name}] 좌표 측정 완료");
-        SpawnMeteor();
+        SpawnMeteorClientRpc(_meteorSpawnPos, _currentSO.meteorMaxSpawnMeteor);
     }
 
-    private void SpawnMeteor()
+    [ClientRpc]
+    private void SpawnMeteorClientRpc(Vector3[] meteorSpawnPos, int maxSpawn)
     {
+        _meteorSpawnPos = meteorSpawnPos;
         if (_meteorSpawnPos == null) return;
-        for (int i = 0; i < _meteorSpawnPos.Count; i++)
+        _emitParams = new ParticleSystem.EmitParams[maxSpawn];
+        Debug.Log($"{name} : {_meteorSpawnPos.Length}");
+        for (int i = 0; i < _meteorSpawnPos.Length; i++)
         {
             Debug.Log($"[{name}] {i} 번째 메테오 소환 준비");
             _particles[i].transform.position = _meteorSpawnPos[i];
@@ -136,6 +149,7 @@ public class LunaticMapGimmick : EventTask
             yield return null;
         }
         Debug.Log("붐!");
+        if (!IsServer) yield break;
         DesignatDamageableGroundServerRpc(point, PlayerTeamEnum.neutralObject);
     }
 
@@ -161,7 +175,7 @@ public class LunaticMapGimmick : EventTask
             Debug.Log($"검출된 대상 : {_hitedTargets[i].collider.name}");
             Debug.Log($"폭발 중심지에서 대상까지의 거리 : {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point)}");
 
-            (_hitedTargets[i].collider.GetComponent<Teststtster>() as IDamageableObject)
+            (_hitedTargets[i].collider.GetComponent<TankController>() as IDamageableObject)
             .TakeDamaged(
                     (int)Mathf.Lerp( // 거리에 따라 피해를 다를 게 주기 위해(선형 보간 처리를 위해) Mathf.Lerp로 처리
                         100,
