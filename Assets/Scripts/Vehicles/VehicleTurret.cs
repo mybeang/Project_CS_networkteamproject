@@ -145,6 +145,7 @@ public class VehicleTurret : NetworkBehaviour
     private void ShotEffectServerRpc()
     {
         // Shot Effect 추가 필요
+        _projectile.ShotVfxPlayClientRpc();
         ServiceLocator.Get<IAudioService>().PlayOneShotSfxClientRpc(_teamInfo.teamNum, SfxEnum.TankShot);
     }
 }
