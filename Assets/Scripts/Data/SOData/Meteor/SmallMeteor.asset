@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e44f50789a20cb6429651614ebb80797, type: 3}
   m_Name: SmallMeteor
   m_EditorClassIdentifier: Assembly-CSharp::MeteorSO
-  meteorDamage: 300
-  meteorDamageRange: 20
-  meteorMaxSpawnMeteor: 12
+  meteorDamage: 900
+  meteorDamageRange: 8
+  meteorMaxSpawnMeteor: 8
   meteorDropSpeed: 20
   meteorSize3D: {x: 0, y: 0, z: 0}
   meteorFireTailSize: 0
