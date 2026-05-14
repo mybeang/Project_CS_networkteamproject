@@ -6,7 +6,7 @@ using UnityEngine;
 public abstract class EventTask : NetworkBehaviour
 {
     [Header("단순 식별용 이름")]
-    [SerializeField] protected string eventName;
+    [SerializeField] protected string _eventName;
     
     [Header("이벤트를 호출 시간")]
     [SerializeField] public double[] excuteTime;

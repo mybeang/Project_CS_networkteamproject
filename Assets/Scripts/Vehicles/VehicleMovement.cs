@@ -4,7 +4,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class VehicleMovement : NetworkBehaviour, IImpactForce
+public class VehicleMovement : NetworkBehaviour
 {
 
     [Header("기본 설정")]
