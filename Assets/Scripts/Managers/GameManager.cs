@@ -152,7 +152,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     }
 
     public void SetData(TeamInfo[] teams, in string roomID, int mapNumber)
-    {
+    {   // Lobby 로 부터 데이터를 받는 함수
         _teams = teams;
         _roomId = roomID;
         _mapNumber = mapNumber;
@@ -193,9 +193,9 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     public void StartGame()
     {
         Debug.Log($"[GameManager] Start Game at {name}"); 
-        
+        ServiceLocator.Get<IInGameCommonUIController>().SetLoadingUIActive(true);
         ServiceLocator.Get<IMapManager>().SelectMap(_mapNumber);
-        if (IsServer) _gameState.Value = 0;
+        if (IsServer) _gameState.Value = GameState.Init;
         try
         {
             StartCoroutine(GameStateMachineCoroutine());
@@ -207,15 +207,11 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         }
     }
 
+    // --------------------------------
     /// <summary>
-    /// State 변경을 모든 Host 및 Client 가 작업 완료시에 변경하는 것이 좋을 것 같은데, 아이디어가 딱히 떠오르지가 않음 ㅠㅠ
-    /// stateNum : Desc  
-    ///        0 : Start
-    ///        1 : ResetGameData
-    ///        2 : InstantiateVeichle
-    ///        3 : SetOtherDataForGame
-    ///        4 : Finish
+    /// Game State 관리
     /// </summary>
+    /// <returns></returns>
     private IEnumerator GameStateMachineCoroutine()
     {
         while (true)
@@ -236,6 +232,9 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 case GameState.SetOtherDataForGame:
                     SetOtherDataForGame();
                     break;
+                case GameState.ReadyDone:
+                    ReadyDone();
+                    break;
                 case GameState.GameEnd:
                     GameEnd();
                     yield break;
@@ -243,17 +242,6 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                     break;
             }
         }
-    }
-
-    private void SetOtherDataForGame()
-    {
-        Debug.Log("[GameManager] Set Other Data For Game ... ");
-        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
-        _voiceChannelName = VoiceChannelFormat(userInfo.teamNum);
-        ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel(_voiceChannelName);
-        ServiceLocator.Get<IAudioService>().PlayBGM(_mapNumber);
-        Debug.Log("[GameManager] Set Other Data For Game ... Done ");
-        if (IsServer) _gameState.Value = GameState.DoNothing;
     }
     
     private void ResetGameData()
@@ -308,6 +296,26 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _gameState.Value = GameState.SetOtherDataForGame;
     }
 
+    private void SetOtherDataForGame()
+    {
+        Debug.Log("[GameManager] Set Other Data For Game ... ");
+        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
+        _voiceChannelName = VoiceChannelFormat(userInfo.teamNum);
+        ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel(_voiceChannelName);
+        ServiceLocator.Get<IAudioService>().PlayBGM(_mapNumber);
+        Debug.Log("[GameManager] Set Other Data For Game ... Done ");
+        if (IsServer) _gameState.Value = GameState.ReadyDone;
+    }
+
+    private void ReadyDone()
+    {
+        Debug.Log("[GameManager] ReadyDone ... ");
+        ServiceLocator.Get<IInGameCommonUIController>().SetLoadingUIActive(false);
+        if (IsServer) _gameState.Value = GameState.DoNothing;
+        Debug.Log("[GameManager] ReadyDone ... Enjoy Game !!");
+    }
+    // --------------------------------
+    
     /// <summary>
     /// 체력이 0 이하가 되어 파괴 판정이 된 경우 호출
     /// 체력이 0인 경우 호출 방법 :  myTeam(자신)이 enemy(적)에게 파괴되었습니다.
@@ -440,7 +448,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     
     private void RespawnUIControl(PlayerTeamEnum teamEnum, bool enable)
     {
-        ServiceLocator.Get<IRespawnUIController>().SetActive(teamEnum, enable);
+        ServiceLocator.Get<IInGameCommonUIController>().SetRespawnUIActive(teamEnum, enable);
     }
 
     private void GameEnd()
