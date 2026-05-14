@@ -29,22 +29,19 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     
     // 현재 HP
     private NetworkVariable<int> _hp = new(0, writePerm: NetworkVariableWritePermission.Owner);
-    private NetworkVariable<bool> _isEnd = new(writePerm: NetworkVariableWritePermission.Owner);
+    private NetworkVariable<bool> _isEnd = new();
     // 공격 쿨다운 (일단 일반변수로 가보자)
 
     private Material _material;
-    private MeshRenderer _meshRenderer;
-    private BoxCollider _collider;
     private Rigidbody _rigidbody;
-    
+    private AudioSource _audioSource;
     private bool _isDamageable;
 
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
-        _meshRenderer = GetComponent<MeshRenderer>();
-        _collider = GetComponent<BoxCollider>();
         _teamNum = PlayerTeamEnum.neutralObject;
+        _audioSource =  GetComponent<AudioSource>();
     }
 
     private void OnEnable()
@@ -59,8 +56,11 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
 
     private void DestoryOnNetwork()
     {
-        ServiceLocator.Get<IGameManager>().RemoveKillLogHandler(KillLogHandler);
         var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
+        ServiceLocator.Get<IGameManager>().RemoveKillLogHandler(KillLogHandler);
+        Debug.Log($"[TankController] DestoryOnNetwork ... RemoveKillLogHandler");
+        ServiceLocator.Get<IAudioService>().RemoveAudioSource(_teamNum);
+        Debug.Log($"[TankController] DestoryOnNetwork ... RemoveAudioSource");
         if (_teamNum != userInfo.teamNum && userInfo.role != PlayerRole.Driver) return;
         var ngo = GetComponent<NetworkObject>();
         ngo.Despawn();
@@ -107,6 +107,8 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         _turret.SetGunnerData(_stat, teamInfo);
         _rigidbody.position = pos;
         Debug.Log($"[TankController] Init Tank ... position ; {pos} => {_rigidbody.position}");
+        ServiceLocator.Get<IAudioService>().AddAudioSource(_teamNum, _audioSource);
+        Debug.Log($"[TankController] Init Tank ... Register AudioSource");
         Debug.Log("[TankController] Init Tank ... Completed");
     }
 
@@ -115,13 +117,6 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         Debug.Log($"[TankController] {gameObject.name} _hp : {oldVal} -> {newVal}");
         var hpRate = newVal / (float)_stat.VechicleMaximumHP;
         _driverUI?.ChangeVehicleHealth(hpRate);
-    }
-
-    private void SpawnControl(bool oldVal, bool newVal)
-    {
-        _collider.enabled = newVal;
-        _meshRenderer.enabled = newVal;
-        if (newVal) OnSpawnProcess();
     }
     
     private void OnSpawnProcess()
@@ -166,14 +161,8 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         _driverUI?.UpdateKillLog(self, enemy);   
     }
     
-    [ClientRpc]
-    public void GameEndProcessClientRpc()
-    {
-        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
-        if (_teamNum == userInfo.teamNum && userInfo.role == PlayerRole.Driver)
-            _isEnd.Value = true;
-    }
-
+    public void GameEndProcess() => _isEnd.Value = true;
+    
     public void ExplosionDamaged(System.Numerics.Vector3 expsPos, int dmg, PlayerTeamEnum enemy)
     {
         
