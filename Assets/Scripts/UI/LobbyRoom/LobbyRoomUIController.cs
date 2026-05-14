@@ -385,7 +385,9 @@ public class LobbyRoomUIController : MonoBehaviour
     {
         var lobbyManager = ServiceLocator.Get<ILobbyManager>();
         int[] playersPerTeam = new int[4];
-        foreach (var player in lobbyManager.GetPlayerList())
+        var players = lobbyManager.GetPlayerList();
+        if (players.Count < 4) return false; // 총원 4명 이상인지.
+        foreach (var player in players)
         {
             if (player.Data[LobbyPlayerDataKey.TEAM].Value == "0" || // 모든 유저가 팀에 속해야함.
                 player.Data[LobbyPlayerDataKey.ROLE].Value == $"{PlayerRole.None}" || // 모든 유저가 Role 이 부여 되어있어야 함.
