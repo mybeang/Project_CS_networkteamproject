@@ -38,12 +38,15 @@ public class LunaticMapGimmick : EventTask
     private Vector3[] _meteorSpawnPos;
 
     private int _currentStage;
-    private MeteorSO _currentSO = new();
+    private MeteorSO _currentSO;
 
     private bool _isInit = false;
     #endregion
-    
-    
+
+    private void Awake()
+    {
+        _currentSO = new MeteorSO();
+    }
 
     public override void OnNetworkSpawn()
     {
