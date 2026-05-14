@@ -33,14 +33,6 @@ public class Driver_UI_Tank : Driver_UI
         int time = 600 - (int)newVal;
         Debug.Log($"[Driver_UI_Tank] ChangeTime ... {time}");
         _timer.text = $"{time / 60} : {time % 60}";
-        ChangeTimeClientRpc(time);
-    }
-
-    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
-    private void ChangeTimeClientRpc(int time)
-    {
-        Debug.Log($"[Driver_UI_Tank] ChangeTimeClientRpc ... {time}");
-        _timer.text = $"{time / 60} : {time % 60}";
     }
 
     public override void UpdateKillLog(PlayerTeamEnum self, PlayerTeamEnum enemy)

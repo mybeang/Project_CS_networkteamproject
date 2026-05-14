@@ -291,6 +291,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             var tc = bodyObj.GetComponent<TankController>();
             Debug.Log($"[GameManager] {bodyObj.name}'s team: {team.teamNum}");
             tc.SetDataClientRpc(team.teamNum, pos);
+            string scoreStringData = $"{_team1Score.Value},{_team2Score.Value},{_team3Score.Value},{_team4Score.Value}";
+            OnChangeScore?.Invoke(scoreStringData);
             _managementObject[team.teamNum] = bodyObj;
             Debug.Log($"[GameManager] {bodyObj.name} 생성 완료");
         }
@@ -407,6 +409,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         Debug.Log($"[GameManager] RespawnCoroutine ; {bodyObject.name}'s team: {team}");
         tc.SetDataClientRpc(team, respawnPos);
         _triggerTimerCoroutines[team] = null; // 팀별로 있어야되.
+        string scoreStringData = $"{_team1Score.Value},{_team2Score.Value},{_team3Score.Value},{_team4Score.Value}";
+        OnChangeScore?.Invoke(scoreStringData);
         RespawnUIControl(team, false);
     }
 

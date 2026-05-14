@@ -32,13 +32,4 @@ public class ScoreboardController : NetworkBehaviour
         _team3.text = score[2].ToString();
         _team4.text = score[3].ToString();
     }
-
-    private void OnEnable()
-    {
-        _team1.text = "0";
-        _team2.text = "0";
-        _team3.text = "0";
-        _team4.text = "0";
-    }
-
 }
