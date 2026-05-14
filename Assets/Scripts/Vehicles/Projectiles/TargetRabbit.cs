@@ -41,13 +41,15 @@ public class TargetRabbit : NetworkBehaviour
         Debug.Log("[TargetRabbit] Play Boom Sound");
         _audioSource.volume = ServiceLocator.Get<IAudioService>().GetSfxVolume();
         _audioSource.PlayOneShot(_boomSfx);
-        StartCoroutine(BoomCoroutine());
+        BoomEffectServerRpc();
     }
 
-    private IEnumerator BoomCoroutine()
+    [ServerRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    private void BoomEffectServerRpc() => BoomEffectClientRpc();
+    
+    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    private void BoomEffectClientRpc()
     {
-        _boomVfxPrefab.SetActive(true);
-        yield return new WaitForSeconds(3f);
-        _boomVfxPrefab.SetActive(false);
+        Instantiate(_boomVfxPrefab, transform.position, transform.rotation);
     }
 }
