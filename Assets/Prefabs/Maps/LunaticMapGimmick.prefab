@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1741734607154067994
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3699547382538877203}
+  - component: {fileID: 759773541787637155}
+  - component: {fileID: 5464187944384378292}
+  m_Layer: 0
+  m_Name: LunaticMapGimmick
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3699547382538877203
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741734607154067994}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.82267, y: 0, z: -0.13634}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &759773541787637155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741734607154067994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 3996077490
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &5464187944384378292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741734607154067994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da245ef7646ee574285b27bd2cb28928, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LunaticMapGimmick
+  ShowTopMostFoldoutHeaderGroup: 1
+  _eventName: 
+  excuteTime: []
+  stopTriggerTime: []
+  _smallMeteor: {fileID: 11400000, guid: d9830261580e69849baa64de2722395d, type: 2}
+  _mediumMeteor: {fileID: 11400000, guid: 2427a8a6439de594fadc0e027361ccd3, type: 2}
+  _largeMeteor: {fileID: 11400000, guid: 8d8ae7df1c609a94aafe087ba5c220e6, type: 2}
+  _meteor: {fileID: 5284303710429850284, guid: 488f9d0a7656cfa4980a5ec450ef5f6b, type: 3}
+  _wind: {fileID: 0}
+  _tail: {fileID: 0}
+  _explosionSize: {fileID: 0}
+  _particleSystem: {fileID: 4873732925966308311, guid: 488f9d0a7656cfa4980a5ec450ef5f6b, type: 3}
+  _parent: {fileID: 3699547382538877203}
+  _targetObject:
+    serializedVersion: 2
+    m_Bits: 128

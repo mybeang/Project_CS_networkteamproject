@@ -16,10 +16,14 @@ MonoBehaviour:
   meteorDamageRange: 50
   meteorMaxSpawnMeteor: 4
   meteorDropSpeed: 20
-  meteorMaxHorizontalRange: 100
-  meteorMinHorizontalRange: 0
-  meteorMaxVerticalRange: 100
-  meteorMinVerticalRange: 0
+  meteorSize3D: {x: 0, y: 0, z: 0}
+  meteorFireTailSize: 0
+  meteorWindSize: {x: 0, y: 0, z: 0}
+  meteorExplosionSize: 0
+  meteorMaxHorizontalRange: 200
+  meteorMinHorizontalRange: -200
+  meteorMaxVerticalRange: 200
+  meteorMinVerticalRange: -200
   upPerMeteorDamage: 0
   upPerMeteorDamageRange: 0
   upPerMeteorMaxSpawnMeteor: 0

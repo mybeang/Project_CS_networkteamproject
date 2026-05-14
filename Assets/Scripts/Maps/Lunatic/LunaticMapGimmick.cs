@@ -31,7 +31,7 @@ public class LunaticMapGimmick : EventTask
 
     private List<ParticleSystem> _particles = new List<ParticleSystem>(16);
 
-    private Vector3[] _meteorSpawnPos;
+    //private Vector3[] _meteorSpawnPos;
     private ParticleSystem.EmitParams[] _emitParams;
 
     private int _currentStage;
@@ -39,6 +39,8 @@ public class LunaticMapGimmick : EventTask
 
     private bool _isInit;
     #endregion
+
+    NetworkList<Vector3> _meteorSpawnPos = new NetworkList<Vector3>();
 
     public override void OnNetworkSpawn()
     {
@@ -78,17 +80,20 @@ public class LunaticMapGimmick : EventTask
     private  void GeneratePos()
     {
         if (!_isInit) Init();
-        _meteorSpawnPos = new Vector3[_currentSO.meteorMaxSpawnMeteor];
+        _meteorSpawnPos.Clear();
         _emitParams = new ParticleSystem.EmitParams[_currentSO.meteorMaxSpawnMeteor];
 
-        for (int i = 0; i < _currentSO.meteorMaxSpawnMeteor; i++)
+        for (int i = 0; i < 16; i++)
         {
-            _meteorSpawnPos[i] = new Vector3(
+            if(i < _currentSO.meteorMaxSpawnMeteor)
+            {
+                _meteorSpawnPos.Add(new Vector3(
                 Random.Range(_currentSO.meteorMinHorizontalRange, _currentSO.meteorMaxHorizontalRange),
                 100,
-                Random.Range(_currentSO.meteorMinVerticalRange, _currentSO.meteorMaxVerticalRange));
-            Debug.Log($"[{name}] {_meteorSpawnPos[i]}");
+                Random.Range(_currentSO.meteorMinVerticalRange, _currentSO.meteorMaxVerticalRange)));
+            }
         }
+
         Debug.Log($"[{name}] 좌표 측정 완료");
         SpawnMeteor();
     }
@@ -96,7 +101,7 @@ public class LunaticMapGimmick : EventTask
     private void SpawnMeteor()
     {
         if (_meteorSpawnPos == null) return;
-        for (int i = 0; i < _meteorSpawnPos.Length; i++)
+        for (int i = 0; i < _meteorSpawnPos.Count; i++)
         {
             Debug.Log($"[{name}] {i} 번째 메테오 소환 준비");
             _particles[i].transform.position = _meteorSpawnPos[i];
@@ -167,6 +172,7 @@ public class LunaticMapGimmick : EventTask
 
     public override void OnEventSpawn()
     {
+        if (!IsServer) return;
         GeneratePos();
         ChangeStage(_currentStage++);
     }

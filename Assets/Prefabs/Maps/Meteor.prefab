@@ -14987,8 +14987,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 3
-      minScalar: 1
+      scalar: 30
+      minScalar: 10
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -19826,7 +19826,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 3.08
+      scalar: 20
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -24730,7 +24730,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.47
+      scalar: 4.7
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -24783,7 +24783,7 @@ ParticleSystem:
     startSizeY:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 3.44
+      scalar: 34.4
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -24836,7 +24836,7 @@ ParticleSystem:
     startSizeZ:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.5
+      scalar: 5
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -29348,7 +29348,6 @@ GameObject:
   - component: {fileID: 1195440027777181448}
   - component: {fileID: 5284303710429850284}
   - component: {fileID: 89575198334091875}
-  - component: {fileID: 8116166833091119177}
   m_Layer: 0
   m_Name: Meteor
   m_TagString: Untagged
@@ -29628,7 +29627,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 3.16
+      scalar: 31.6
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -29681,7 +29680,7 @@ ParticleSystem:
     startSizeY:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 10
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -29734,7 +29733,7 @@ ParticleSystem:
     startSizeZ:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 10
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -34246,15 +34245,3 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
---- !u!114 &8116166833091119177
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4873732925966308311}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4e1eae29abc9484bbdca297fdea03ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: testAmdf::Teststtster
