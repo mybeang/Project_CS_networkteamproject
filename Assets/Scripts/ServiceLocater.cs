@@ -10,14 +10,14 @@ public static class ServiceLocator
     public static void Register<T>(T service)
     {
         var type = typeof(T);
-        _services[type] = service;
+        if (!_services.ContainsKey(type)) _services[type] = service;
     }
 
     // 서비스 해제
-    public static void Unregister<T>()
+    public static void Unregister<T>(T service)
     {
         var type = typeof(T);
-        if (_services.ContainsKey(type))
+        if (_services.TryGetValue(type, out var current) && ReferenceEquals(current, service))
         {
             _services.Remove(type);
         }

@@ -4,6 +4,7 @@
     ResetGameData,
     InstantiateVehicle,
     SetOtherDataForGame,
+    ReadyDone,
     GameEnd,
     DoNothing = 255
 }

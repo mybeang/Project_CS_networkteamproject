@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class NetworkSceneLoader : NetworkManager<NetworkSceneLoader>, INetworkSceneLoader
 {
     protected override void Register() => ServiceLocator.Register<INetworkSceneLoader>(this);
-    protected override void Unregister() => ServiceLocator.Unregister<INetworkSceneLoader>();
+    protected override void Unregister() => ServiceLocator.Unregister<INetworkSceneLoader>(this);
 
     public void LoadScene(string sceneName)
     {

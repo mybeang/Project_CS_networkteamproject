@@ -13,7 +13,7 @@ public class AudioManager : Manager<AudioManager>, IAudioService
     private void OnDisable() => Unregister();
     
     protected override void Register() => ServiceLocator.Register<IAudioService>(this);
-    protected override void Unregister() => ServiceLocator.Unregister<IAudioService>();
+    protected override void Unregister() => ServiceLocator.Unregister<IAudioService>(this);
 
     protected override void Init()
     {

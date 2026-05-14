@@ -15,12 +15,15 @@ public class LobbyListUIController : MonoBehaviour
     [Header("Lobby List Menu")]
     [SerializeField] private Button _leftButton;
     [SerializeField] private Button _rightButton;
-    [SerializeField] private Button _joinLobbyButton;
+    [SerializeField] private Button _quickJoinLobbyButton;
     [SerializeField] private Button _createLobbyButton;
     [SerializeField] private Button _quitGameButton;
     
     [Header("Create Room Menu")]
     [SerializeField] private GameObject _createRoomUI;
+    
+    [Header("Etc")]
+    [SerializeField] private MessagePopUpUIController _msgPopUp;
     
     private int offset = 0;
     private Coroutine _refreshCoroutine;
@@ -42,7 +45,7 @@ public class LobbyListUIController : MonoBehaviour
         _leftButton.onClick.AddListener(OnGoLeftList);
         _rightButton.onClick.AddListener(OnGoRigtList);
         _createLobbyButton.onClick.AddListener(OnCreateRoom);
-        _joinLobbyButton.onClick.AddListener(OnJoinRoom);
+        _quickJoinLobbyButton.onClick.AddListener(OnQuickJoinRoom);
         _quitGameButton.onClick.AddListener(GoToLoginPage);
     }
 
@@ -52,7 +55,7 @@ public class LobbyListUIController : MonoBehaviour
         _leftButton.onClick.RemoveListener(OnGoLeftList);
         _rightButton.onClick.RemoveListener(OnGoRigtList);
         _createLobbyButton.onClick.RemoveListener(OnCreateRoom);
-        _joinLobbyButton.onClick.RemoveListener(OnJoinRoom);
+        _quickJoinLobbyButton.onClick.RemoveListener(OnQuickJoinRoom);
         _quitGameButton.onClick.RemoveListener(GoToLoginPage);
     }
 
@@ -118,23 +121,20 @@ public class LobbyListUIController : MonoBehaviour
         _createRoomUI.SetActive(true);
     }
 
-    private void OnJoinRoom()
+    private async void OnQuickJoinRoom()
     {
         if (_isCreateRoomUIOpened) return;
         ServiceLocator.Get<IAudioService>().PlayButtonSfx();
-        foreach (LobbyListItemUI item in _lobbyListItems)
+        bool result = await ServiceLocator.Get<ILobbyManager>().QuickJoinRoom();
+        if (!result)
         {
-            if (item.IsSelected)
-            {
-                ServiceLocator.Get<ILobbyManager>().JoinRoom(item.RoomId).ContinueWithOnMainThread(task =>
-                {
-                    if (task.IsCompleted)
-                    {
-                        ServiceLocator.Get<ILocalSceneLoader>().LoadScene("LobbyRoom");
-                    }
-                });
-                return;
-            }
+            _msgPopUp?.Open(
+                MessageType.Warning,
+                "참여 가능한 방이 없습니다.");
+        }
+        else
+        {
+            ServiceLocator.Get<ILocalSceneLoader>().LoadScene("LobbyRoom");
         }
     }
 

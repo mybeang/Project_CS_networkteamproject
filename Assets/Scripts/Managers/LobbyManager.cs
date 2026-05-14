@@ -52,7 +52,7 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
     }
 
     protected override void Register() => ServiceLocator.Register<ILobbyManager>(this);
-    protected override void Unregister() => ServiceLocator.Unregister<ILobbyManager>();
+    protected override void Unregister() => ServiceLocator.Unregister<ILobbyManager>(this);
 
     private void PrintError(string message) => Debug.LogError($"[LobbyManager]\n{message}");
 
@@ -150,12 +150,6 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
             _lobby = await LobbyService.Instance.JoinLobbyByIdAsync(roomId, options);
             AddListenersForLobbyEventCallbacks();
             ServiceLocator.Get<IUserInfoManager>()?.SetRoomId(_lobby.Id);
-            if (_heartbeatCoroutine != null)
-            {
-                StopCoroutine(_heartbeatCoroutine);
-                _heartbeatCoroutine = null;
-            }
-            StartCoroutine(HeartBeatCoroutine());
         } 
         catch (LobbyServiceException e)
         {
@@ -163,9 +157,34 @@ public class LobbyManager : Manager<LobbyManager>, ILobbyManager
         }
     }
 
-    public async Task QuickJoinRoom()
+    public async Task<bool> QuickJoinRoom()
     {
-        // ToDo. 필요시 추후 구현.
+        try
+        {
+            QuickJoinLobbyOptions options = new QuickJoinLobbyOptions();
+            options.Filter = new List<QueryFilter>()
+            {
+                new QueryFilter(
+                    field: QueryFilter.FieldOptions.AvailableSlots,
+                    op: QueryFilter.OpOptions.GT,
+                    value: "0")
+            };
+            options.Player = new Player { Data = MyDataFormat<PlayerDataObject>() };
+
+            _lobby = await LobbyService.Instance.QuickJoinLobbyAsync(options);
+            AddListenersForLobbyEventCallbacks();
+            ServiceLocator.Get<IUserInfoManager>()?.SetRoomId(_lobby.Id);
+            return true;
+        }
+        catch (LobbyServiceException e) when (e.Reason == LobbyExceptionReason.LobbyNotFound)
+        {
+            Debug.Log("[LobbyManager] QuickJoinRoom Failed");
+        }
+        catch (Exception e)
+        {
+            PrintError(e.Message);
+        }
+        return false;
     }
 
     public async Task CreateRoom(string subject)

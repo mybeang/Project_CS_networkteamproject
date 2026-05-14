@@ -46,7 +46,7 @@ public class DatabaseBackend : Manager<DatabaseBackend>, IDatabaseBackend
     }
     
     protected override void Register() => ServiceLocator.Register<IDatabaseBackend>(this);
-    protected override void Unregister() => ServiceLocator.Unregister<IDatabaseBackend>();
+    protected override void Unregister() => ServiceLocator.Unregister<IDatabaseBackend>(this);
     
     public void SaveUserAsync(string userId)
     {

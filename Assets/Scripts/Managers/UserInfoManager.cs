@@ -3,7 +3,7 @@
     private UserInfo _userInfo = new();
     
     protected override void Register() => ServiceLocator.Register<IUserInfoManager>(this);
-    protected override void Unregister() => ServiceLocator.Unregister<IUserInfoManager>();
+    protected override void Unregister() => ServiceLocator.Unregister<IUserInfoManager>(this);
 
     public UserInfo GetUserInfo() => _userInfo;
     public void SetUserId(string userId) => _userInfo.userId = userId;
