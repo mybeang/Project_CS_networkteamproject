@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class LunaticMapGimmick : EventTask
 {
@@ -29,7 +30,7 @@ public class LunaticMapGimmick : EventTask
 
     #region Private_Variables
 
-    private List<ParticleSystem> _particles = new List<ParticleSystem>(16);
+    private List<ParticleSystem> _particles = new List<ParticleSystem>(24);
 
     //private Vector3[] _meteorSpawnPos;
     private ParticleSystem.EmitParams[] _emitParams;
@@ -37,7 +38,7 @@ public class LunaticMapGimmick : EventTask
     private Vector3[] _meteorSpawnPos;
 
     private int _currentStage;
-    private MeteorSO _currentSO;
+    private MeteorSO _currentSO = new();
 
     private bool _isInit = false;
     #endregion
@@ -53,22 +54,27 @@ public class LunaticMapGimmick : EventTask
         switch (_currentStage)
         {
             case 0: case 1: case 2:
-                _currentSO = _smallMeteor.UpMeteor(_currentStage);
+                _currentSO = _smallMeteor.UpMeteor(_currentSO,_currentStage);
                 break;
             case 3: case 4: case 5:
-                _currentSO = _mediumMeteor.UpMeteor(_currentStage % 3);
+                _currentSO = _mediumMeteor.UpMeteor(_currentSO, _currentStage % 3);
                 break;
             case 6:
-                _currentSO = _largeMeteor.UpMeteor(_currentStage % 3);
+                _currentSO = _largeMeteor.UpMeteor(_currentSO, _currentStage % 3);
                 break;
         }
         _currentStage++;
     }
 
+    private void Start()
+    {
+        Init();
+    }
+
     public void Init()
     {
-        _isInit = true;
         _currentStage = 0;
+        _currentSO = _smallMeteor;
         GameObject obj;
 
         for (int i = 0; i < _particles.Capacity; i++)
@@ -81,9 +87,7 @@ public class LunaticMapGimmick : EventTask
 
     private  void GeneratePos()
     {
-        if (!_isInit) Init();
         Debug.Log($"[{name}] Is Server : {IsServer}");
-        _emitParams = new ParticleSystem.EmitParams[_currentSO.meteorMaxSpawnMeteor];
 
         _meteorSpawnPos = new Vector3[_currentSO.meteorMaxSpawnMeteor];
 
@@ -99,14 +103,15 @@ public class LunaticMapGimmick : EventTask
         }
 
         Debug.Log($"[{name}] 좌표 측정 완료");
-        SpawnMeteorClientRpc(_meteorSpawnPos);
+        SpawnMeteorClientRpc(_meteorSpawnPos, _currentSO.meteorMaxSpawnMeteor);
     }
 
     [ClientRpc]
-    private void SpawnMeteorClientRpc(Vector3[] meteorSpawnPos)
+    private void SpawnMeteorClientRpc(Vector3[] meteorSpawnPos, int maxSpawn)
     {
         _meteorSpawnPos = meteorSpawnPos;
         if (_meteorSpawnPos == null) return;
+        _emitParams = new ParticleSystem.EmitParams[maxSpawn];
         Debug.Log($"{name} : {_meteorSpawnPos.Length}");
         for (int i = 0; i < _meteorSpawnPos.Length; i++)
         {
@@ -141,6 +146,7 @@ public class LunaticMapGimmick : EventTask
             yield return null;
         }
         Debug.Log("붐!");
+        if (!IsServer) yield break;
         DesignatDamageableGroundServerRpc(point, PlayerTeamEnum.neutralObject);
     }
 

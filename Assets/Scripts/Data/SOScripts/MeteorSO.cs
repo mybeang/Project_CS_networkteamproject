@@ -31,9 +31,8 @@ public class MeteorSO : ScriptableObject
     public int upPerMeteorDamageRange;
     public int upPerMeteorMaxSpawnMeteor;
 
-    public MeteorSO UpMeteor(int stage)
+    public MeteorSO UpMeteor(MeteorSO so, int stage)
     {
-        MeteorSO so = this;
         so.meteorDamage = meteorDamage + upPerMeteorDamage * stage;
         so.meteorDamageRange = meteorDamageRange + upPerMeteorDamageRange * stage;
         so.meteorMaxSpawnMeteor = meteorMaxSpawnMeteor + upPerMeteorMaxSpawnMeteor * stage;

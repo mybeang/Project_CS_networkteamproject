@@ -1761,7 +1761,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad32cc9e5c82ea840b67d2545a4cec5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScoreboardController
-  _scoreBoard: {fileID: 0}
   _team1: {fileID: 0}
   _team2: {fileID: 0}
   _team3: {fileID: 0}
