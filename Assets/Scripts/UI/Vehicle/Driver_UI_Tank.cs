@@ -4,17 +4,15 @@ using UnityEngine.UI;
 
 public class Driver_UI_Tank : Driver_UI
 {
-    /*
     private void OnEnable()
     {
-        ServiceLocator.Get<IGameManager>().OnKillLog += UpdateKillLog;
+        ServiceLocator.Get<IGameManager>().OnChangeTime += ChangeTime;
     }
 
     private void OnDisable()
     {
-        ServiceLocator.Get<IGameManager>().OnKillLog -= UpdateKillLog;
+        ServiceLocator.Get<IGameManager>().OnChangeTime -= ChangeTime;
     }
-    */
     /// <summary>
     /// 탱크가 피해를 입었을 시 해당 함수 호출 및 백분율로 현재 체력 표시
     /// 반드시 넘겨 줄때 float 값으로 넘겨 줄것(int / int 하면 0 나올 수도 있음)
@@ -26,6 +24,11 @@ public class Driver_UI_Tank : Driver_UI
     public override void ChangeVehicleHealth(float currentHealthPoint)
     {
         _hpSlider.value = currentHealthPoint;
+    }
+
+    private void ChangeTime(int time)
+    {
+        _timer.text = $"{time / 60} : {time % 60}";
     }
 
     public override void UpdateKillLog(PlayerTeamEnum self, PlayerTeamEnum enemy)

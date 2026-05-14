@@ -2600,6 +2600,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4044172509307444711, guid: dbf59c15dfbcfc345ab056061fba9e9f, type: 3}
+      propertyPath: 'excuteTime.Array.data[0]'
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 4044172509307444711, guid: dbf59c15dfbcfc345ab056061fba9e9f, type: 3}
+      propertyPath: 'excuteTime.Array.data[1]'
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4044172509307444711, guid: dbf59c15dfbcfc345ab056061fba9e9f, type: 3}
+      propertyPath: 'excuteTime.Array.data[2]'
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 4675519946814004723, guid: dbf59c15dfbcfc345ab056061fba9e9f, type: 3}
       propertyPath: m_Name
       value: Map_Lunatic

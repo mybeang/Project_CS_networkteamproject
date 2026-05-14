@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SmallMeteor
   m_EditorClassIdentifier: Assembly-CSharp::MeteorSO
   meteorDamage: 300
-  meteorDamageRange: 10
+  meteorDamageRange: 20
   meteorMaxSpawnMeteor: 12
   meteorDropSpeed: 20
   meteorSize3D: {x: 0, y: 0, z: 0}

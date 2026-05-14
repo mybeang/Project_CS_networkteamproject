@@ -1,24 +1,29 @@
 ﻿using System;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
 public class ScoreboardController : MonoBehaviour
 {
-    [SerializeField] Canvas _scoreBoard;
     [SerializeField] TextMeshProUGUI _team1;
     [SerializeField] TextMeshProUGUI _team2;
     [SerializeField] TextMeshProUGUI _team3;
     [SerializeField] TextMeshProUGUI _team4;
 
-    private int _team1score;
-    private int _team2score;
-    private int _team3score;
-    private int _team4score;
+    private int _team1score = 0;
+    private int _team2score = 0;
+    private int _team3score = 0;
+    private int _team4score = 0;
 
-    private void Start() => ServiceLocator.Get<IGameManager>().OnChangeScore += ScoreListener;
-    private void OnDestroy() => ServiceLocator.Get<IGameManager>().OnChangeScore -= ScoreListener;
+    private void Start()
+    {
+        ServiceLocator.Get<IGameManager>().OnChangeScore += ScoreListenerClientRpc;
+    }
 
-    private void ScoreListener(int[] score)
+    private void OnDestroy() => ServiceLocator.Get<IGameManager>().OnChangeScore -= ScoreListenerClientRpc;
+
+    [ClientRpc]
+    private void ScoreListenerClientRpc(int[] score)
     {
         _team1score = score[0];
         _team2score = score[1];
@@ -26,18 +31,12 @@ public class ScoreboardController : MonoBehaviour
         _team4score = score[3];
     }
 
-    public void OnScoreBoardEnable()
+    private void OnEnable()
     {
-        _scoreBoard.gameObject.SetActive(true);
         _team1.text = _team1score.ToString();
         _team2.text = _team2score.ToString();
         _team3.text = _team3score.ToString();
         _team4.text = _team4score.ToString();
-    }
-
-    public void OnScoreBoardDisable()
-    {
-        _scoreBoard.gameObject.SetActive(false);
     }
 
 }
