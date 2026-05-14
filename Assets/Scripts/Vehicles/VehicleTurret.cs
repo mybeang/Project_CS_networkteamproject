@@ -16,7 +16,6 @@ public class VehicleTurret : NetworkBehaviour
 
     [SerializeField] private Transform _canon;
     [SerializeField] private VehicleMovement _vehicleMovement;
-    [SerializeField] private AudioClip _shotSound;
     [SerializeField] private AudioClip _reloadSound;
 
     private Gunner_UI _gunnerUI; // TODO : 나중에 상위 객체를 받아서 전환하게 바꾸기
@@ -136,10 +135,16 @@ public class VehicleTurret : NetworkBehaviour
     {
         if (isReloading) return;
         Debug.Log("[VehicleTurrent] Shot");
-        // Shot Effect 추가 필요
-        ServiceLocator.Get<IAudioService>().PlayOneShotSfx(_shotSound);
+        ShotEffectServerRpc();
         _projectile.Shot(_gunnerCam.transform, _teamInfo.teamNum);
         _gunnerUI.Fire();
         StartCoroutine(ReLoad());
+    }
+    
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void ShotEffectServerRpc()
+    {
+        // Shot Effect 추가 필요
+        ServiceLocator.Get<IAudioService>().PlayOneShotSfxClientRpc(_teamInfo.teamNum, SfxEnum.TankShot);
     }
 }

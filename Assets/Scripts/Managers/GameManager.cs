@@ -489,7 +489,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             Debug.Log($"[GameManager] GameEnd ... {team.teamNum} end process");
             if (IsServer)
             {
-                _managementObject[team.teamNum].GetComponent<TankController>().GameEndProcessClientRpc();
+                _managementObject[team.teamNum].GetComponent<TankController>().GameEndProcess();
             }
             
             switch (team.teamNum)
