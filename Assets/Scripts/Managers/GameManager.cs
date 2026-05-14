@@ -107,7 +107,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     {
         ServiceLocator.Register<IGameManager>(this);
     }
-    protected override void Unregister() => ServiceLocator.Unregister<IGameManager>();
+    protected override void Unregister() => ServiceLocator.Unregister<IGameManager>(this);
     
     public void AddEventSchedule(EventScheduleManager eventSchedulemanager)
     {

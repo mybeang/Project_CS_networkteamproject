@@ -5,7 +5,7 @@ public class InputSystemManager : Manager<InputSystemManager>, IInputSystem
     private InputSystem_Actions _inputSystemActions;
     
     protected override void Register() => ServiceLocator.Register<IInputSystem>(this);
-    protected override void Unregister() => ServiceLocator.Unregister<IInputSystem>();
+    protected override void Unregister() => ServiceLocator.Unregister<IInputSystem>(this);
 
     protected override void Init()
     {

@@ -7,7 +7,7 @@ public class RespawnUIController : NetworkManager<RespawnUIController>, IRespawn
     [SerializeField] private GameObject _respawnUIPrefab;
     [SerializeField] private TextMeshProUGUI _respawnTimeText;
     protected override void Register() => ServiceLocator.Register<IRespawnUIController>(this);
-    protected override void Unregister() => ServiceLocator.Unregister<IRespawnUIController>();
+    protected override void Unregister() => ServiceLocator.Unregister<IRespawnUIController>(this);
 
     public override void OnNetworkSpawn()
     {
