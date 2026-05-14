@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public class LunaticMapGimmick : EventTask
@@ -37,7 +38,7 @@ public class LunaticMapGimmick : EventTask
     private int _currentStage;
     private MeteorSO _currentSO;
 
-    private bool _isInit;
+    private bool _isInit = false;
     #endregion
 
     NetworkList<Vector3> _meteorSpawnPos = new NetworkList<Vector3>();
@@ -46,10 +47,9 @@ public class LunaticMapGimmick : EventTask
     {
         base.OnNetworkSpawn();
     }
-    public void ChangeStage(int stage)
+    public void ChangeStage()
     {
-        _currentStage = stage;
-        switch(_currentStage)
+        switch (_currentStage)
         {
             case 0: case 1: case 2:
                 _currentSO = _smallMeteor.UpMeteor(_currentStage);
@@ -61,6 +61,7 @@ public class LunaticMapGimmick : EventTask
                 _currentSO = _largeMeteor.UpMeteor(_currentStage % 3);
                 break;
         }
+        _currentStage++;
     }
 
     public void Init()
@@ -80,6 +81,7 @@ public class LunaticMapGimmick : EventTask
     private  void GeneratePos()
     {
         if (!_isInit) Init();
+        Debug.Log($"[{name}] Is Server : {IsServer}");
         _meteorSpawnPos.Clear();
         _emitParams = new ParticleSystem.EmitParams[_currentSO.meteorMaxSpawnMeteor];
 
@@ -89,7 +91,7 @@ public class LunaticMapGimmick : EventTask
             {
                 _meteorSpawnPos.Add(new Vector3(
                 Random.Range(_currentSO.meteorMinHorizontalRange, _currentSO.meteorMaxHorizontalRange),
-                100,
+                300,
                 Random.Range(_currentSO.meteorMinVerticalRange, _currentSO.meteorMaxVerticalRange)));
             }
         }
@@ -106,7 +108,7 @@ public class LunaticMapGimmick : EventTask
             Debug.Log($"[{name}] {i} 번째 메테오 소환 준비");
             _particles[i].transform.position = _meteorSpawnPos[i];
 
-            if (Physics.Raycast(_particles[i].transform.position, _particles[i].transform.up * -1, out RaycastHit hit, 130))
+            if (Physics.Raycast(_particles[i].transform.position, _particles[i].transform.up * -1, out RaycastHit hit, 330))
             {
                 Vector3 point = hit.point;
                 Debug.Log($"[{hit.transform.name}] 대상 위치 : {point}");
@@ -121,7 +123,6 @@ public class LunaticMapGimmick : EventTask
                 Debug.Log($"[{name}] {i} 번째 메테오 소환 성공");
             }
         }
-        _meteorSpawnPos = null;
     }
 
     private IEnumerator Waiter(float targetTime, Vector3 point)
@@ -173,8 +174,8 @@ public class LunaticMapGimmick : EventTask
     public override void OnEventSpawn()
     {
         if (!IsServer) return;
+        ChangeStage();
         GeneratePos();
-        ChangeStage(_currentStage++);
     }
 
     public override void OnEventDespawn()
