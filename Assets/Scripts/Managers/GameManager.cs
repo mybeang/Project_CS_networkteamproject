@@ -57,7 +57,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private NetworkVariable<int> _team2RespawnTime = new ();
     private NetworkVariable<int> _team3RespawnTime = new ();
     private NetworkVariable<int> _team4RespawnTime = new ();
-    private NetworkVariable<double> _remainingTime = new();
+    private NetworkVariable<double> _elapsedTime = new();
     #endregion
 
     #region ActionFuntion
@@ -123,24 +123,24 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     IEnumerator Timer()
     {
         _startTime = NetworkManager.Singleton.ServerTime.Time;
-        _remainingTime.Value = 0;
+        _elapsedTime.Value = 0;
         Debug.Log("[GameManager] Game Start ... Starting Timer");
-        while (_remainingTime.Value <= _gamePlayableTime)
+        while (_elapsedTime.Value <= _gamePlayableTime)
         {
-            _remainingTime.Value = NetworkManager.Singleton.ServerTime.Time - _startTime;
+            _elapsedTime.Value = NetworkManager.Singleton.ServerTime.Time - _startTime;
             if (IsServer && _eventScheduleManager != null)
             {
-                if (_eventCounter < _eventTimer.Length &&_eventTimer[_eventCounter] <= _remainingTime.Value)
+                if (_eventCounter < _eventTimer.Length &&_eventTimer[_eventCounter] <= _elapsedTime.Value)
                 {
                     if (_eventEndTimer != null && _eventCounter < _eventEndTimer.Length)
                         _isEventEndTimer = true;
-                    Debug.Log($"[GameManager] Catch Event ec:{_eventCounter} et:{_eventTimer[_eventCounter]} el{_remainingTime.Value}");
+                    Debug.Log($"[GameManager] Catch Event ec:{_eventCounter} et:{_eventTimer[_eventCounter]} el{_elapsedTime.Value}");
                     _eventScheduleManager.OnEventSpawn();
                     _eventCounter++;
                 }
-                else if (_isEventEndTimer && _eventEndTimer != null && _eventEndTimer[_eventCounter - 1] <= _remainingTime.Value)
+                else if (_isEventEndTimer && _eventEndTimer != null && _eventEndTimer[_eventCounter - 1] <= _elapsedTime.Value)
                 {
-                    Debug.Log($"[GameManager] Release Event ec:{_eventCounter} et:{_eventEndTimer[_eventCounter - 1]} el{_remainingTime.Value}");
+                    Debug.Log($"[GameManager] Release Event ec:{_eventCounter} et:{_eventEndTimer[_eventCounter - 1]} el{_elapsedTime.Value}");
                     _isEventEndTimer = false;
                     _eventScheduleManager.OnEventDespawn();
                 }
@@ -451,13 +451,13 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     public void AddTimerHandler(NetworkVariable<double>.OnValueChangedDelegate callback)
     {
         Debug.Log("[GameManager] AddTimerHandler ... ");
-        _remainingTime.OnValueChanged += callback;
+        _elapsedTime.OnValueChanged += callback;
     }
 
     public void RemoveTimerHandler(NetworkVariable<double>.OnValueChangedDelegate callback)
     {
         Debug.Log("[GameManager] RemoveTimerHandler ... ");
-        _remainingTime.OnValueChanged -= callback;
+        _elapsedTime.OnValueChanged -= callback;
     }
 
     private void RespawnUIControl(PlayerTeamEnum teamEnum, bool enable)

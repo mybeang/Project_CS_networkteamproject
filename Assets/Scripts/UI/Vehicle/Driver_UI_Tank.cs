@@ -29,14 +29,17 @@ public class Driver_UI_Tank : Driver_UI
 
     private void ChangeTime(double oldVal, double newVal)
     {
-        Debug.Log($"[Driver_UI_Tank] ChangeTime ... {newVal}");
-        _timer.text = $"{(int)newVal / 60} : {(int)newVal % 60}";
-        ChangeTimeClientRpc((int) newVal);
+        // ToDO. Hardcoding
+        int time = 600 - (int)newVal;
+        Debug.Log($"[Driver_UI_Tank] ChangeTime ... {time}");
+        _timer.text = $"{time / 60} : {time % 60}";
+        ChangeTimeClientRpc(time);
     }
 
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
     private void ChangeTimeClientRpc(int time)
     {
+        Debug.Log($"[Driver_UI_Tank] ChangeTimeClientRpc ... {time}");
         _timer.text = $"{time / 60} : {time % 60}";
     }
 
