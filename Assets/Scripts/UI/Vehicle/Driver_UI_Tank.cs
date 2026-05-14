@@ -7,12 +7,12 @@ public class Driver_UI_Tank : Driver_UI
 {
     private void OnEnable()
     {
-        ServiceLocator.Get<IGameManager>().OnChangeTime += ChangeTimeClientRpc;
+        ServiceLocator.Get<IGameManager>().AddTimerHandler(ChangeTime);
     }
 
     private void OnDisable()
     {
-        ServiceLocator.Get<IGameManager>().OnChangeTime -= ChangeTimeClientRpc;
+        ServiceLocator.Get<IGameManager>().RemoveTimerHandler(ChangeTime);
     }
     /// <summary>
     /// 탱크가 피해를 입었을 시 해당 함수 호출 및 백분율로 현재 체력 표시
@@ -25,6 +25,11 @@ public class Driver_UI_Tank : Driver_UI
     public override void ChangeVehicleHealth(float currentHealthPoint)
     {
         _hpSlider.value = currentHealthPoint;
+    }
+
+    private void ChangeTime(double oldVal, double newVal)
+    {
+        ChangeTimeClientRpc((int) newVal);
     }
 
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]

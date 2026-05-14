@@ -75,7 +75,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     /// <summary>
     /// 스코어가 바뀔 경우 Invoke해줄 함수.
     /// </summary>
-    public event Action<int[]> OnChangeScore;
+    public event Action<string> OnChangeScore;
     #endregion
 
     private void Awake()
@@ -128,7 +128,6 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         while (_remainingTime.Value <= _gamePlayableTime)
         {
             _remainingTime.Value = NetworkManager.Singleton.ServerTime.Time - _startTime;
-            OnChangeTime?.Invoke((int)(_gamePlayableTime - _remainingTime.Value));
             if (IsServer && _eventScheduleManager != null)
             {
                 if (_eventCounter < _eventTimer.Length &&_eventTimer[_eventCounter] <= _remainingTime.Value)
@@ -353,7 +352,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 _team4Score.Value += 1;
                 break;
         }
-        OnChangeScore?.Invoke(new int[4] {_team1Score.Value, _team2Score.Value, _team3Score.Value, _team4Score.Value});
+        string scoreStringData = $"{_team1Score.Value},{_team2Score.Value},{_team3Score.Value},{_team4Score.Value}";
+        OnChangeScore?.Invoke(scoreStringData);
     
         // 킬로그 호출
         OnKillLog?.Invoke(myTeam, enemy);
@@ -447,7 +447,13 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 break;
         }
     }
+
+    public void AddTimerHandler(NetworkVariable<double>.OnValueChangedDelegate callback)
+        => _remainingTime.OnValueChanged += callback;
     
+    public void RemoveTimerHandler(NetworkVariable<double>.OnValueChangedDelegate callback)
+        => _remainingTime.OnValueChanged -= callback;
+
     private void RespawnUIControl(PlayerTeamEnum teamEnum, bool enable)
     {
         ServiceLocator.Get<IInGameCommonUIController>().SetRespawnUIActive(teamEnum, enable);

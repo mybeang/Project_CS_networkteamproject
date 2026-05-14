@@ -26,7 +26,7 @@ public interface IGameManager
     /// 스코어가 바뀐 경우 바뀐 스코어를 전달하기 위한 함수.
     /// int 배열 4개가 들어올 예정 (int[4])
     /// </summary>
-    public event Action<int[]> OnChangeScore;
+    public event Action<string> OnChangeScore;
 
     public void SetData(TeamInfo[] teams, in string roomID, int mapNumber);
     
@@ -38,4 +38,7 @@ public interface IGameManager
     public void RemoveKillLogHandler(Action<PlayerTeamEnum, PlayerTeamEnum> callback);
     public void AddRespawnCounterHandler(PlayerTeamEnum team, NetworkVariable<int>.OnValueChangedDelegate callback);
     public void RemoveRespawnCounterHandler(PlayerTeamEnum team, NetworkVariable<int>.OnValueChangedDelegate callback);
+    public void AddTimerHandler(NetworkVariable<double>.OnValueChangedDelegate callback);
+    public void RemoveTimerHandler(NetworkVariable<double>.OnValueChangedDelegate callback);
+    
 }

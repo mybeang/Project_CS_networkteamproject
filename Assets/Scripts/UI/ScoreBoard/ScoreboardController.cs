@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -23,8 +24,12 @@ public class ScoreboardController : NetworkBehaviour
     private void OnDestroy() => ServiceLocator.Get<IGameManager>().OnChangeScore -= ScoreListenerClientRpc;
 
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
-    private void ScoreListenerClientRpc(int[] score)
+    private void ScoreListenerClientRpc(string scoreStringData)
     {
+        int[] score = new int [4];
+        for (int i = 0; i < score.Length; i++)
+            score[i] = int.Parse(scoreStringData.Split(',')[i]);
+            
         Debug.Log($"[{name}] in score");
         _team1score = score[0];
         _team2score = score[1];
