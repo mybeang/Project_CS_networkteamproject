@@ -11,23 +11,24 @@ public class TargetRabbit : NetworkBehaviour
     [SerializeField] private GameObject _boomVfxPrefab;
     private AudioSource _audioSource;
 
+    public Vector3 MyPosition
+    {
+        get { return transform.position; }
+        set
+        {
+            transform.position = value; 
+            Debug.Log("[TargetRabbit] Position: " + value);
+        }
+    }
+    
     private void Awake()
     {
         _audioSource = GetComponent<AudioSource>();
     }
-
-    [ServerRpc(InvokePermission = RpcInvokePermission.Everyone)]
-    public void BoomStartServerRpc()
-    {
-        Debug.Log("[TargetRabbit] TargetRabitBoomCoroutineA - Boom Start");
-        // Effect 할거 여기서
-        PlaySoundClientRpc();
-        BoomEffectClientRpc();
-    }
     
     public void BoomStart()
     {
-        Debug.Log("[TargetRabbit] TargetRabitBoomCoroutineB - Boom Start");
+        Debug.Log("[TargetRabbit] Boom Start");
         // Effect 할거 여기서
         PlaySoundClientRpc();
         BoomEffectClientRpc();
@@ -56,6 +57,7 @@ public class TargetRabbit : NetworkBehaviour
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
     private void BoomEffectClientRpc()
     {
+        Debug.Log("[TargetRabbit] Effect Boom");
         Instantiate(_boomVfxPrefab, transform.position, transform.rotation);
     }
 }
