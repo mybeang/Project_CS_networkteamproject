@@ -40,14 +40,14 @@
   - LobbyManager 가 직접하지는 않음. UI Controller 쪽에서 진행. 
   - GameManager 에게 전달할 데이터
     - 선택된 유저의 Team 및 Role 데이터 업데이트    
-    - 선택된 맵 데이터 (Enum)
+    - 선택된 맵 데이터 ~~(Enum)~~ -> Int
   - Relay 관련 Logic 실행
     - Relay Host Start 를 통해 JoinCode 획득
     - 획득한 JoinCode 를 통해 Relay Client Start 시작
 
 ## 데이터; 전역 관리 데이터
 
--  JoinCode ; NetworkVariable ; fixedstring
+-  JoinCode ; ~~NetworkVariable ; fixedstring~~ -> **Realtime DB 로 변경됨**
 -  TeamInfo ; 플레이어 정보를 Team 으로 시작하여 역으로 갖고 있는 데이터 ; for UI
 
 ## 기타
