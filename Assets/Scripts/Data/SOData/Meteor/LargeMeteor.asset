@@ -16,8 +16,8 @@ MonoBehaviour:
   meteorDamageRange: 300
   meteorMaxSpawnMeteor: 4
   meteorDropSpeed: 20
-  meteorExplosionPower: 1000
-  meteorExplosionUpper: 1
+  meteorExplosionPower: 500
+  meteorExplosionUpper: 0.2
   meteorSize3D: {x: 0, y: 0, z: 0}
   meteorFireTailSize: 0
   meteorWindSize: {x: 0, y: 0, z: 0}
