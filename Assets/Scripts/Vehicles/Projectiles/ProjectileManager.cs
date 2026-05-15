@@ -36,7 +36,6 @@ public class ProjectileManager : NetworkBehaviour
     private IEnumerator DelayExplosionCoroutine(PlayerTeamEnum self, Vector3 hitPosition)
     {
         var distance = Vector3.Distance(hitPosition, transform.position);
-        _targetRabbit.gameObject.transform.position = hitPosition;
         _delayTime = _waitTime * distance;
         yield return new WaitForSeconds(_delayTime);
         DesignatDamageableGroundServerRpc(_targetPoint.point, self);
@@ -82,6 +81,7 @@ public class ProjectileManager : NetworkBehaviour
     private void DesignatDamageableGroundServerRpc(Vector3 point, PlayerTeamEnum self)
     {
         // Boom Effect 추가 필요
+        _targetRabbit.gameObject.transform.position = point;
         ControlRabbitClientRpc(true);
         // 지정된 위치에 구형 범위를 측정 및 일정 시간(짧은 시간) 후에 범위 안에 들어간 객체(피해를 입을 수 있는 객체)들 판정( 판정할 때 조심해야될 부분이 닿은 부위를 기준으로 해야됌, 중심으로 받으면 안됌)
         int count = Physics.SphereCastNonAlloc(
