@@ -118,6 +118,12 @@ public class ProjectileManager : NetworkBehaviour
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
     private void ControlRabbitClientRpc(bool active)
     {
+        StartCoroutine(TargetRabitBoomCoroutine(active));
+    }
+
+    private IEnumerator TargetRabitBoomCoroutine(bool active)
+    {
+        yield return null;
         if (active) _targetRabbit.BoomStart();
         else _targetRabbit.BoomStop();
     }
