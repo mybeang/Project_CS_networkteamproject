@@ -18,6 +18,7 @@ public class TargetRabbit : NetworkBehaviour
         {
             transform.position = value; 
             Debug.Log("[TargetRabbit] Position: " + value);
+            BoomStart();
         }
     }
     
@@ -30,8 +31,10 @@ public class TargetRabbit : NetworkBehaviour
     {
         Debug.Log("[TargetRabbit] Boom Start");
         // Effect 할거 여기서
-        PlaySoundClientRpc();
-        BoomEffectClientRpc();
+        // PlaySoundClientRpc();
+        // BoomEffectClientRpc();
+        PlaySound();
+        BoomEffect();
     }
 
     public void BoomStop()
@@ -56,6 +59,19 @@ public class TargetRabbit : NetworkBehaviour
     
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
     private void BoomEffectClientRpc()
+    {
+        Debug.Log("[TargetRabbit] Effect Boom");
+        Instantiate(_boomVfxPrefab, transform.position, transform.rotation);
+    }
+    
+    private void PlaySound()
+    {
+        Debug.Log("[TargetRabbit] Play Boom Sound");
+        _audioSource.volume = ServiceLocator.Get<IAudioService>().GetSfxVolume();
+        _audioSource.PlayOneShot(_boomSfx);
+    }
+    
+    private void BoomEffect()
     {
         Debug.Log("[TargetRabbit] Effect Boom");
         Instantiate(_boomVfxPrefab, transform.position, transform.rotation);
