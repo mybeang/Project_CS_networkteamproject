@@ -42,6 +42,7 @@ public class ProjectileManager : NetworkBehaviour
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
     public void ShotVfxPlayClientRpc()
     {
+        _targetRabbit.gameObject.transform.position = _targetPoint.point;
         Instantiate(_shotVfxPrefab, _shotVfxPos.position, _shotVfxPos.rotation);
     }
     
@@ -59,7 +60,6 @@ public class ProjectileManager : NetworkBehaviour
         if (Physics.Raycast(_ray, out _targetPoint, _vechicleSO.ProjectileMaximumDinstance))
         {
             Debug.Log($"[ProjectileManager] {_targetPoint.point}");
-            _targetRabbit.gameObject.transform.position = _targetPoint.point;
             StartCoroutine(DelayExplosionCoroutine(self, _targetPoint.point));
         }
     }
