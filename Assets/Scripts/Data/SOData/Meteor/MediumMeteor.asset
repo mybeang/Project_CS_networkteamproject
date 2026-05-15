@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: MediumMeteor
   m_EditorClassIdentifier: Assembly-CSharp::MeteorSO
   meteorDamage: 900
-  meteorDamageRange: 22
+  meteorDamageRange: 150
   meteorMaxSpawnMeteor: 8
   meteorDropSpeed: 20
+  meteorExplosionPower: 400
+  meteorExplosionUpper: 0.3
   meteorSize3D: {x: 0, y: 0, z: 0}
   meteorFireTailSize: 0
   meteorWindSize: {x: 0, y: 0, z: 0}
@@ -24,6 +26,6 @@ MonoBehaviour:
   meteorMinHorizontalRange: -200
   meteorMaxVerticalRange: 200
   meteorMinVerticalRange: -200
-  upPerMeteorDamage: 0
-  upPerMeteorDamageRange: 3
+  upPerMeteorDamage: 200
+  upPerMeteorDamageRange: 20
   upPerMeteorMaxSpawnMeteor: 1

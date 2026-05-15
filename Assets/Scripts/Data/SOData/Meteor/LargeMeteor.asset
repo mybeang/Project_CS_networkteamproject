@@ -12,10 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e44f50789a20cb6429651614ebb80797, type: 3}
   m_Name: LargeMeteor
   m_EditorClassIdentifier: Assembly-CSharp::MeteorSO
-  meteorDamage: 2000
-  meteorDamageRange: 50
+  meteorDamage: 3000
+  meteorDamageRange: 300
   meteorMaxSpawnMeteor: 4
   meteorDropSpeed: 20
+  meteorExplosionPower: 1000
+  meteorExplosionUpper: 1
   meteorSize3D: {x: 0, y: 0, z: 0}
   meteorFireTailSize: 0
   meteorWindSize: {x: 0, y: 0, z: 0}
