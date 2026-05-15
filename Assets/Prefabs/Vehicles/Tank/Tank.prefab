@@ -10221,7 +10221,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 784402775
+  GlobalObjectIdHash: 2750736029
   InScenePlacedSourceGlobalObjectIdHash: 2750736029
   DeferredDespawnTick: 0
   Ownership: 1
@@ -10644,7 +10644,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TargetRabbit
   ShowTopMostFoldoutHeaderGroup: 1
   _boomSfx: {fileID: 8300000, guid: 2cf902a8c94d5bf4b9aadb8030e7a2f5, type: 3}
-  _boomVfxPrefab: {fileID: 100008, guid: 7075bd5fe1480184695a32611c15da57, type: 3}
+  _boomVfxPrefab: {fileID: 100006, guid: 808e73d863fcde3499fd5301563ffd3d, type: 3}
 --- !u!82 &1369238256727743887
 AudioSource:
   m_ObjectHideFlags: 0
