@@ -19,6 +19,7 @@ public class ProjectileManager : NetworkBehaviour
     private Ray _ray;
     private RaycastHit _targetPoint;
     private RaycastHit[] _hitedTargets;
+    private float _delayTime;
 
     public override void OnNetworkSpawn()
     {
@@ -35,14 +36,15 @@ public class ProjectileManager : NetworkBehaviour
     private IEnumerator DelayExplosionCoroutine(PlayerTeamEnum self, Vector3 hitPosition)
     {
         var distance = Vector3.Distance(hitPosition, transform.position);
-        yield return new WaitForSeconds(_waitTime * distance);
+        _targetRabbit.gameObject.transform.position = hitPosition;
+        _delayTime = _waitTime * distance;
+        yield return new WaitForSeconds(_delayTime);
         DesignatDamageableGroundServerRpc(_targetPoint.point, self);
     }
 
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
     public void ShotVfxPlayClientRpc()
     {
-        _targetRabbit.gameObject.transform.position = _targetPoint.point;
         Instantiate(_shotVfxPrefab, _shotVfxPos.position, _shotVfxPos.rotation);
     }
     
@@ -143,7 +145,7 @@ public class ProjectileManager : NetworkBehaviour
 
     private IEnumerator TargetRabitBoomCoroutine(bool active)
     {
-        yield return null;
+        yield return _delayTime;
         if (active) _targetRabbit.BoomStart();
         else _targetRabbit.BoomStop();
     }
