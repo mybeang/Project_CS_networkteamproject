@@ -16,7 +16,7 @@
   - 서로 다른 네트워크에 존재하는 Host 를 연결해 주기 위한 대리자 역할. 
 
 # Class 연결 구조
-![class](./imgs/lobbyRelayClass.png)
+![class](./Imgs/lobbyRelayClass.png)
 
 ## SDKs
 
@@ -68,7 +68,7 @@
     - 대상자가 호스트(서버) 인 경우와 그렇지 않은 경우에 대한 분기 처리 진행.
 
 # Lobby Room Controller Class
-![uiStructure](./imgs/lobbyRoomControllerStructure.png)
+![uiStructure](./Imgs/lobbyRoomControllerStructure.png)
 
 - `Lobby Room UI Controller` 를 중심으로 동작
   - Controller ; Room 내 전체 내용 제어 
