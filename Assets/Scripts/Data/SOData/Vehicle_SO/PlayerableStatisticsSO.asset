@@ -24,6 +24,6 @@ MonoBehaviour:
   _projectileFlightSpeed: 1
   _projectileMaximumDamageRange: 3.5
   _projectileMaximumDinstance: 60
-  projectileExplosionPower: 100000
-  projectileExplosionUpper: 1
+  projectileExplosionPower: 1000
+  projectileExplosionUpper: 0.1
   _vechicleName: "\uBA4B\uC788\uB294 \uC804\uCC28"

@@ -1,6 +1,8 @@
 ﻿using System.Collections;
+using System.Drawing;
 using System.Net.NetworkInformation;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -69,7 +71,7 @@ public class ProjectileManager : NetworkBehaviour
         //Gizmos.color = Color.aquamarine;
         //Gizmos.DrawLine(_mainCam.transform.position, _mainCam.transform.forward * _vechicleSO.ProjectileMaximumDinstance + _mainCam.transform.position);
 
-        Gizmos.color = Color.red;
+        Gizmos.color = UnityEngine.Color.red;
         Gizmos.DrawWireSphere(_targetPoint.point, _vechicleSO.ProjectileMaximumDamageableRange);
     }
 
@@ -104,15 +106,33 @@ public class ProjectileManager : NetworkBehaviour
             var distance = Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point);
             (tc as IDamageableObject).TakeDamaged((int)Mathf.Lerp(damage, damage / 4, distance / dmgRange), self);
             Debug.Log($"[ProjectileManager] TakeDamage: {damage}, {damage / 4}, {distance / dmgRange}");
+
+            ImpactClientRpc(point);
             
-            // 폭발에 따른 물리 효과
-            var ep = _vechicleSO.projectileExplosionPower;
-            var mr = _vechicleSO.ProjectileMaximumDamageableRange;
-            var eu = _vechicleSO.projectileExplosionUpper;
-            (tc as IImpactForce).ImpactPhysic(ep, point, mr, eu);
-            Debug.Log($"[ProjectileManager] ImpactPhysic: {ep}, {mr}, {eu}");
         }
         ControlRabbitClientRpc(false);
+    }
+
+    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    private void ImpactClientRpc(Vector3 point)
+    {
+        int count = Physics.SphereCastNonAlloc(
+            point,
+            _vechicleSO.ProjectileMaximumDamageableRange,
+            Vector3.forward,
+            _hitedTargets,
+            0.001f,
+            _damageableObject);
+
+        // 폭발에 따른 물리 효과
+        var ep = _vechicleSO.projectileExplosionPower;
+        var mr = _vechicleSO.ProjectileMaximumDamageableRange;
+        var eu = _vechicleSO.projectileExplosionUpper;
+        for (int i = 0; i < _hitedTargets.Length; i++)
+        {
+            (_hitedTargets[i].collider.GetComponent<TankController>() as IImpactForce).ImpactPhysic(ep, point, mr, eu);
+            Debug.Log($"[ProjectileManager] ImpactPhysic: {ep}, {mr}, {eu}");
+        }
     }
 
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
