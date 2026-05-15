@@ -109,7 +109,13 @@ public class ProjectileManager : NetworkBehaviour
             (tc as IDamageableObject).TakeDamaged((int)Mathf.Lerp(damage, damage / 4, distance / dmgRange), self);
             Debug.Log($"[ProjectileManager] TakeDamage: {damage}, {damage / 4}, {distance / dmgRange}");
 
-            ImpactClientRpc(point);
+            var ep = _vechicleSO.projectileExplosionPower;
+            var mr = _vechicleSO.ProjectileMaximumDamageableRange;
+            var eu = _vechicleSO.projectileExplosionUpper;
+
+            (_hitedTargets[i].collider.GetComponent<TankController>() as IImpactForce).ImpactPhysic(ep, point, mr, eu);
+            Debug.Log($"[ProjectileManager] ImpactPhysic: {ep}, {mr}, {eu}");
+            //ImpactClientRpc(point);
             
         }
         ControlRabbitClientRpc(false);
