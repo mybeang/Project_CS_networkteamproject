@@ -10221,7 +10221,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2750736029
+  GlobalObjectIdHash: 784402775
   InScenePlacedSourceGlobalObjectIdHash: 2750736029
   DeferredDespawnTick: 0
   Ownership: 1
@@ -10349,7 +10349,7 @@ MonoBehaviour:
   _damageableObject:
     serializedVersion: 2
     m_Bits: 128
-  _waitTime: 0.1
+  _waitTime: 0.05
   _targetRabbit: {fileID: 3754754983880239008}
   _shotVfxPos: {fileID: 2333132759522156905}
   _shotVfxPrefab: {fileID: 100014, guid: 5332791ebce075d4a9e56f4581e7fb47, type: 3}

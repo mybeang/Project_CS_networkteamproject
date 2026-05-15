@@ -18,7 +18,6 @@ public class TargetRabbit : NetworkBehaviour
         {
             transform.position = value; 
             Debug.Log("[TargetRabbit] Position: " + value);
-            BoomStart();
         }
     }
     
@@ -27,10 +26,16 @@ public class TargetRabbit : NetworkBehaviour
         _audioSource = GetComponent<AudioSource>();
     }
     
-    public void BoomStart()
+    public void BoomStart(float delayTime)
     {
         Debug.Log($"[TargetRabbit] Boom Start - {transform.position}");
         // Effect 할거 여기서
+        StartCoroutine(BoomStartCoroutine(delayTime));
+    }
+
+    private IEnumerator BoomStartCoroutine(float delayTime)
+    {
+        yield return new WaitForSeconds(delayTime);
         PlaySoundClientRpc();
         BoomEffectClientRpc();
     }

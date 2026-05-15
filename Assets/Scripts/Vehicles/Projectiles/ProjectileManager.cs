@@ -117,7 +117,7 @@ public class ProjectileManager : NetworkBehaviour
             //ImpactClientRpc(point);
             
         }
-        // StartCoroutine(TargetRabitBoomCoroutine(true));
+        StartCoroutine(TargetRabitBoomCoroutine(true));
     }
 
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
@@ -145,7 +145,7 @@ public class ProjectileManager : NetworkBehaviour
     private IEnumerator TargetRabitBoomCoroutine(bool active)
     {
         yield return null;
-        if (active) _targetRabbit.BoomStart();
+        if (active) _targetRabbit.BoomStart(_delayTime);
         else _targetRabbit.BoomStop();
     }
 }
