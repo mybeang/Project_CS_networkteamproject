@@ -1,5 +1,7 @@
-﻿using TMPro;
+﻿using System.Collections;
+using TMPro;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -36,6 +38,13 @@ public class Driver_UI_Tank : Driver_UI
 
     public override void UpdateKillLog(PlayerTeamEnum self, PlayerTeamEnum enemy)
     {
+        StartCoroutine(ShowKillLogCoroutine(self, enemy));
+    }
+
+    private IEnumerator ShowKillLogCoroutine(PlayerTeamEnum self, PlayerTeamEnum enemy)
+    {
         _killLog.text = $"{enemy} 팀이 {self} 팀을 박살냈습니다!";
+        yield return new WaitForSeconds(5f);
+        _killLog.text = "";
     }
 }
