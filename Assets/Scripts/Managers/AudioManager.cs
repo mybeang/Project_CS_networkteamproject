@@ -76,6 +76,11 @@ public class AudioManager : NetworkManager<AudioManager>, IAudioService
     }
 
     public void PlayButtonSfx() => _sfxSource.PlayOneShot(_btSound);
+    public void InitData()
+    {
+        _playerSfxClips.Clear();
+    }
+
     public void AddAudioSource(PlayerTeamEnum team, AudioSource audioSource)
     {
         if (_playerSfxClips.ContainsKey(team)) return;

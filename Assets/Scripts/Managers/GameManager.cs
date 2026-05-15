@@ -248,6 +248,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private void ResetGameData()
     {
         Debug.Log("[GameManager] Reset Game Data ... ");
+        ServiceLocator.Get<IAudioService>().InitData();
         if (!IsServer)
         {
             Debug.Log("[GameManager] Reset Game Data ... SKIP");

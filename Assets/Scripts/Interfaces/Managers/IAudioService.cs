@@ -17,6 +17,7 @@ public interface IAudioService
     public void PlayButtonSfx();
     
     // TankSFX
+    public void InitData();
     public void AddAudioSource(PlayerTeamEnum team, AudioSource audioSource);
     public void RemoveAudioSource(PlayerTeamEnum team);
     public void PlayOneShotSfxClientRpc(PlayerTeamEnum team, SfxEnum sfxEnum);
