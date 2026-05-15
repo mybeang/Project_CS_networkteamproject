@@ -21,6 +21,7 @@ public class TargetRabbit : NetworkBehaviour
         Debug.Log("[TargetRabbit] Boom Start");
         // Effect 할거 여기서
         PlaySoundClientRpc();
+        BoomEffectClientRpc();
     }
 
     public void BoomStop()
@@ -41,11 +42,7 @@ public class TargetRabbit : NetworkBehaviour
         Debug.Log("[TargetRabbit] Play Boom Sound");
         _audioSource.volume = ServiceLocator.Get<IAudioService>().GetSfxVolume();
         _audioSource.PlayOneShot(_boomSfx);
-        BoomEffectServerRpc();
     }
-
-    [ServerRpc(InvokePermission = RpcInvokePermission.Everyone)]
-    private void BoomEffectServerRpc() => BoomEffectClientRpc();
     
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
     private void BoomEffectClientRpc()
