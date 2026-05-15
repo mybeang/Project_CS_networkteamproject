@@ -21,6 +21,7 @@ public class Gunner_UI : MonoBehaviour
         }
         _isScoreboard = false;
         _scoreBoard.SetActive(false);
+        _reloadSlider.value = 1f;
     }
 
     public void ShowScore()

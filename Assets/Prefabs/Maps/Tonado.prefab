@@ -120,8 +120,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TornadoGimmickManager
   ShowTopMostFoldoutHeaderGroup: 1
-  _minSpeed: 0.5
-  _maxSpeed: 5
   _speed: 0
   _wayPoints: []
 --- !u!114 &-682164059905647363
@@ -136,7 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6652acbe120664a4587c14f60cb7f65e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TornadoAttack
-  _attackPointPerSeconds: 1
+  _attackPointPerSeconds: 30
   _effectArea: 3
   _playerLayer:
     serializedVersion: 2
