@@ -82,7 +82,6 @@ public class ProjectileManager : NetworkBehaviour
     {
         // Boom Effect 추가 필요
         _targetRabbit.gameObject.transform.position = point;
-        ControlRabbitClientRpc(true);
         // 지정된 위치에 구형 범위를 측정 및 일정 시간(짧은 시간) 후에 범위 안에 들어간 객체(피해를 입을 수 있는 객체)들 판정( 판정할 때 조심해야될 부분이 닿은 부위를 기준으로 해야됌, 중심으로 받으면 안됌)
         int count = Physics.SphereCastNonAlloc(
             point,
@@ -118,7 +117,9 @@ public class ProjectileManager : NetworkBehaviour
             //ImpactClientRpc(point);
             
         }
-        ControlRabbitClientRpc(false);
+        // ControlRabbitClientRpc(true);
+        StartCoroutine(TargetRabitBoomCoroutineA(true));
+        StartCoroutine(TargetRabitBoomCoroutineB(true));
     }
 
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
@@ -146,12 +147,21 @@ public class ProjectileManager : NetworkBehaviour
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
     private void ControlRabbitClientRpc(bool active)
     {
-        StartCoroutine(TargetRabitBoomCoroutine(active));
+        // StartCoroutine(TargetRabitBoomCoroutine(active));
     }
 
-    private IEnumerator TargetRabitBoomCoroutine(bool active)
+    private IEnumerator TargetRabitBoomCoroutineA(bool active)
     {
-        yield return _delayTime;
+        yield return null;
+        Debug.Log("[ProjectileManager] TargetRabitBoomCoroutineA");
+        if (active) _targetRabbit.BoomStartServerRpc();
+        else _targetRabbit.BoomStop();
+    }
+    
+    private IEnumerator TargetRabitBoomCoroutineB(bool active)
+    {
+        yield return null;
+        Debug.Log("[ProjectileManager] TargetRabitBoomCoroutineB");
         if (active) _targetRabbit.BoomStart();
         else _targetRabbit.BoomStop();
     }

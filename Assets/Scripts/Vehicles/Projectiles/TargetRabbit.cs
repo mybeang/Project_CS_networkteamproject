@@ -16,9 +16,18 @@ public class TargetRabbit : NetworkBehaviour
         _audioSource = GetComponent<AudioSource>();
     }
 
+    [ServerRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    public void BoomStartServerRpc()
+    {
+        Debug.Log("[TargetRabbit] TargetRabitBoomCoroutineA - Boom Start");
+        // Effect 할거 여기서
+        PlaySoundClientRpc();
+        BoomEffectClientRpc();
+    }
+    
     public void BoomStart()
     {
-        Debug.Log("[TargetRabbit] Boom Start");
+        Debug.Log("[TargetRabbit] TargetRabitBoomCoroutineB - Boom Start");
         // Effect 할거 여기서
         PlaySoundClientRpc();
         BoomEffectClientRpc();
