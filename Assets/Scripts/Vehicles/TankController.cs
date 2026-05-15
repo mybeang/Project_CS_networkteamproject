@@ -198,5 +198,6 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     {
         Debug.Log($"[TankController] ImpactPhysic: {explosionForce}, {explosionRadius}, {upwardsModifier}");
         _rigidbody.AddExplosionForce(explosionForce, explosionPosition, explosionRadius, upwardsModifier);
+        Debug.Log($"[{_rigidbody.gameObject.name}] / [{name}]");
     }
 }
