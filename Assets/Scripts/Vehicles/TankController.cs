@@ -3,7 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer, IImpactForce
+public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
 {
     [SerializeField] private PlayerableStatisticsSO _stat;
     [SerializeField] private ProjectileManager _projectileManager;
@@ -194,7 +194,8 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         ViewEffectControlClientRpc(enable);
     }
 
-    public void ImpactPhysic(float explosionForce, Vector3 explosionPosition, float explosionRadius, float upwardsModifier)
+    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    public void ImpactPhysicClientRpc(float explosionForce, Vector3 explosionPosition, float explosionRadius, float upwardsModifier)
     {
         Debug.Log($"[TankController] ImpactPhysic: {explosionForce}, {explosionRadius}, {upwardsModifier}");
         _rigidbody.AddExplosionForce(explosionForce, explosionPosition, explosionRadius, upwardsModifier);

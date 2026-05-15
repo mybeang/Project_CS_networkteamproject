@@ -112,7 +112,7 @@ public class ProjectileManager : NetworkBehaviour
             var mr = _vechicleSO.ProjectileMaximumDamageableRange;
             var eu = _vechicleSO.projectileExplosionUpper;
 
-            (_hitedTargets[i].collider.GetComponent<TankController>() as IImpactForce).ImpactPhysic(ep, point, mr, eu);
+            _hitedTargets[i].collider.GetComponent<TankController>().ImpactPhysicClientRpc(ep, point, mr, eu);
             Debug.Log($"[ProjectileManager] ImpactPhysic: {ep}, {mr}, {eu}");
             //ImpactClientRpc(point);
             
