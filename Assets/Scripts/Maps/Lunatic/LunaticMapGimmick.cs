@@ -188,7 +188,7 @@ public class LunaticMapGimmick : EventTask
             var ep = _currentSO.meteorExplosionPower;
             var es = _currentSO.meteorExplosionSize;
             var eu = _currentSO.meteorExplosionUpper;
-            (tc as IImpactForce).ImpactPhysic(ep, point, es, eu);
+            tc.ImpactPhysicClientRpc(ep, point, es, eu);
             Debug.Log($"[LunaticMapGimmick] ImpactPhysic: {ep} , {es} , {eu}");
         }
     }
