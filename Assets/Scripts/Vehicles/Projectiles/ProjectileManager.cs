@@ -38,7 +38,7 @@ public class ProjectileManager : NetworkBehaviour
         var distance = Vector3.Distance(hitPosition, transform.position);
         _delayTime = _waitTime * distance;
         yield return new WaitForSeconds(_delayTime);
-        DesignatDamageableGroundServerRpc(_targetPoint.point, self);
+        DesignatDamageableGroundServerRpc(hitPosition, self);
     }
 
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
@@ -81,7 +81,7 @@ public class ProjectileManager : NetworkBehaviour
     private void DesignatDamageableGroundServerRpc(Vector3 point, PlayerTeamEnum self)
     {
         // Boom Effect 추가 필요
-        _targetRabbit.MyPosition = _targetPoint.point;
+        _targetRabbit.MyPosition = point;
         // 지정된 위치에 구형 범위를 측정 및 일정 시간(짧은 시간) 후에 범위 안에 들어간 객체(피해를 입을 수 있는 객체)들 판정( 판정할 때 조심해야될 부분이 닿은 부위를 기준으로 해야됌, 중심으로 받으면 안됌)
         int count = Physics.SphereCastNonAlloc(
             point,
@@ -117,7 +117,7 @@ public class ProjectileManager : NetworkBehaviour
             //ImpactClientRpc(point);
             
         }
-        StartCoroutine(TargetRabitBoomCoroutine(true));
+        StartCoroutine(TargetRabitBoomCoroutine(true, point));
     }
 
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
@@ -142,10 +142,10 @@ public class ProjectileManager : NetworkBehaviour
         }
     }
     
-    private IEnumerator TargetRabitBoomCoroutine(bool active)
+    private IEnumerator TargetRabitBoomCoroutine(bool active, Vector3 point)
     {
         yield return null;
-        if (active) _targetRabbit.BoomStart(_delayTime);
+        if (active) _targetRabbit.BoomStart(point);
         else _targetRabbit.BoomStop();
     }
 }

@@ -17,7 +17,7 @@ public class TargetRabbit : NetworkBehaviour
         set
         {
             transform.position = value; 
-            Debug.Log("[TargetRabbit] Position: " + value);
+            Debug.Log($"[TargetRabbit] {name} Position: " + value);
         }
     }
     
@@ -26,23 +26,17 @@ public class TargetRabbit : NetworkBehaviour
         _audioSource = GetComponent<AudioSource>();
     }
     
-    public void BoomStart(float delayTime)
+    public void BoomStart(Vector3 pos)
     {
         Debug.Log($"[TargetRabbit] Boom Start - {transform.position}");
         // Effect 할거 여기서
-        StartCoroutine(BoomStartCoroutine(delayTime));
-    }
-
-    private IEnumerator BoomStartCoroutine(float delayTime)
-    {
-        yield return new WaitForSeconds(delayTime);
         PlaySoundClientRpc();
-        BoomEffectClientRpc();
+        BoomEffectClientRpc(pos);
     }
 
     public void BoomStop()
     {
-        Debug.Log("[TargetRabbit] Boom Stop");
+        Debug.Log($"[TargetRabbit] {name} Boom Stop");
         // Effect 끌거 여기서
     }
 
@@ -55,15 +49,15 @@ public class TargetRabbit : NetworkBehaviour
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
     private void PlaySoundClientRpc()
     {
-        Debug.Log($"[TargetRabbit] Play Boom Sound - {transform.position}");
+        Debug.Log($"[TargetRabbit] {name} Play Boom Sound - {transform.position}");
         _audioSource.volume = ServiceLocator.Get<IAudioService>().GetSfxVolume();
         _audioSource.PlayOneShot(_boomSfx);
     }
     
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
-    private void BoomEffectClientRpc()
+    private void BoomEffectClientRpc(Vector3 pos)
     {
-        Debug.Log($"[TargetRabbit] Effect Boom - {transform.position}");
-        Instantiate(_boomVfxPrefab, transform.position, transform.rotation);
+        Debug.Log($"[TargetRabbit] {name} Effect Boom - {pos}");
+        Instantiate(_boomVfxPrefab, pos, transform.rotation);
     }
 }
