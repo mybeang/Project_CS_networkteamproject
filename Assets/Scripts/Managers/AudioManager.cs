@@ -83,9 +83,8 @@ public class AudioManager : NetworkManager<AudioManager>, IAudioService
 
     public void AddAudioSource(PlayerTeamEnum team, AudioSource audioSource)
     {
-        if (_playerSfxClips.ContainsKey(team)) return;
         audioSource.volume = _sfxSource.volume;
-        _playerSfxClips.Add(team, audioSource);
+        _playerSfxClips[team] = audioSource; // 새로 생성되면 audiosource 도 바뀌는 듯.
     }
 
     public void RemoveAudioSource(PlayerTeamEnum team)
@@ -110,6 +109,7 @@ public class AudioManager : NetworkManager<AudioManager>, IAudioService
         var clip = FindSfxData(sfxEnum);
         if (clip != null && _playerSfxClips.TryGetValue(team, out var audioSource))
         {
+            audioSource.volume = _sfxSource.volume;
             audioSource.PlayOneShot(clip);
             Debug.Log($"[AudioManager] PlayOneShotSfxClientRpc - clip: {clip.name}");
         }
@@ -122,6 +122,7 @@ public class AudioManager : NetworkManager<AudioManager>, IAudioService
         var clip = FindSfxData(sfxEnum);
         if (clip != null && _playerSfxClips.TryGetValue(team, out var audioSource))
         {
+            audioSource.volume = _sfxSource.volume;
             audioSource.clip = clip;
             audioSource.Play();
             Debug.Log($"[AudioManager] PlaySfxClientRpc - clip: {clip.name}");
