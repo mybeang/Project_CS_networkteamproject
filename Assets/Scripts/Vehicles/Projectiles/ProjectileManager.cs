@@ -82,6 +82,7 @@ public class ProjectileManager : NetworkBehaviour
     {
         // Boom Effect 추가 필요
         _targetRabbit.MyPosition = point;
+        StartCoroutine(TargetRabitBoomCoroutine(true, point));
         // 지정된 위치에 구형 범위를 측정 및 일정 시간(짧은 시간) 후에 범위 안에 들어간 객체(피해를 입을 수 있는 객체)들 판정( 판정할 때 조심해야될 부분이 닿은 부위를 기준으로 해야됌, 중심으로 받으면 안됌)
         int count = Physics.SphereCastNonAlloc(
             point,
@@ -89,10 +90,9 @@ public class ProjectileManager : NetworkBehaviour
             Vector3.forward,
             _hitedTargets,
             0.001f,
-            _damageableObject);
+            _damageableObject);  
 
         Debug.Log($"[ProjectileManager] 적중 위치 기반 탐지 된 대상 : {count}");
-
         if (count < 1 || _hitedTargets == null) return;
         
         for (int i = 0; i < count; i++)
@@ -115,9 +115,7 @@ public class ProjectileManager : NetworkBehaviour
             _hitedTargets[i].collider.GetComponent<TankController>().ImpactPhysicClientRpc(ep, point, mr, eu);
             Debug.Log($"[ProjectileManager] ImpactPhysic: {ep}, {mr}, {eu}");
             //ImpactClientRpc(point);
-            
         }
-        StartCoroutine(TargetRabitBoomCoroutine(true, point));
     }
 
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
