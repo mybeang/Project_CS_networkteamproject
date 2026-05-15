@@ -1,7 +1,10 @@
 ﻿using System.Collections;
+using System.Drawing;
 using System.Net.NetworkInformation;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class ProjectileManager : NetworkBehaviour
 {
@@ -16,6 +19,7 @@ public class ProjectileManager : NetworkBehaviour
     private Ray _ray;
     private RaycastHit _targetPoint;
     private RaycastHit[] _hitedTargets;
+    private float _delayTime;
 
     public override void OnNetworkSpawn()
     {
@@ -32,8 +36,9 @@ public class ProjectileManager : NetworkBehaviour
     private IEnumerator DelayExplosionCoroutine(PlayerTeamEnum self, Vector3 hitPosition)
     {
         var distance = Vector3.Distance(hitPosition, transform.position);
-        yield return new WaitForSeconds(_waitTime * distance);
-        DesignatDamageableGroundServerRpc(_targetPoint.point, self);
+        _delayTime = _waitTime * distance;
+        yield return new WaitForSeconds(_delayTime);
+        DesignatDamageableGroundServerRpc(hitPosition, self);
     }
 
     [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
@@ -67,7 +72,7 @@ public class ProjectileManager : NetworkBehaviour
         //Gizmos.color = Color.aquamarine;
         //Gizmos.DrawLine(_mainCam.transform.position, _mainCam.transform.forward * _vechicleSO.ProjectileMaximumDinstance + _mainCam.transform.position);
 
-        Gizmos.color = Color.red;
+        Gizmos.color = UnityEngine.Color.red;
         Gizmos.DrawWireSphere(_targetPoint.point, _vechicleSO.ProjectileMaximumDamageableRange);
     }
 
@@ -76,8 +81,46 @@ public class ProjectileManager : NetworkBehaviour
     private void DesignatDamageableGroundServerRpc(Vector3 point, PlayerTeamEnum self)
     {
         // Boom Effect 추가 필요
-        ControlRabbitClientRpc(true, point);
+        _targetRabbit.MyPosition = point;
+        StartCoroutine(TargetRabitBoomCoroutine(true, point));
         // 지정된 위치에 구형 범위를 측정 및 일정 시간(짧은 시간) 후에 범위 안에 들어간 객체(피해를 입을 수 있는 객체)들 판정( 판정할 때 조심해야될 부분이 닿은 부위를 기준으로 해야됌, 중심으로 받으면 안됌)
+        int count = Physics.SphereCastNonAlloc(
+            point,
+            _vechicleSO.ProjectileMaximumDamageableRange,
+            Vector3.forward,
+            _hitedTargets,
+            0.001f,
+            _damageableObject);  
+
+        Debug.Log($"[ProjectileManager] 적중 위치 기반 탐지 된 대상 : {count}");
+        if (count < 1 || _hitedTargets == null) return;
+        
+        for (int i = 0; i < count; i++)
+        {
+            Debug.Log($"[ProjectileManager] 검출된 대상 : {_hitedTargets[i].collider.name}");
+            Debug.Log($"[ProjectileManager] 폭발 중심지에서 대상까지의 거리 : {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point)}");
+            var tc = _hitedTargets[i].collider.GetComponent<TankController>();
+            // 폭심지를 기준으로 콜라이더의 접촉부위 중 가장 가까운 지점과 거리 비교 후 피해량 측정
+            // 거리에 따라 피해를 다를 게 주기 위해(선형 보간 처리를 위해) Mathf.Lerp로 처리
+            var damage = _vechicleSO.ProjectileDamage;
+            var dmgRange = _vechicleSO.ProjectileMaximumDamageableRange;
+            var distance = Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point);
+            (tc as IDamageableObject).TakeDamaged((int)Mathf.Lerp(damage, damage / 4, distance / dmgRange), self);
+            Debug.Log($"[ProjectileManager] TakeDamage: {damage}, {damage / 4}, {distance / dmgRange}");
+
+            var ep = _vechicleSO.projectileExplosionPower;
+            var mr = _vechicleSO.ProjectileMaximumDamageableRange;
+            var eu = _vechicleSO.projectileExplosionUpper;
+
+            _hitedTargets[i].collider.GetComponent<TankController>().ImpactPhysicClientRpc(ep, point, mr, eu);
+            Debug.Log($"[ProjectileManager] ImpactPhysic: {ep}, {mr}, {eu}");
+            //ImpactClientRpc(point);
+        }
+    }
+
+    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    private void ImpactClientRpc(Vector3 point)
+    {
         int count = Physics.SphereCastNonAlloc(
             point,
             _vechicleSO.ProjectileMaximumDamageableRange,
@@ -86,31 +129,21 @@ public class ProjectileManager : NetworkBehaviour
             0.001f,
             _damageableObject);
 
-        Debug.Log($"[ProjectileManager] 적중 위치 기반 탐지 된 대상 : {count}");
-
-        if (count < 1 || _hitedTargets == null) return;
-        
-        for (int i = 0; i < count; i++)
+        // 폭발에 따른 물리 효과
+        var ep = _vechicleSO.projectileExplosionPower;
+        var mr = _vechicleSO.ProjectileMaximumDamageableRange;
+        var eu = _vechicleSO.projectileExplosionUpper;
+        for (int i = 0; i < _hitedTargets.Length; i++)
         {
-            Debug.Log($"[ProjectileManager] 검출된 대상 : {_hitedTargets[i].collider.name}");
-            Debug.Log($"[ProjectileManager] 폭발 중심지에서 대상까지의 거리 : {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point)}");
-            
-            (_hitedTargets[i].collider.GetComponent<TankController>() as IDamageableObject)
-            .TakeDamaged(
-                    (int)Mathf.Lerp( // 거리에 따라 피해를 다를 게 주기 위해(선형 보간 처리를 위해) Mathf.Lerp로 처리
-                        _vechicleSO.ProjectileDamage,
-                        (_vechicleSO.ProjectileDamage / 4),
-                        Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point) / _vechicleSO.ProjectileMaximumDamageableRange), self); // 폭심지를 기준으로 콜라이더의 접촉부위 중 가장 가까운 지점과 거리 비교 후 피해량 측정
-            Debug.Log($"[ProjectileManager] TakeDamage: {_vechicleSO.ProjectileDamage} , {_vechicleSO.ProjectileDamage / 4} , {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point) / _vechicleSO.ProjectileMaximumDamageableRange}");
+            (_hitedTargets[i].collider.GetComponent<TankController>() as IImpactForce).ImpactPhysic(ep, point, mr, eu);
+            Debug.Log($"[ProjectileManager] ImpactPhysic: {ep}, {mr}, {eu}");
         }
-        ControlRabbitClientRpc(false, point);
     }
-
-    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
-    private void ControlRabbitClientRpc(bool active, Vector3 hitPosition)
+    
+    private IEnumerator TargetRabitBoomCoroutine(bool active, Vector3 point)
     {
-        _targetRabbit.gameObject.transform.position = hitPosition;
-        if (active) _targetRabbit.BoomStart();
+        yield return null;
+        if (active) _targetRabbit.BoomStart(point);
         else _targetRabbit.BoomStop();
     }
 }

@@ -59,7 +59,7 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
         var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
         ServiceLocator.Get<IGameManager>().RemoveKillLogHandler(KillLogHandler);
         Debug.Log($"[TankController] DestoryOnNetwork ... RemoveKillLogHandler");
-        ServiceLocator.Get<IAudioService>().RemoveAudioSource(_teamNum);
+        // ServiceLocator.Get<IAudioService>().RemoveAudioSource(_teamNum);
         Debug.Log($"[TankController] DestoryOnNetwork ... RemoveAudioSource");
         if (_teamNum != userInfo.teamNum && userInfo.role != PlayerRole.Driver) return;
         var ngo = GetComponent<NetworkObject>();
@@ -192,5 +192,13 @@ public class TankController : NetworkBehaviour, IDamageableObject, IWindowViewer
     {
         Debug.Log($"[TankController] View Effect Control ... {enable}");
         ViewEffectControlClientRpc(enable);
+    }
+
+    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    public void ImpactPhysicClientRpc(float explosionForce, Vector3 explosionPosition, float explosionRadius, float upwardsModifier)
+    {
+        Debug.Log($"[TankController] ImpactPhysic: {explosionForce}, {explosionRadius}, {upwardsModifier}");
+        _rigidbody.AddExplosionForce(explosionForce, explosionPosition, explosionRadius, upwardsModifier);
+        Debug.Log($"[{_rigidbody.gameObject.name}] / [{name}]");
     }
 }

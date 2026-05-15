@@ -42,11 +42,11 @@ public class LunaticMapGimmick : EventTask
 
     private bool _isInit = false;
     #endregion
-
-    private void Awake()
-    {
-        _currentSO = new MeteorSO();
-    }
+    //
+    // private void Awake()
+    // {
+    //     _currentSO = new MeteorSO();
+    // }
 
     public override void OnNetworkSpawn()
     {
@@ -57,13 +57,13 @@ public class LunaticMapGimmick : EventTask
         switch (_currentStage)
         {
             case 0: case 1: case 2:
-                _currentSO = _smallMeteor.UpMeteor(_currentSO,_currentStage);
+                _currentSO = new MeteorSO(_smallMeteor.UpMeteor(_currentSO,_currentStage));
                 break;
             case 3: case 4: case 5:
-                _currentSO = _mediumMeteor.UpMeteor(_currentSO, _currentStage % 3);
+                _currentSO = new MeteorSO(_mediumMeteor.UpMeteor(_currentSO, _currentStage % 3));
                 break;
             case 6:
-                _currentSO = _largeMeteor.UpMeteor(_currentSO, _currentStage % 3);
+                _currentSO = new MeteorSO(_largeMeteor.UpMeteor(_currentSO, _currentStage % 6));
                 break;
         }
         _currentStage++;
@@ -85,12 +85,12 @@ public class LunaticMapGimmick : EventTask
             obj = Instantiate(_particleSystem, _parent);
             _particles.Add(obj.GetComponent<ParticleSystem>());
         }
-        Debug.Log($"[{name}] {_particles.Count}개 초기화 완료");
+        Debug.Log($"[LunaticMapGimmick] [{name}] {_particles.Count}개 초기화 완료");
     }
 
     private  void GeneratePos()
     {
-        Debug.Log($"[{name}] Is Server : {IsServer}");
+        Debug.Log($"[LunaticMapGimmick] [{name}] Is Server : {IsServer}");
 
         _meteorSpawnPos = new Vector3[_currentSO.meteorMaxSpawnMeteor];
 
@@ -105,7 +105,7 @@ public class LunaticMapGimmick : EventTask
             }
         }
 
-        Debug.Log($"[{name}] 좌표 측정 완료");
+        Debug.Log($"[LunaticMapGimmick] [{name}] 좌표 측정 완료");
         SpawnMeteorClientRpc(_meteorSpawnPos, _currentSO.meteorMaxSpawnMeteor);
     }
 
@@ -118,13 +118,13 @@ public class LunaticMapGimmick : EventTask
         Debug.Log($"{name} : {_meteorSpawnPos.Length}");
         for (int i = 0; i < _meteorSpawnPos.Length; i++)
         {
-            Debug.Log($"[{name}] {i} 번째 메테오 소환 준비");
+            Debug.Log($"[LunaticMapGimmick] [{name}] {i} 번째 메테오 소환 준비");
             _particles[i].transform.position = _meteorSpawnPos[i];
 
             if (Physics.Raycast(_particles[i].transform.position, _particles[i].transform.up * -1, out RaycastHit hit, 330))
             {
                 Vector3 point = hit.point;
-                Debug.Log($"[{hit.transform.name}] 대상 위치 : {point}");
+                Debug.Log($"[LunaticMapGimmick] [{hit.transform.name}] 대상 위치 : {point}");
 
 
                 //emitParams.position = new Vector3(Random.Range(_minHorizontalRange,_maxHorizontalRange),0,Random.Range(_minVerticalRange,_maxVerticalRange));
@@ -133,14 +133,14 @@ public class LunaticMapGimmick : EventTask
                 _particles[i].Emit(_emitParams[i], 1);
                 StartCoroutine(Waiter((point - _meteorSpawnPos[i]).magnitude / _emitParams[i].velocity.magnitude, point));
 
-                Debug.Log($"[{name}] {i} 번째 메테오 소환 성공");
+                Debug.Log($"[LunaticMapGimmick] [{name}] {i} 번째 메테오 소환 성공");
             }
         }
     }
 
     private IEnumerator Waiter(float targetTime, Vector3 point)
     {
-        Debug.Log($"시간 시작 됌 / {targetTime}");
+        Debug.Log($"[LunaticMapGimmick] 시간 시작 됌 / {targetTime}");
         float _startTime = Time.time;
         float _currentTime = 0;
         while (_currentTime < targetTime)
@@ -166,22 +166,30 @@ public class LunaticMapGimmick : EventTask
             0.001f,
             _targetObject);
 
-        Debug.Log($"적중 위치 기반 탐지 된 대상 : {count}");
+        Debug.Log($"[LunaticMapGimmick] 적중 위치 기반 탐지 된 대상 : {count}");
 
         if (count < 1 || _hitedTargets == null) return;
 
         for (int i = 0; i < count; i++)
         {
-            Debug.Log($"검출된 대상 : {_hitedTargets[i].collider.name}");
-            Debug.Log($"폭발 중심지에서 대상까지의 거리 : {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point)}");
+            var tc = _hitedTargets[i].collider.GetComponent<TankController>();
+            Debug.Log($"[LunaticMapGimmick] 검출된 대상 : {_hitedTargets[i].collider.name}");
+            
+            // 폭심지를 기준으로 콜라이더의 접촉부위 중 가장 가까운 지점과 거리 비교 후 피해량 측정
+            // 거리에 따라 피해를 다를 게 주기 위해(선형 보간 처리를 위해) Mathf.Lerp로 처리
+            var dmg = _currentSO.meteorDamage;
+            var dmgRange = _currentSO.meteorDamageRange;
+            var distance = Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point);
+            Debug.Log($"[LunaticMapGimmick] 폭발 중심지에서 대상까지의 거리 : {distance}");
+            (tc as IDamageableObject).TakeDamaged((int)Mathf.Lerp(dmg, dmg / 4, distance / dmgRange), self);
+            Debug.Log($"[LunaticMapGimmick] TakeDamage: {dmg} , {dmg / 4} , {distance / dmgRange}");
 
-            (_hitedTargets[i].collider.GetComponent<TankController>() as IDamageableObject)
-            .TakeDamaged(
-                    (int)Mathf.Lerp( // 거리에 따라 피해를 다를 게 주기 위해(선형 보간 처리를 위해) Mathf.Lerp로 처리
-                        100,
-                        (100 / 4),
-                        Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point) / 10),self); // 폭심지를 기준으로 콜라이더의 접촉부위 중 가장 가까운 지점과 거리 비교 후 피해량 측정
-            Debug.Log($"TakeDamage: {100} , {100 / 4} , {Vector3.Distance(_hitedTargets[i].collider.ClosestPoint(point), point) / 5}");
+            // 폭심기 기준 폭발시 물리 동작
+            var ep = _currentSO.meteorExplosionPower;
+            var es = _currentSO.meteorExplosionSize;
+            var eu = _currentSO.meteorExplosionUpper;
+            tc.ImpactPhysicClientRpc(ep, point, es, eu);
+            Debug.Log($"[LunaticMapGimmick] ImpactPhysic: {ep} , {es} , {eu}");
         }
     }
 

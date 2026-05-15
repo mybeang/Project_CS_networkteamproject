@@ -9,6 +9,10 @@ public class MeteorSO : ScriptableObject
     public int meteorMaxSpawnMeteor;
     public int meteorDropSpeed;
 
+    [Header("UX")] 
+    public float meteorExplosionPower;
+    public float meteorExplosionUpper;
+    
     [Header("빛 크기")]
     public Vector3 meteorSize3D;
 
@@ -31,6 +35,29 @@ public class MeteorSO : ScriptableObject
     public int upPerMeteorDamageRange;
     public int upPerMeteorMaxSpawnMeteor;
 
+    public MeteorSO(MeteorSO so)
+    {
+        meteorDamage = so.meteorDamage;
+        meteorDamageRange = so.meteorDamageRange;
+        meteorMaxSpawnMeteor = so.meteorMaxSpawnMeteor;
+        meteorDropSpeed = so.meteorDropSpeed;
+        
+        meteorSize3D = so.meteorSize3D;
+        meteorFireTailSize = so.meteorFireTailSize;
+        meteorWindSize = so.meteorWindSize;
+
+        meteorExplosionSize = so.meteorExplosionSize;
+        
+        meteorMaxHorizontalRange = so.meteorMaxHorizontalRange;
+        meteorMinHorizontalRange = so.meteorMinHorizontalRange;
+        meteorMaxVerticalRange = so.meteorMaxVerticalRange;
+        meteorMinVerticalRange = so.meteorMinVerticalRange;
+        
+        upPerMeteorDamage = so.upPerMeteorDamage;
+        upPerMeteorDamageRange = so.upPerMeteorDamageRange;
+        upPerMeteorMaxSpawnMeteor = so.upPerMeteorMaxSpawnMeteor;
+    }
+    
     public MeteorSO UpMeteor(MeteorSO so, int stage)
     {
         so.meteorDamage = meteorDamage + upPerMeteorDamage * stage;
