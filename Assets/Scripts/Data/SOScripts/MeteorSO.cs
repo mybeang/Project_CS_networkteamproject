@@ -1,0 +1,68 @@
+﻿using UnityEngine;
+
+[CreateAssetMenu(fileName = "Meteor", menuName = "Scriptable Objects/MeteorSO")]
+public class MeteorSO : ScriptableObject
+{
+    [Header("기본 수치")]
+    public int meteorDamage;
+    public int meteorDamageRange;
+    public int meteorMaxSpawnMeteor;
+    public int meteorDropSpeed;
+
+    [Header("UX")] 
+    public float meteorExplosionPower;
+    public float meteorExplosionUpper;
+    
+    [Header("빛 크기")]
+    public Vector3 meteorSize3D;
+
+    [Header("꼬리 화염")]
+    public float meteorFireTailSize;
+
+    [Header("바람 크기")]
+    public Vector3 meteorWindSize;
+    [Header("폭발 크기")]
+    public float meteorExplosionSize;
+
+    [Header("소환 가능 범위")]
+    public int meteorMaxHorizontalRange;
+    public int meteorMinHorizontalRange;
+    public int meteorMaxVerticalRange;
+    public int meteorMinVerticalRange;
+
+    [Header("1업 당 증가 수치")]
+    public int upPerMeteorDamage;
+    public int upPerMeteorDamageRange;
+    public int upPerMeteorMaxSpawnMeteor;
+
+    public MeteorSO(MeteorSO so)
+    {
+        meteorDamage = so.meteorDamage;
+        meteorDamageRange = so.meteorDamageRange;
+        meteorMaxSpawnMeteor = so.meteorMaxSpawnMeteor;
+        meteorDropSpeed = so.meteorDropSpeed;
+        
+        meteorSize3D = so.meteorSize3D;
+        meteorFireTailSize = so.meteorFireTailSize;
+        meteorWindSize = so.meteorWindSize;
+
+        meteorExplosionSize = so.meteorExplosionSize;
+        
+        meteorMaxHorizontalRange = so.meteorMaxHorizontalRange;
+        meteorMinHorizontalRange = so.meteorMinHorizontalRange;
+        meteorMaxVerticalRange = so.meteorMaxVerticalRange;
+        meteorMinVerticalRange = so.meteorMinVerticalRange;
+        
+        upPerMeteorDamage = so.upPerMeteorDamage;
+        upPerMeteorDamageRange = so.upPerMeteorDamageRange;
+        upPerMeteorMaxSpawnMeteor = so.upPerMeteorMaxSpawnMeteor;
+    }
+    
+    public MeteorSO UpMeteor(MeteorSO so, int stage)
+    {
+        so.meteorDamage = meteorDamage + upPerMeteorDamage * stage;
+        so.meteorDamageRange = meteorDamageRange + upPerMeteorDamageRange * stage;
+        so.meteorMaxSpawnMeteor = meteorMaxSpawnMeteor + upPerMeteorMaxSpawnMeteor * stage;
+        return so;
+    }
+}

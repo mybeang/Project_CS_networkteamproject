@@ -1,24 +1,37 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class AudioManager : Manager<AudioManager>, IAudioService
+
+[Serializable]
+public class SfxData
+{
+    public SfxEnum sfxEnum;
+    public AudioClip clip;
+}
+
+public class AudioManager : NetworkManager<AudioManager>, IAudioService
 {
     [SerializeField] private AudioSource _bgmSource;
     [SerializeField] private AudioSource _sfxSource;
     [SerializeField] private AudioClip _btSound;
     [SerializeField] private List<AudioClip> _mapBgmClips;
     [SerializeField] private AudioClip _mainBgmClips;
-        
+    [SerializeField] private List<SfxData> _sfxBgmClips = new();
+    
+    private Dictionary<PlayerTeamEnum, AudioSource> _playerSfxClips = new();
+    
     private void OnEnable() => Register();
     private void OnDisable() => Unregister();
     
     protected override void Register() => ServiceLocator.Register<IAudioService>(this);
-    protected override void Unregister() => ServiceLocator.Unregister<IAudioService>();
+    protected override void Unregister() => ServiceLocator.Unregister<IAudioService>(this);
 
     protected override void Init()
     {
-        _bgmSource.volume = 0.5f;
-        _sfxSource.volume = 0.5f;
+        _bgmSource.volume = 0.3f;
+        _sfxSource.volume = 1f;
     }
 
     public void PlayMainBGM()
@@ -55,7 +68,75 @@ public class AudioManager : Manager<AudioManager>, IAudioService
 
     public void PlayStopSfx() => _sfxSource.Stop();
     public float GetSfxVolume() => _sfxSource.volume;
-    public void SetSfxVolume(float volume) => _sfxSource.volume = volume;
-    
+    public void SetSfxVolume(float volume)
+    {
+        _sfxSource.volume = volume;
+        foreach (var ad in _playerSfxClips.Values)
+            ad.volume = volume;
+    }
+
     public void PlayButtonSfx() => _sfxSource.PlayOneShot(_btSound);
+    public void InitData()
+    {
+        _playerSfxClips.Clear();
+    }
+
+    public void AddAudioSource(PlayerTeamEnum team, AudioSource audioSource)
+    {
+        audioSource.volume = _sfxSource.volume;
+        _playerSfxClips[team] = audioSource; // 새로 생성되면 audiosource 도 바뀌는 듯.
+    }
+
+    public void RemoveAudioSource(PlayerTeamEnum team)
+    {
+        if (!_playerSfxClips.ContainsKey(team)) return;
+        _playerSfxClips.Remove(team);
+    }
+
+    private AudioClip FindSfxData(SfxEnum sfxEnum)
+    {
+        foreach (SfxData sd in _sfxBgmClips)
+        {
+            if (sd.sfxEnum == sfxEnum) return sd.clip;
+        }
+        return null;
+    }
+    
+    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    public void PlayOneShotSfxClientRpc(PlayerTeamEnum team, SfxEnum sfxEnum)
+    {
+        Debug.Log($"[AudioManager] PlayOneShotSfxClientRpc - {team}:{sfxEnum}");
+        var clip = FindSfxData(sfxEnum);
+        if (clip != null && _playerSfxClips.TryGetValue(team, out var audioSource))
+        {
+            audioSource.volume = _sfxSource.volume;
+            audioSource.PlayOneShot(clip);
+            Debug.Log($"[AudioManager] PlayOneShotSfxClientRpc - clip: {clip.name}");
+        }
+    }
+
+    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    public void PlaySfxClientRpc(PlayerTeamEnum team, SfxEnum sfxEnum)
+    {
+        Debug.Log($"[AudioManager] PlaySfxClientRpc - {team}:{sfxEnum}");
+        var clip = FindSfxData(sfxEnum);
+        if (clip != null && _playerSfxClips.TryGetValue(team, out var audioSource))
+        {
+            audioSource.volume = _sfxSource.volume;
+            audioSource.clip = clip;
+            audioSource.Play();
+            Debug.Log($"[AudioManager] PlaySfxClientRpc - clip: {clip.name}");
+        }
+    }
+
+    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    public void PlayStopSfxClientRpc(PlayerTeamEnum team)
+    {
+        Debug.Log($"[AudioManager] PlayStopClientRpc - {team}");
+        if (_playerSfxClips.TryGetValue(team, out var audioSource))
+        {
+            audioSource.Stop();
+            Debug.Log($"[AudioManager] PlayStopClientRpc - Stop!");
+        }
+    }
 }

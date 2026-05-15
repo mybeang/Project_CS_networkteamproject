@@ -22,6 +22,8 @@ MonoBehaviour:
   _turretMaximumElevationAngle: 50
   _projectileDamage: 100
   _projectileFlightSpeed: 1
-  _projectileMaximumDamageRange: 5
-  _projectileMaximumDinstance: 30
+  _projectileMaximumDamageRange: 3.5
+  _projectileMaximumDinstance: 60
+  projectileExplosionPower: 250
+  projectileExplosionUpper: 0.1
   _vechicleName: "\uBA4B\uC788\uB294 \uC804\uCC28"

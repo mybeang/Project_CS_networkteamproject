@@ -43,6 +43,12 @@ public class LobbyRoomRoleUI : MonoBehaviour
         if (_userId.text != "") return false;
         Debug.Log($"[LobbyRoomTeamUI] Update Data ... r:{_playerRole} | t:{_teamNumber}");        
         var lobby = ServiceLocator.Get<ILobbyManager>();
+        var isMine = lobby.GetMyPlayerData();
+        if (isMine[LobbyPlayerDataKey.READY] == "true") // 이미 준비했다면
+        {
+            Debug.Log("[LobbyRoomTeamUI] isAlready");
+            return false;
+        }
         List<(string key, string value)> updateData = new ();
         updateData.Add((LobbyPlayerDataKey.TEAM, $"{_teamNumber}"));
         updateData.Add((LobbyPlayerDataKey.ROLE, $"{_playerRole}"));

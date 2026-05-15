@@ -24,7 +24,7 @@ public class MapManager : NetworkManager<MapManager>, IMapManager
     private NetworkVariable<Vector3> _team4Pos = new(writePerm: NetworkVariableWritePermission.Owner);
     
     protected override void Register() => ServiceLocator.Register<IMapManager>(this);
-    protected override void Unregister() => ServiceLocator.Unregister<IMapManager>();
+    protected override void Unregister() => ServiceLocator.Unregister<IMapManager>(this);
 
     public void SelectMap(int mapId)
     {

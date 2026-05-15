@@ -1,8 +1,9 @@
 ﻿using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public abstract class Driver_UI : MonoBehaviour
+public abstract class Driver_UI : NetworkBehaviour
 {
     #region Show_in_Inspecter
     [Header("시야 관련")]
@@ -15,7 +16,7 @@ public abstract class Driver_UI : MonoBehaviour
     [SerializeField][Tooltip("보여지는 부분의 위치 조정")] protected Vector2 _viewOffset;
 
     [Header("단순 쓰기용")]
-    [SerializeField][Tooltip("타이머 TMP 등록")] private TextMeshProUGUI _timer;
+    [SerializeField][Tooltip("타이머 TMP 등록")] protected TextMeshProUGUI _timer;
     [SerializeField][Tooltip("체력 바")] protected Slider _hpSlider;
     [SerializeField][Tooltip("킬로그 표시용 TMP")] protected TextMeshProUGUI _killLog;
     [SerializeField] protected GameObject _scoreBoad;

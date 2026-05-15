@@ -15,4 +15,12 @@ public interface IAudioService
     public float GetSfxVolume();
     public void SetSfxVolume(float volume);
     public void PlayButtonSfx();
+    
+    // TankSFX
+    public void InitData();
+    public void AddAudioSource(PlayerTeamEnum team, AudioSource audioSource);
+    public void RemoveAudioSource(PlayerTeamEnum team);
+    public void PlayOneShotSfxClientRpc(PlayerTeamEnum team, SfxEnum sfxEnum);
+    public void PlaySfxClientRpc(PlayerTeamEnum team, SfxEnum sfxEnum);
+    public void PlayStopSfxClientRpc(PlayerTeamEnum team);
 }

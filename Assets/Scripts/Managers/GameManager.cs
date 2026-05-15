@@ -57,7 +57,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     private NetworkVariable<int> _team2RespawnTime = new ();
     private NetworkVariable<int> _team3RespawnTime = new ();
     private NetworkVariable<int> _team4RespawnTime = new ();
-    private NetworkVariable<double> _remainingTime = new();
+    private NetworkVariable<double> _elapsedTime = new();
     #endregion
 
     #region ActionFuntion
@@ -75,7 +75,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     /// <summary>
     /// 스코어가 바뀔 경우 Invoke해줄 함수.
     /// </summary>
-    public event Action<int[]> OnChangeScore;
+    public event Action<string> OnChangeScore;
     #endregion
 
     private void Awake()
@@ -107,7 +107,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     {
         ServiceLocator.Register<IGameManager>(this);
     }
-    protected override void Unregister() => ServiceLocator.Unregister<IGameManager>();
+    protected override void Unregister() => ServiceLocator.Unregister<IGameManager>(this);
     
     public void AddEventSchedule(EventScheduleManager eventSchedulemanager)
     {
@@ -123,25 +123,24 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     IEnumerator Timer()
     {
         _startTime = NetworkManager.Singleton.ServerTime.Time;
-        _remainingTime.Value = 0;
+        _elapsedTime.Value = 0;
         Debug.Log("[GameManager] Game Start ... Starting Timer");
-        while (_remainingTime.Value <= _gamePlayableTime)
+        while (_elapsedTime.Value <= _gamePlayableTime)
         {
-            _remainingTime.Value = NetworkManager.Singleton.ServerTime.Time - _startTime;
-            OnChangeTime?.Invoke((int)(_gamePlayableTime - _remainingTime.Value));
+            _elapsedTime.Value = NetworkManager.Singleton.ServerTime.Time - _startTime;
             if (IsServer && _eventScheduleManager != null)
             {
-                if (_eventCounter < _eventTimer.Length &&_eventTimer[_eventCounter] <= _remainingTime.Value)
+                if (_eventCounter < _eventTimer.Length &&_eventTimer[_eventCounter] <= _elapsedTime.Value)
                 {
                     if (_eventEndTimer != null && _eventCounter < _eventEndTimer.Length)
                         _isEventEndTimer = true;
-                    Debug.Log($"[GameManager] Catch Event ec:{_eventCounter} et:{_eventTimer[_eventCounter]} el{_remainingTime.Value}");
+                    Debug.Log($"[GameManager] Catch Event ec:{_eventCounter} et:{_eventTimer[_eventCounter]} el{_elapsedTime.Value}");
                     _eventScheduleManager.OnEventSpawn();
                     _eventCounter++;
                 }
-                else if (_isEventEndTimer && _eventEndTimer != null && _eventEndTimer[_eventCounter - 1] <= _remainingTime.Value)
+                else if (_isEventEndTimer && _eventEndTimer != null && _eventEndTimer[_eventCounter - 1] <= _elapsedTime.Value)
                 {
-                    Debug.Log($"[GameManager] Release Event ec:{_eventCounter} et:{_eventEndTimer[_eventCounter - 1]} el{_remainingTime.Value}");
+                    Debug.Log($"[GameManager] Release Event ec:{_eventCounter} et:{_eventEndTimer[_eventCounter - 1]} el{_elapsedTime.Value}");
                     _isEventEndTimer = false;
                     _eventScheduleManager.OnEventDespawn();
                 }
@@ -152,7 +151,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     }
 
     public void SetData(TeamInfo[] teams, in string roomID, int mapNumber)
-    {
+    {   // Lobby 로 부터 데이터를 받는 함수
         _teams = teams;
         _roomId = roomID;
         _mapNumber = mapNumber;
@@ -192,10 +191,9 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
     
     public void StartGame()
     {
-        Debug.Log($"[GameManager] Start Game at {name}"); 
-        
+        Debug.Log($"[GameManager] Start Game at {name}");
         ServiceLocator.Get<IMapManager>().SelectMap(_mapNumber);
-        if (IsServer) _gameState.Value = 0;
+        if (IsServer) _gameState.Value = GameState.Init;
         try
         {
             StartCoroutine(GameStateMachineCoroutine());
@@ -207,15 +205,11 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         }
     }
 
+    // --------------------------------
     /// <summary>
-    /// State 변경을 모든 Host 및 Client 가 작업 완료시에 변경하는 것이 좋을 것 같은데, 아이디어가 딱히 떠오르지가 않음 ㅠㅠ
-    /// stateNum : Desc  
-    ///        0 : Start
-    ///        1 : ResetGameData
-    ///        2 : InstantiateVeichle
-    ///        3 : SetOtherDataForGame
-    ///        4 : Finish
+    /// Game State 관리
     /// </summary>
+    /// <returns></returns>
     private IEnumerator GameStateMachineCoroutine()
     {
         while (true)
@@ -225,6 +219,9 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             switch (_gameState.Value)
             {
                 case GameState.Init:
+                    var loadingUIActive = ServiceLocator.Get<IInGameCommonUIController>();
+                    if (loadingUIActive != null) loadingUIActive.SetLoadingUIActive(true);
+                    PrintServiceLocator();
                     if (IsServer) _gameState.Value = GameState.ResetGameData;
                     break;
                 case GameState.ResetGameData:
@@ -236,6 +233,9 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 case GameState.SetOtherDataForGame:
                     SetOtherDataForGame();
                     break;
+                case GameState.ReadyDone:
+                    ReadyDone();
+                    break;
                 case GameState.GameEnd:
                     GameEnd();
                     yield break;
@@ -244,21 +244,11 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             }
         }
     }
-
-    private void SetOtherDataForGame()
-    {
-        Debug.Log("[GameManager] Set Other Data For Game ... ");
-        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
-        _voiceChannelName = VoiceChannelFormat(userInfo.teamNum);
-        ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel(_voiceChannelName);
-        ServiceLocator.Get<IAudioService>().PlayBGM(_mapNumber);
-        Debug.Log("[GameManager] Set Other Data For Game ... Done ");
-        if (IsServer) _gameState.Value = GameState.DoNothing;
-    }
     
     private void ResetGameData()
     {
         Debug.Log("[GameManager] Reset Game Data ... ");
+        ServiceLocator.Get<IAudioService>().InitData();
         if (!IsServer)
         {
             Debug.Log("[GameManager] Reset Game Data ... SKIP");
@@ -308,6 +298,28 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         _gameState.Value = GameState.SetOtherDataForGame;
     }
 
+    private void SetOtherDataForGame()
+    {
+        Debug.Log("[GameManager] Set Other Data For Game ... ");
+        var userInfo = ServiceLocator.Get<IUserInfoManager>().GetUserInfo();
+        _voiceChannelName = VoiceChannelFormat(userInfo.teamNum);
+        ServiceLocator.Get<IVoiceManager>()?.OnJoinVoiceChannel(_voiceChannelName);
+        ServiceLocator.Get<IAudioService>().PlayBGM(_mapNumber);
+        string scoreStringData = $"{_team1Score.Value},{_team2Score.Value},{_team3Score.Value},{_team4Score.Value}";
+        OnChangeScore?.Invoke(scoreStringData);
+        Debug.Log("[GameManager] Set Other Data For Game ... Done ");
+        if (IsServer) _gameState.Value = GameState.ReadyDone;
+    }
+
+    private void ReadyDone()
+    {
+        Debug.Log("[GameManager] ReadyDone ... ");
+        ServiceLocator.Get<IInGameCommonUIController>().SetLoadingUIActive(false);
+        if (IsServer) _gameState.Value = GameState.DoNothing;
+        Debug.Log("[GameManager] ReadyDone ... Enjoy Game !!");
+    }
+    // --------------------------------
+    
     /// <summary>
     /// 체력이 0 이하가 되어 파괴 판정이 된 경우 호출
     /// 체력이 0인 경우 호출 방법 :  myTeam(자신)이 enemy(적)에게 파괴되었습니다.
@@ -343,7 +355,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 _team4Score.Value += 1;
                 break;
         }
-        OnChangeScore?.Invoke(new int[4] {_team1Score.Value, _team2Score.Value, _team3Score.Value, _team4Score.Value});
+        string scoreStringData = $"{_team1Score.Value},{_team2Score.Value},{_team3Score.Value},{_team4Score.Value}";
+        OnChangeScore?.Invoke(scoreStringData);
     
         // 킬로그 호출
         OnKillLog?.Invoke(myTeam, enemy);
@@ -397,6 +410,8 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
         Debug.Log($"[GameManager] RespawnCoroutine ; {bodyObject.name}'s team: {team}");
         tc.SetDataClientRpc(team, respawnPos);
         _triggerTimerCoroutines[team] = null; // 팀별로 있어야되.
+        string scoreStringData = $"{_team1Score.Value},{_team2Score.Value},{_team3Score.Value},{_team4Score.Value}";
+        OnChangeScore?.Invoke(scoreStringData);
         RespawnUIControl(team, false);
     }
 
@@ -437,10 +452,22 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
                 break;
         }
     }
-    
+
+    public void AddTimerHandler(NetworkVariable<double>.OnValueChangedDelegate callback)
+    {
+        Debug.Log("[GameManager] AddTimerHandler ... ");
+        _elapsedTime.OnValueChanged += callback;
+    }
+
+    public void RemoveTimerHandler(NetworkVariable<double>.OnValueChangedDelegate callback)
+    {
+        Debug.Log("[GameManager] RemoveTimerHandler ... ");
+        _elapsedTime.OnValueChanged -= callback;
+    }
+
     private void RespawnUIControl(PlayerTeamEnum teamEnum, bool enable)
     {
-        ServiceLocator.Get<IRespawnUIController>().SetActive(teamEnum, enable);
+        ServiceLocator.Get<IInGameCommonUIController>().SetRespawnUIActive(teamEnum, enable);
     }
 
     private void GameEnd()
@@ -479,7 +506,7 @@ public class GameManager : NetworkManager<GameManager>, IGameManager
             Debug.Log($"[GameManager] GameEnd ... {team.teamNum} end process");
             if (IsServer)
             {
-                _managementObject[team.teamNum].GetComponent<TankController>().GameEndProcessClientRpc();
+                _managementObject[team.teamNum].GetComponent<TankController>().GameEndProcess();
             }
             
             switch (team.teamNum)

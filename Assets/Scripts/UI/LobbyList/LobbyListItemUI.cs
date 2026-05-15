@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Firebase.Extensions;
 using TMPro;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
@@ -14,14 +15,15 @@ public class LobbyListItemUI : MonoBehaviour
 
     private string _roomId;
     public string RoomId => _roomId;
-    public bool IsSelected => _toggle.isOn;
+    // public bool IsSelected => _toggle.isOn;
 
     private void OnEnable() => _clickButton.onClick.AddListener(OnClicked);
     private void OnDisable() => _clickButton.onClick.RemoveListener(OnClicked);
     private void OnClicked()
     {
         Debug.Log($"[{gameObject.name}] Clicked !!");
-        _toggle.isOn = !_toggle.isOn;
+        // _toggle.isOn = !_toggle.isOn;
+        OnJoinRoom();
     }
 
     public void SetData(Lobby lobby)
@@ -39,5 +41,18 @@ public class LobbyListItemUI : MonoBehaviour
             if (hostId == player.Id) return player.Data[LobbyPlayerDataKey.USER_ID].Value;
         }
         return "";
+    }
+    
+    private void OnJoinRoom()
+    {
+        ServiceLocator.Get<IAudioService>().PlayButtonSfx();
+        ServiceLocator.Get<ILobbyManager>().JoinRoom(RoomId).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCompleted)
+            {
+                ServiceLocator.Get<ILocalSceneLoader>().LoadScene("LobbyRoom");
+            }
+        });
+        return;
     }
 }

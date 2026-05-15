@@ -1,43 +1,34 @@
 ﻿using System;
+using System.Collections.Generic;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
-public class ScoreboardController : MonoBehaviour
+public class ScoreboardController : NetworkBehaviour
 {
-    [SerializeField] Canvas _scoreBoard;
     [SerializeField] TextMeshProUGUI _team1;
     [SerializeField] TextMeshProUGUI _team2;
     [SerializeField] TextMeshProUGUI _team3;
     [SerializeField] TextMeshProUGUI _team4;
 
-    private int _team1score;
-    private int _team2score;
-    private int _team3score;
-    private int _team4score;
-
-    private void Start() => ServiceLocator.Get<IGameManager>().OnChangeScore += ScoreListener;
-    private void OnDestroy() => ServiceLocator.Get<IGameManager>().OnChangeScore -= ScoreListener;
-
-    private void ScoreListener(int[] score)
+    private void Start()
     {
-        _team1score = score[0];
-        _team2score = score[1];
-        _team3score = score[2];
-        _team4score = score[3];
+        ServiceLocator.Get<IGameManager>().OnChangeScore += ScoreListenerClientRpc;
     }
 
-    public void OnScoreBoardEnable()
-    {
-        _scoreBoard.gameObject.SetActive(true);
-        _team1.text = _team1score.ToString();
-        _team2.text = _team2score.ToString();
-        _team3.text = _team3score.ToString();
-        _team4.text = _team4score.ToString();
-    }
+    private void OnDestroy() => ServiceLocator.Get<IGameManager>().OnChangeScore -= ScoreListenerClientRpc;
 
-    public void OnScoreBoardDisable()
+    [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
+    private void ScoreListenerClientRpc(string scoreStringData)
     {
-        _scoreBoard.gameObject.SetActive(false);
+        Debug.Log($"[ScoreboardController] [{name}] {scoreStringData}");
+        int[] score = new int [4];
+        for (int i = 0; i < score.Length; i++)
+            score[i] = int.Parse(scoreStringData.Split(',')[i]);
+        
+        _team1.text = score[0].ToString();
+        _team2.text = score[1].ToString();
+        _team3.text = score[2].ToString();
+        _team4.text = score[3].ToString();
     }
-
 }

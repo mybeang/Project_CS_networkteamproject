@@ -25,7 +25,7 @@ public class RelayHostManager : Manager<RelayHostManager>, IRelayHostManager
     protected override void Unregister()
     {
         NetworkManager.Singleton.OnClientDisconnectCallback -= HostDisconnected;
-        ServiceLocator.Unregister<IRelayHostManager>();
+        ServiceLocator.Unregister<IRelayHostManager>(this);
     }
 
     private async Task<string> StartHostWithRelayAsync(int maxConnections = 7)
