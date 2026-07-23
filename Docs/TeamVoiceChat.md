@@ -41,6 +41,16 @@
 
 ## 4. 핵심 흐름
 
+음성 수명은 게임 수명을 따른다 — 인게임 진입에 붙고 종료에 뗀다. 접속은 초기화→로그인→팀 채널 참가로 이어지며, 채널명(`roomId_teamNum`)이 팀 격리 기준이다.
+
+```mermaid
+flowchart LR
+    A["인게임 진입<br/>SetOtherDataForGame"] --> B["초기화 → 로그인<br/>(상태 가드로 멱등)"]
+    B --> C["팀 채널 참가 + 볼륨 적용<br/>채널명 = roomId_teamNum · AudioOnly"]
+    C --> D["게임 종료<br/>GameEnd"]
+    D --> E["채널 이탈 → 로그아웃"]
+```
+
 ### 4-1. 채널 격리 — 이름 규칙이 곧 팀 경계
 
 ```csharp

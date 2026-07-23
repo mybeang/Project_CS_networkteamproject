@@ -34,6 +34,7 @@
 | [`ProjectileDamage.md`](./ProjectileDamage.md) | 투사체·데미지 판정 — 히트스캔(Raycast)+비행 지연+서버 SphereCast 거리 감쇠 |
 | [`RespawnScore.md`](./RespawnScore.md) | 리스폰·스코어 — 파괴 1건을 리스폰+점수+킬로그로 서버 원자 처리 |
 | [`MapEventScheduler.md`](./MapEventScheduler.md) | 맵 돌발 이벤트 스케줄러 — ServerTime 기준 스케줄과 EventTask(Template Method) 내용 분리 |
+| [`SpatialAudio.md`](./SpatialAudio.md) | 3D 공간 사운드·AudioSource 관리 — 탱크별 소스 + 착탄점 이동형 방출체(TargetRabbit) |
 
 ## D. 데이터 · 백엔드
 

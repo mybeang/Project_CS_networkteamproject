@@ -149,6 +149,24 @@ return snapshot.Exists;   // 존재하면 중복
 
 > 유저 등록을 `users/{userId} = true` 단순 플래그로 두고, 스냅샷 존재 여부만으로 중복을 판정한다. 별도 스키마 없이 경로 존재 자체를 데이터로 활용하는 Realtime DB다운 접근.
 
+### 6-4. DB 변경 구독 → 자기 로컬 상태 갱신 (ValueChanged)
+
+```csharp
+// 구독: 경로에 ValueChanged 핸들러 연결 (DatabaseBackend)
+public void RegisterMapNumberValueChangedHandler(string roomId, EventHandler<ValueChangedEventArgs> callback)
+    => _db.RootReference.Child($"{ChildKey.ROOMS}/{roomId}/{ChildKey.MAPNUM}").ValueChanged += callback;
+
+// 소비: DB 값이 바뀌면 스냅샷을 읽어 자기 상태를 갱신 (LobbyRoomUIController)
+private void GetMapNumberFromDB(object sender, ValueChangedEventArgs args)
+{
+    if (args.DatabaseError != null) return;
+    if (args.Snapshot.Exists && int.TryParse(args.Snapshot.Value.ToString(), out int result))
+        SelectedMapNumber = result;   // 방장 변경 → 각 클라가 자기 맵 상태를 맞춤
+}
+```
+
+> 방장이 맵을 바꿔 `mapNumber`가 변하면, 구독한 전 참가자의 핸들러가 발화해 *각자 자기 로컬 상태*(`SelectedMapNumber`)를 갱신한다. 폴링 없이 원격 변경을 받아 자기 것을 맞추는 관찰자 소비의 실제 지점이다. 여기선 스냅샷을 `Value.ToString()` → `int.TryParse`로 안전히 읽어, §8에서 지적한 `GetMapNumberAsync`의 `as string` 결함을 우회한다.
+
 ## 7. 기술 포인트
 
 - **정리 책임의 서버 위임** — `OnDisconnect`로 "끊기면 지워라"를 서버에 예약해, 클라의 종료 경로에 의존하지 않고 유령 데이터를 막는다. 분산 환경에서 가장 다루기 어려운 *비정상 종료 정리*를 인프라 기능으로 해결한 핵심 설계.
