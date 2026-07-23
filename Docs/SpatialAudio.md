@@ -24,6 +24,7 @@
 | 방향·거리감 있는 사운드 | 월드 공간에 AudioSource 배치(리스너 기준 3D 재생) |
 | 탱크별 소리 분리 | 팀→소스 딕셔너리 `_playerSfxClips`로 라우팅 |
 | 폭발음을 착탄 지점에서 | `TargetRabbit`을 명중 지점으로 이동 후 재생 |
+| **적이 아닌 곳에 맞아도 착탄음** | 대상의 소스가 아니라 **이동형 방출체**로 재생 — 지형·벽 등 AudioSource 없는 표면도 소리 남 |
 | 오디오 오브젝트 재사용 | 단일 `TargetRabbit`을 순간이동(풀링 유사) |
 | 소리 사건 전원 공유 | `ServerRpc → ClientRpc(Everyone)` 팬아웃 |
 | 볼륨 일괄 제어 | `SetSfxVolume`이 모든 팀 소스에 전파 |
@@ -84,23 +85,23 @@ public void PlaySfxClientRpc(PlayerTeamEnum team, SfxEnum sfxEnum) {
 
 > 발사·이동음은 `ServerRpc → ClientRpc`로 전 클라에 퍼지되, 각 클라에서 `_playerSfxClips[team]` 소스로만 재생된다. 소리가 그 팀 탱크에서 나므로 방향이 맞고, 다른 팀 소리와 섞이지 않는다([`NetcodeSyncPatterns`](./NetcodeSyncPatterns.md)의 수신자 필터링과 짝).
 
-### 4-4. 폭발음 — 방출체를 착탄 지점으로 옮겨 재생
+### 4-4. 폭발음 — 방출체를 착탄 지점으로 옮겨 재생 (대상이 적이 아니어도)
 
 ```csharp
 // ProjectileManager (서버 판정부)
-_targetRabbit.MyPosition = point;                       // ① 착탄 지점으로 순간이동
-StartCoroutine(TargetRabitBoomCoroutine(true, point));  // ② 폭발음·VFX 트리거
-
+private void DesignatDamageableGroundServerRpc(Vector3 point, PlayerTeamEnum self) {
+    _targetRabbit.MyPosition = point;                       // ① 착탄 지점으로 순간이동
+    StartCoroutine(TargetRabitBoomCoroutine(true, point));  // ② 폭발음·VFX 먼저 트리거
+    int count = Physics.SphereCastNonAlloc(point, ..., _damageableObject);
+    if (count < 1) return;                                  // ③ 피격 대상 0이어도 위 착탄음은 이미 남
+}
 // TargetRabbit
 public Vector3 MyPosition { set { transform.position = value; } }   // 위치 이동
 [ClientRpc(InvokePermission = RpcInvokePermission.Everyone)]
-private void PlaySoundClientRpc() {
-    _audioSource.volume = ServiceLocator.Get<IAudioService>().GetSfxVolume();
-    _audioSource.PlayOneShot(_boomSfx);                 // ③ 그 자리에서 3D 폭발음
-}
+private void PlaySoundClientRpc() => _audioSource.PlayOneShot(_boomSfx);   // 그 자리에서 3D 폭발음
 ```
 
-> [`ProjectileDamage`](./ProjectileDamage.md)의 히트스캔이 잡은 명중 좌표로 `TargetRabbit`을 옮긴 뒤 폭발음을 낸다. 폭발마다 오디오 오브젝트를 새로 만들지 않고, *하나의 방출체를 각 착탄점으로 순간이동*시켜 재사용한다. 소리가 실제 터진 곳에서 나 방향·거리감이 생긴다.
+> **이 방식을 채택한 핵심 이유가 여기 있다.** 포탄이 맞는 곳이 항상 적 탱크는 아니다 — `Shot()`의 Raycast는 레이어마스크 없이 첫 충돌 지점을 잡아 *지형·벽 같은 AudioSource 없는 표면*도 명중점이 된다. 만약 "맞은 대상의 소스"에서 소리를 냈다면 비-적 명중 시 아무 소리도 안 났을 것이다. 그래서 **어떤 좌표로든 갈 수 있는 이동형 방출체**를 두어, 착탄음을 대상 유무와 무관하게 그 지점에서 낸다. 실제로 폭발음(`TargetRabbit`)은 데미지 대상 검사(`count`)보다 **먼저** 트리거되므로, 아무도 안 맞아도 착탄 지점에서 소리가 울린다. 방출체 하나를 각 착탄점으로 순간이동시켜 재사용하는 것은 그 위에 얹은 비용 절감이다.
 
 ## 5. 클래스 구조 (Mermaid)
 
@@ -180,6 +181,7 @@ public void SetSfxVolume(float volume) {
 
 - **주체 위치 기반 3D 사운드** — 소리를 리스너에 몰지 않고 발생 주체(탱크·착탄점)의 월드 좌표에서 재생해 방향·거리감을 만든다. "누가 어디서 소리를 냈나"를 AudioSource 배치로 표현한 것이 핵심.
 - **정적/이동형 소스 이원화** — 지속 존재하는 탱크는 자기 소스를, 순간적으로 아무 데서나 터지는 폭발은 이동형 소스 하나가 그 자리로 가서 낸다. 서로 다른 사운드 수명을 두 방출체 유형으로 나눴다.
+- **"대상에 의존하지 않는 착탄음"이 채택 근거** — 포탄은 적뿐 아니라 지형·벽에도 맞으므로, 피격 *대상*의 AudioSource에 소리를 붙이면 비-적 명중 시 무음이 된다. 대상 유무와 무관하게 *착탄 좌표*에서 소리를 내야 한다는 요구가, 어떤 위치로든 이동하는 방출체(`TargetRabbit`)를 채택한 이유다. 착탄음이 데미지 판정보다 먼저 트리거되는 코드 순서가 이 의도를 그대로 반영한다.
 - **방출체 재사용** — 폭발마다 오디오 오브젝트를 스폰하지 않고 단일 `TargetRabbit`을 순간이동시킨다. [`RespawnScore`](./RespawnScore.md)의 오브젝트 재사용과 같은 결의 비용 절감.
 - **팀 라우팅 = 위치 선택** — 팀 키로 소스를 고르는 것이 곧 소리의 3D 위치를 고르는 것이다. 사운드 사건은 `ServerRpc → ClientRpc`로 동기화하되, 재생 소스는 수신 측에서 팀으로 라우팅한다([`NetcodeSyncPatterns`](./NetcodeSyncPatterns.md)).
 - **오디오 은닉과 단일 볼륨 제어** — 소스·재생 API를 `IAudioService` 뒤로 숨기고, 볼륨을 한 진입점에서 전 소스에 전파해 여러 3D 소스를 일관되게 다룬다.
